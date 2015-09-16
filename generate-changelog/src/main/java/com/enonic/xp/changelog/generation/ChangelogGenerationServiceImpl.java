@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -31,12 +34,27 @@ public class ChangelogGenerationServiceImpl
 
     private String generateChangelogContent( final Collection<YouTrackIssue> youTrackIssueCollection )
     {
-        StringBuilder changeLogContent = new StringBuilder( "# Changelog\n\n" );
+        StringBuilder changeLogContent = new StringBuilder( "# Changelog\n" );
 
-        youTrackIssueCollection.stream().
+        //Retrieves the root YouTrackIssues and group them by type
+        final Map<String, List<YouTrackIssue>> youTrackIssueByType = youTrackIssueCollection.stream().
             map( youTrackIssue -> findRootYouTrackIssue( youTrackIssue ) ).
             distinct().
-            forEach( youTrackIssue -> generateChangelogContent( changeLogContent, youTrackIssue, "" ) );
+            collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getField( YouTrackIssue.TYPE_FIELD_NAME ).toString() ) );
+
+        //For each type
+        youTrackIssueByType.keySet().
+            stream().
+            sorted().
+            forEach( type -> {
+                //Writes the category title
+                changeLogContent.append( "\n## " ).append( type ).append( "s\n" );
+
+                //Calls recursively the writing of the root YouTrackIssues and their children
+                youTrackIssueByType.get( type ).
+                    stream().
+                    forEach( youTrackIssue -> generateChangelogContent( changeLogContent, youTrackIssue, 0 ) );
+            } );
 
         LOGGER.debug( "Changelog content: " + changeLogContent );
         return changeLogContent.toString();
@@ -55,20 +73,28 @@ public class ChangelogGenerationServiceImpl
         }
     }
 
-    private void generateChangelogContent( final StringBuilder changeLogContent, final YouTrackIssue youTrackIssue, final String tab )
+    private void generateChangelogContent( final StringBuilder changeLogContent, final YouTrackIssue youTrackIssue, final int depth )
     {
-        changeLogContent.append( tab ).
-            append( "- " ).
-            append( youTrackIssue.getField( YouTrackIssue.TYPE_FIELD_NAME ) ).
-            append( " - " ).
+        for ( int i = 0; i < depth; i++ )
+        {
+            changeLogContent.append( "  " );
+        }
+
+        changeLogContent.append( " - " ).
             append( youTrackIssue.getField( YouTrackIssue.SUMMARY_FIELD_NAME ) ).
             append( " (" ).
-            append( youTrackIssue.getId() ).
-            append( ").\n" );
+            append( youTrackIssue.getId() );
+
+        if ( depth > 0 )
+        {
+            changeLogContent.append( ", " ).
+                append( youTrackIssue.getField( YouTrackIssue.TYPE_FIELD_NAME ) );
+        }
+        changeLogContent.append( ").\n" );
 
         youTrackIssue.getChildren().
             stream().
-            forEach( childYouTrackIssue -> generateChangelogContent( changeLogContent, childYouTrackIssue, tab + "  " ) );
+            forEach( childYouTrackIssue -> generateChangelogContent( changeLogContent, childYouTrackIssue, depth + 1 ) );
     }
 
     private void generateChangelogFile( final String changelogContent, final String since, final String until )
