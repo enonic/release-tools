@@ -1,1 +1,45 @@
-# generate-changelog
+# Generate-changelog
+
+Generate-changelog allows to generate the changelog of a Git repository between two versions.
+
+## Building
+
+Before trying to build the project, you need to verify that the following software are installed:
+
+* Java 8 (update 40 or above) for building and running.
+* Gradle 2.x build system.
+
+Build all code:
+
+    gradle installDist
+
+## Usage
+
+The script "generate-changelog" is generated in the sub-folder "build/install/generate-changelog/bin/"
+
+    NAME
+        generate-changelog - Generates the changelog
+
+    SYNOPSIS
+        generate-changelog [(-h | --help)] [--ignore-field-check]
+               -p <gitDirectoryPath> [-s <since>] [-u <until>]
+
+    OPTIONS
+        -h, --help
+            Display help information
+
+        --ignore-field-check
+            Ignore the YouTrack Changelog field check
+
+        -p <gitDirectoryPath>
+            Path of the Git repository
+
+        -s <since>
+            Since Git reference
+
+        -u <until>
+            Until Git reference
+
+Example
+
+    generate-changelog -p Workspace/git/xp/.git -s v6.0.0 -u 0624445611a32e8cbed6aa71f8ac15c5b7d9af1a
