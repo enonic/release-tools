@@ -1,6 +1,7 @@
 # Generate-changelog
 
-Generate-changelog allows to generate the changelog of a Git repository between two versions.
+This tools generates the changelog for a Git repository between two Git references.
+The changelog is based on the YouTrack IDs defined in the Git Rev Commits
 
 ## Building
 
