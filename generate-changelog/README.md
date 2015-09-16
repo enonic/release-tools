@@ -23,24 +23,28 @@ The script "generate-changelog" is generated in the sub-folder "build/install/ge
 
     SYNOPSIS
         generate-changelog [(-h | --help)] [--ignore-field-check]
-               -p <gitDirectoryPath> [-s <since>] [-u <until>]
+                [-p <gitDirectoryPath>] [-s <since>] [-u <until>]
 
     OPTIONS
         -h, --help
             Display help information
 
         --ignore-field-check
-            Ignore the YouTrack Changelog field check
+            Ignore the YouTrack Changelog field check.
 
         -p <gitDirectoryPath>
-            Path of the Git repository
+            Path of the Git repository (default value is .git).
 
         -s <since>
-            Since the provided Git reference
+            Since the provided Git reference.
 
         -u <until>
-            Until the provided Git reference
+            Until the provided Git reference.
 
 Example
 
     generate-changelog -p Workspace/git/xp/.git -s v6.0.0 -u 0624445611a32e8cbed6aa71f8ac15c5b7d9af1a
+
+## Output
+
+The tool generates a MD file "changelog[-[since]..[until]].md", in the current directory, listing the YouTrack issues contained in the Git commits

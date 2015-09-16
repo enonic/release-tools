@@ -32,16 +32,16 @@ public class GenerateChangelogCommand
     @Inject
     public HelpOption helpOption;
 
-    @Option(name = "-p", description = "Path of the Git repository", required = true)
-    public String gitDirectoryPath;
+    @Option(name = "-p", description = "Path of the Git repository (default value is .git).")
+    public String gitDirectoryPath = ".git";
 
-    @Option(name = "-s", description = "Since the provided Git reference")
+    @Option(name = "-s", description = "Since the provided Git reference.")
     public String since;
 
-    @Option(name = "-u", description = "Until the provided Git reference")
+    @Option(name = "-u", description = "Until the provided Git reference.")
     public String until;
 
-    @Option(name = "--ignore-field-check", description = "Ignore the YouTrack Changelog field check ")
+    @Option(name = "--ignore-field-check", description = "Ignore the YouTrack Changelog field check.")
     public boolean ignoreFieldCheck;
 
     private YouTrackService youTrackService;
