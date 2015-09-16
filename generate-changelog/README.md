@@ -35,10 +35,10 @@ The script "generate-changelog" is generated in the sub-folder "build/install/ge
             Path of the Git repository
 
         -s <since>
-            Since Git reference
+            Since the provided Git reference
 
         -u <until>
-            Until Git reference
+            Until the provided Git reference
 
 Example
 

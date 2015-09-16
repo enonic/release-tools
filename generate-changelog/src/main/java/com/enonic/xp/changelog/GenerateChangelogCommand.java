@@ -35,10 +35,10 @@ public class GenerateChangelogCommand
     @Option(name = "-p", description = "Path of the Git repository", required = true)
     public String gitDirectoryPath;
 
-    @Option(name = "-s", description = "Since")
+    @Option(name = "-s", description = "Since the provided Git reference")
     public String since;
 
-    @Option(name = "-u", description = "Until")
+    @Option(name = "-u", description = "Until the provided Git reference")
     public String until;
 
     @Option(name = "--ignore-field-check", description = "Ignore the YouTrack Changelog field check ")
@@ -73,7 +73,8 @@ public class GenerateChangelogCommand
         }
         catch ( Exception e )
         {
-            LOGGER.fatal( "Error while generating the change log: ", e );
+            LOGGER.fatal( "Error while generating the change log: " + e.getMessage() );
+            LOGGER.debug( "Error details: ", e );
         }
     }
 
