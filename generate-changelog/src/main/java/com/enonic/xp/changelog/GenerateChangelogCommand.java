@@ -6,9 +6,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.HelpOption;
@@ -27,7 +27,7 @@ import com.enonic.xp.changelog.youtrack.model.YouTrackIssue;
 @Command(name = "generate-changelog", description = "Generates the changelog")
 public class GenerateChangelogCommand
 {
-    private static final Logger LOGGER = LogManager.getLogger( GenerateChangelogCommand.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( GenerateChangelogCommand.class );
 
     @Inject
     public HelpOption helpOption;
@@ -73,7 +73,7 @@ public class GenerateChangelogCommand
         }
         catch ( Exception e )
         {
-            LOGGER.fatal( "Error while generating the change log: " + e.getMessage() );
+            LOGGER.error( "Error while generating the change log: " + e.getMessage() );
             LOGGER.debug( "Error details: ", e );
         }
     }

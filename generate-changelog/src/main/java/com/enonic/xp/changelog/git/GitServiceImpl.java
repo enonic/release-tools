@@ -7,8 +7,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -16,16 +14,15 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.enonic.xp.changelog.ChangelogException;
 
-/**
- * Created by gri on 15/09/15.
- */
 public class GitServiceImpl
     implements GitService
 {
-    private static final Logger LOGGER = LogManager.getLogger( GitServiceImpl.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( GitServiceImpl.class );
 
     private static final Pattern YOUTRACK_ID_PATTERN = Pattern.compile( "^(XP-[0-9]+) ", Pattern.CASE_INSENSITIVE );
 

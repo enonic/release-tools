@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
@@ -19,7 +19,7 @@ import com.enonic.xp.changelog.youtrack.model.YouTrackIssue;
 public class ChangelogGenerationServiceImpl
     implements ChangelogGenerationService
 {
-    private static final Logger LOGGER = LogManager.getLogger( ChangelogGenerationServiceImpl.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( ChangelogGenerationServiceImpl.class );
 
     @Override
     public void generateChangelog( final Collection<YouTrackIssue> youTrackIssueCollection, final String since, final String until )
@@ -43,15 +43,15 @@ public class ChangelogGenerationServiceImpl
             collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getField( YouTrackIssue.TYPE_FIELD_NAME ).toString() ) );
 
         //For each type
-        youTrackIssueByType.keySet().
+        youTrackIssueByType.entrySet().
             stream().
             sorted().
-            forEach( type -> {
+            forEach( youTrackIssueEntry -> {
                 //Writes the category title
-                changeLogContent.append( "\n## " ).append( type ).append( "s\n" );
+                changeLogContent.append( "\n## " ).append( youTrackIssueEntry.getKey() ).append( "s\n" );
 
                 //Calls recursively the writing of the root YouTrackIssues and their children
-                youTrackIssueByType.get( type ).
+                youTrackIssueEntry.getValue().
                     stream().
                     forEach( youTrackIssue -> generateChangelogContent( changeLogContent, youTrackIssue, 0 ) );
             } );

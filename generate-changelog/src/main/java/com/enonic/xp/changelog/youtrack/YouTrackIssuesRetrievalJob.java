@@ -14,8 +14,8 @@ import java.util.function.Predicate;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -29,7 +29,7 @@ import com.enonic.xp.changelog.youtrack.model.YouTrackIssueLinks;
 
 public class YouTrackIssuesRetrievalJob
 {
-    private static final Logger LOGGER = LogManager.getLogger( YouTrackIssuesRetrievalJob.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( YouTrackIssuesRetrievalJob.class );
 
     private static final String LOGIN = "sys_rest";
 
