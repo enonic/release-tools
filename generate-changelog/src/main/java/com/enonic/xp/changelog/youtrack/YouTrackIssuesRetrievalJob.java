@@ -6,10 +6,11 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -23,6 +24,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
+import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.youtrack.model.YouTrackIssue;
 import com.enonic.xp.changelog.youtrack.model.YouTrackIssueLink;
 import com.enonic.xp.changelog.youtrack.model.YouTrackIssueLinks;
@@ -39,7 +41,7 @@ public class YouTrackIssuesRetrievalJob
 
     private static final String SUBTASK_ROLE_NAME = "subtask of";
 
-    private final Collection<String> youTrackICollection;
+    private final Collection<GitCommit> gitCommits;
 
     private final Predicate<YouTrackIssue> filter;
 
@@ -47,9 +49,9 @@ public class YouTrackIssuesRetrievalJob
 
     private Map<String, YouTrackIssue> youTrackIssueMap;
 
-    public YouTrackIssuesRetrievalJob( final Collection<String> youTrackICollection, final Predicate<YouTrackIssue> filter )
+    public YouTrackIssuesRetrievalJob( final Collection<GitCommit> gitCommits, final Predicate<YouTrackIssue> filter )
     {
-        this.youTrackICollection = youTrackICollection;
+        this.gitCommits = gitCommits;
         this.filter = filter;
         this.youTrackIssueMap = new HashMap<>();
     }
@@ -88,43 +90,37 @@ public class YouTrackIssuesRetrievalJob
     private Set<YouTrackIssue> retrieveFilteredYouTrackIssues()
         throws Exception
     {
-        Set<YouTrackIssue> youTrackIssueList = new HashSet<>();
-        for ( String youTrackId : youTrackICollection )
-        {
-            try
-            {
-                YouTrackIssue youTrackIssue = retrieveYouTrackIssue( youTrackId );
-                if ( filter.test( youTrackIssue ) )
-                {
-                    youTrackIssueList.add( youTrackIssue );
-                }
-            }
-            catch ( Exception e )
-            {
-                LOGGER.error( "Could not retrieve YouTrack issue \"" + youTrackId + "\"" );
-            }
-        }
-
-        return youTrackIssueList;
+        return gitCommits.stream().
+            map( gitCommit -> this.retrieveYouTrackIssue( gitCommit.getYouTrackId(), gitCommit.getShortMessage() ) ).
+            filter( Objects::nonNull ).
+            filter( filter ).
+            collect( Collectors.toSet() );
     }
 
-    private YouTrackIssue retrieveYouTrackIssue( final String youTrackId )
-        throws Exception
+    private YouTrackIssue retrieveYouTrackIssue( final String youTrackId, final String shortMessage )
     {
-        YouTrackIssue youTrackIssue = youTrackIssueMap.get( youTrackId );
-        if ( youTrackIssue != null )
+        try
         {
+            YouTrackIssue youTrackIssue = youTrackIssueMap.get( youTrackId );
+            if ( youTrackIssue != null )
+            {
+                return youTrackIssue;
+            }
+
+            final String responseBody = sendRequest( "https://youtrack.enonic.net/rest/issue/" + youTrackId, null );
+            youTrackIssue = parseXml( YouTrackIssue.class, responseBody );
+
+            final YouTrackIssue parentYouTrackIssue = retrieveParentYouTrackIssue( youTrackId );
+            youTrackIssue.setParent( parentYouTrackIssue );
+
+            youTrackIssueMap.put( youTrackId, youTrackIssue );
             return youTrackIssue;
         }
-
-        final String responseBody = sendRequest( "https://youtrack.enonic.net/rest/issue/" + youTrackId, null );
-        youTrackIssue = parseXml( YouTrackIssue.class, responseBody );
-
-        final YouTrackIssue parentYouTrackIssue = retrieveParentYouTrackIssue( youTrackId );
-        youTrackIssue.setParent( parentYouTrackIssue );
-
-        youTrackIssueMap.put( youTrackId, youTrackIssue );
-        return youTrackIssue;
+        catch ( Exception e )
+        {
+            LOGGER.error( "Could not retrieve YouTrack issue \"" + youTrackId + "\" (" + shortMessage + ")" );
+        }
+        return null;
     }
 
     private YouTrackIssue retrieveParentYouTrackIssue( final String youTrackId )
@@ -139,7 +135,7 @@ public class YouTrackIssuesRetrievalJob
 
         if ( parentYouTrackId != null )
         {
-            return retrieveYouTrackIssue( parentYouTrackId );
+            return retrieveYouTrackIssue( parentYouTrackId, "" );
         }
 
         return null;

@@ -19,6 +19,7 @@ import com.enonic.xp.changelog.generation.ChangelogGenerationService;
 import com.enonic.xp.changelog.generation.ChangelogGenerationServiceImpl;
 import com.enonic.xp.changelog.git.GitService;
 import com.enonic.xp.changelog.git.GitServiceImpl;
+import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.youtrack.YouTrackService;
 import com.enonic.xp.changelog.youtrack.YouTrackServiceImpl;
 import com.enonic.xp.changelog.youtrack.model.YouTrackIssue;
@@ -81,9 +82,9 @@ public class GenerateChangelogCommand
     public void run()
         throws Exception
     {
-        final Set<String> youTrackIdSet = gitService.retrieveYouTrackIds( gitDirectoryPath, since, until );
+        final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( gitDirectoryPath, since, until );
         final Set<YouTrackIssue> youTrackIssueSet =
-            youTrackService.retrieveYouTrackIssues( youTrackIdSet, youTrackIssue -> ignoreFieldCheck || youTrackIssue.mustBeLogged() );
+            youTrackService.retrieveYouTrackIssues( gitCommits, youTrackIssue -> ignoreFieldCheck || youTrackIssue.mustBeLogged() );
         changelogGenerationService.generateChangelog( youTrackIssueSet, since, until );
     }
 }

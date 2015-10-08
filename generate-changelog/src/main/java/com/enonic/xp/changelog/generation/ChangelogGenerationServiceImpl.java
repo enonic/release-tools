@@ -36,16 +36,16 @@ public class ChangelogGenerationServiceImpl
     {
         StringBuilder changeLogContent = new StringBuilder( "# Changelog\n" );
 
-        //Retrieves the root YouTrackIssues and group them by type
+        //Retrieves the root YouTrackIssues and group them by category
         final Map<String, List<YouTrackIssue>> youTrackIssueByType = youTrackIssueCollection.stream().
             map( youTrackIssue -> findRootYouTrackIssue( youTrackIssue ) ).
             distinct().
             collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getField( YouTrackIssue.TYPE_FIELD_NAME ).toString() ) );
 
-        //For each type
+        //Sorts by category and for each category
         youTrackIssueByType.entrySet().
             stream().
-            sorted().
+            sorted( ( entry1, entry2 ) -> entry1.getKey().compareTo( entry2.getKey() ) ).
             forEach( youTrackIssueEntry -> {
                 //Writes the category title
                 changeLogContent.append( "\n## " ).append( youTrackIssueEntry.getKey() ).append( "s\n" );

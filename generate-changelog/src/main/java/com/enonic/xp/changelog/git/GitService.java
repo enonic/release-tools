@@ -6,9 +6,10 @@ import java.util.SortedSet;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import com.enonic.xp.changelog.ChangelogException;
+import com.enonic.xp.changelog.git.model.GitCommit;
 
 public interface GitService
 {
-    SortedSet<String> retrieveYouTrackIds( final String gitDirectoryPath, final String since, final String until )
+    SortedSet<GitCommit> retrieveGitCommits( final String gitDirectoryPath, final String since, final String until )
         throws IOException, GitAPIException, ChangelogException;
 }

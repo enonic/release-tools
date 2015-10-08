@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.enonic.xp.changelog.ChangelogException;
+import com.enonic.xp.changelog.git.model.GitCommit;
 
 public class GitServiceImpl
     implements GitService
@@ -27,22 +28,22 @@ public class GitServiceImpl
     private static final Pattern YOUTRACK_ID_PATTERN = Pattern.compile( "^(XP-[0-9]+) ", Pattern.CASE_INSENSITIVE );
 
     @Override
-    public SortedSet<String> retrieveYouTrackIds( final String gitDirectoryPath, final String since, final String until )
+    public SortedSet<GitCommit> retrieveGitCommits( final String gitDirectoryPath, final String since, final String until )
         throws IOException, GitAPIException, ChangelogException
     {
-        LOGGER.info( "Retrieving YouTrack IDs..." );
+        LOGGER.info( "Retrieving Git commits with YouTrack IDs..." );
 
         //Retrieves the Git repository
         final Repository gitRepository = retrieveGitRepository( gitDirectoryPath );
 
-        //Retrieves the Git Rev commits
+        //Retrieves the Git commits
         final Iterable<RevCommit> revCommitIterable = retrieveGitRevCommits( gitRepository, since, until );
 
         //Parses the Git commits
-        final SortedSet<String> youTrackIdSet = retrieveYouTrackIds( revCommitIterable );
+        final SortedSet<GitCommit> youTrackGitCommits = retrieveYouTrackGitCommits( revCommitIterable );
 
-        LOGGER.info( youTrackIdSet.size() + " YouTrack IDs retrieved." );
-        return youTrackIdSet;
+        LOGGER.info( youTrackGitCommits.size() + " Git commits with YouTrack IDs retrieved." );
+        return youTrackGitCommits;
     }
 
     private Repository retrieveGitRepository( final String gitDirectoryPath )
@@ -84,9 +85,9 @@ public class GitServiceImpl
         return logCommand.call();
     }
 
-    private SortedSet<String> retrieveYouTrackIds( final Iterable<RevCommit> revCommitIterable )
+    private SortedSet<GitCommit> retrieveYouTrackGitCommits( final Iterable<RevCommit> revCommitIterable )
     {
-        final SortedSet<String> youTrackIdSet = new TreeSet<>();
+        final SortedSet<GitCommit> youTrackGitCommitSet = new TreeSet<>();
         int nbRevCommits = 0;
         for ( RevCommit revCommit : revCommitIterable )
         {
@@ -98,15 +99,15 @@ public class GitServiceImpl
             if ( youTrackIdFound )
             {
                 String youTrackID = matcher.group( 1 );
-                youTrackIdSet.add( youTrackID );
+                youTrackGitCommitSet.add( new GitCommit( youTrackID, revCommitShortMessage ) );
                 LOGGER.debug( "YouTrack ID: " + youTrackID );
             }
 
             nbRevCommits++;
         }
         LOGGER.debug( "# Commits retrieved: " + nbRevCommits );
-        LOGGER.debug( "# YouTrack IDs retrieved: " + youTrackIdSet.size() );
+        LOGGER.debug( "# Commits with YouTrack IDs retrieved: " + youTrackGitCommitSet.size() );
 
-        return youTrackIdSet;
+        return youTrackGitCommitSet;
     }
 }
