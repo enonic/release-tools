@@ -102,18 +102,17 @@ public class YouTrackIssuesRetrievalJob
         try
         {
             YouTrackIssue youTrackIssue = youTrackIssueMap.get( youTrackId );
-            if ( youTrackIssue != null )
+
+            if ( youTrackIssue == null )
             {
-                return youTrackIssue;
+                final String responseBody = sendRequest( "https://youtrack.enonic.net/rest/issue/" + youTrackId, null );
+                youTrackIssue = parseXml( YouTrackIssue.class, responseBody );
+                youTrackIssueMap.put( youTrackId, youTrackIssue );
+
+                final YouTrackIssue parentYouTrackIssue = retrieveParentYouTrackIssue( youTrackId );
+                youTrackIssue.setParent( parentYouTrackIssue );
             }
 
-            final String responseBody = sendRequest( "https://youtrack.enonic.net/rest/issue/" + youTrackId, null );
-            youTrackIssue = parseXml( YouTrackIssue.class, responseBody );
-
-            final YouTrackIssue parentYouTrackIssue = retrieveParentYouTrackIssue( youTrackId );
-            youTrackIssue.setParent( parentYouTrackIssue );
-
-            youTrackIssueMap.put( youTrackId, youTrackIssue );
             return youTrackIssue;
         }
         catch ( Exception e )
@@ -143,27 +142,28 @@ public class YouTrackIssuesRetrievalJob
 
     private String retrieveParentYouTrackId( final String youTrackId, final YouTrackIssueLinks youTrackIssueLinks )
     {
-        if ( youTrackIssueLinks.getIssueLinks() == null )
+        if ( youTrackIssueLinks.getIssueLinks() != null )
         {
-            return null;
-        }
-
-        //For each link to this Issue
-        for ( YouTrackIssueLink youTrackIssueLink : youTrackIssueLinks.getIssueLinks() )
-        {
-            //If the link is a Subtask link and that this issue is a subtask
-            if ( SUBTASK_TYPE_NAME.equals( youTrackIssueLink.getTypeName() ) )
+            //For each link to this Issue
+            for ( YouTrackIssueLink youTrackIssueLink : youTrackIssueLinks.getIssueLinks() )
             {
-                if ( youTrackIssueLink.getSource().equals( youTrackId ) && SUBTASK_ROLE_NAME.equals( youTrackIssueLink.getTypeOutward() ) )
+                //If the link is a Subtask link and that this issue is a subtask
+                if ( SUBTASK_TYPE_NAME.equals( youTrackIssueLink.getTypeName() ) )
                 {
-                    return youTrackIssueLink.getTarget();
-                }
-                if ( youTrackIssueLink.getTarget().equals( youTrackId ) && SUBTASK_ROLE_NAME.equals( youTrackIssueLink.getTypeInward() ) )
-                {
-                    return youTrackIssueLink.getSource();
+                    if ( youTrackIssueLink.getSource().equals( youTrackId ) &&
+                        SUBTASK_ROLE_NAME.equals( youTrackIssueLink.getTypeOutward() ) )
+                    {
+                        return youTrackIssueLink.getTarget();
+                    }
+                    if ( youTrackIssueLink.getTarget().equals( youTrackId ) &&
+                        SUBTASK_ROLE_NAME.equals( youTrackIssueLink.getTypeInward() ) )
+                    {
+                        return youTrackIssueLink.getSource();
+                    }
                 }
             }
         }
+
         return null;
     }
 

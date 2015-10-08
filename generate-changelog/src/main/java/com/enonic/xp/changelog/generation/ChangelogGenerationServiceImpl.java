@@ -42,7 +42,7 @@ public class ChangelogGenerationServiceImpl
             distinct().
             collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getField( YouTrackIssue.TYPE_FIELD_NAME ).toString() ) );
 
-        //Sorts by category and for each category
+        //Sorts by type and for each type
         youTrackIssueByType.entrySet().
             stream().
             sorted( ( entry1, entry2 ) -> entry1.getKey().compareTo( entry2.getKey() ) ).
@@ -90,7 +90,8 @@ public class ChangelogGenerationServiceImpl
             changeLogContent.append( ", " ).
                 append( youTrackIssue.getField( YouTrackIssue.TYPE_FIELD_NAME ) );
         }
-        changeLogContent.append( ").\n" );
+        changeLogContent.append( ")." ).
+            append( System.lineSeparator() );
 
         youTrackIssue.getChildren().
             stream().

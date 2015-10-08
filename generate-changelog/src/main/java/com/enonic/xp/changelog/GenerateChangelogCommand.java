@@ -1,12 +1,10 @@
 package com.enonic.xp.changelog;
 
 
-import java.io.IOException;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +57,6 @@ public class GenerateChangelogCommand
     }
 
     public static void main( String... args )
-        throws IOException, GitAPIException
     {
         try
         {
