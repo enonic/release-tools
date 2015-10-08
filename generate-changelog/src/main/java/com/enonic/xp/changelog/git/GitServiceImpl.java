@@ -49,10 +49,10 @@ public class GitServiceImpl
     private Repository retrieveGitRepository( final String gitDirectoryPath )
         throws ChangelogException, IOException
     {
-        final File gitDirectory = new File( gitDirectoryPath );
+        final File gitDirectory = new File( gitDirectoryPath, ".git" );
         if ( !gitDirectory.isDirectory() )
         {
-            throw new ChangelogException( "\"" + gitDirectoryPath + "\" is not a directory" );
+            throw new ChangelogException( "\"" + gitDirectory.getAbsolutePath() + "\" is not a directory" );
         }
         final FileRepositoryBuilder fileRepositoryBuilder = new FileRepositoryBuilder().setMustExist( true ).setGitDir( gitDirectory );
         return fileRepositoryBuilder.build();

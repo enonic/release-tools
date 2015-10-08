@@ -33,8 +33,8 @@ public class GenerateChangelogCommand
     @Inject
     public HelpOption helpOption;
 
-    @Option(name = "-p", description = "Path of the Git repository (default value is .git).")
-    public String gitDirectoryPath = ".git";
+    @Option(name = "-p", description = "Path of the Git repository (default value is the current directory).")
+    public String gitDirectoryPath = ".";
 
     @Option(name = "-s", description = "Since the provided Git reference.")
     public String since;

@@ -33,7 +33,7 @@ The script "generate-changelog" is generated in the sub-folder "build/install/ge
             Ignore the YouTrack Changelog field check.
 
         -p <gitDirectoryPath>
-            Path of the Git repository (default value is .git).
+            Path of the Git repository (default value is the current directory).
 
         -s <since>
             Since the provided Git reference.
@@ -43,7 +43,7 @@ The script "generate-changelog" is generated in the sub-folder "build/install/ge
 
 Example:
 
-    generate-changelog -p Workspace/git/xp/.git -s v6.0.0 -u 0624445611a32e8cbed6aa71f8ac15c5b7d9af1a
+    generate-changelog -p Workspace/git/xp -s v6.0.0 -u 0624445611a32e8cbed6aa71f8ac15c5b7d9af1a
 
 ## Output
 
