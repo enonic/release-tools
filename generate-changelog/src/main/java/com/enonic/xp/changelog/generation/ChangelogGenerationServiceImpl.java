@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -22,24 +23,29 @@ public class ChangelogGenerationServiceImpl
     private static final Logger LOGGER = LoggerFactory.getLogger( ChangelogGenerationServiceImpl.class );
 
     @Override
-    public void generateChangelog( final Collection<YouTrackIssue> youTrackIssueCollection, final String since, final String until )
+    public void generateChangelog( final Collection<YouTrackIssue> youTrackIssueCollection, final String since, final String until,
+                                   final Predicate<YouTrackIssue> filter )
         throws IOException
     {
+        LOGGER.info( "Writing changelog..." );
         //Generates the content
-        final String changelogContent = generateChangelogContent( youTrackIssueCollection );
+        final String changelogContent = generateChangelogContent( youTrackIssueCollection, filter );
 
         //Writes the content in the output MD file
         generateChangelogFile( changelogContent, since, until );
+        LOGGER.info( "Changelog written." );
     }
 
-    private String generateChangelogContent( final Collection<YouTrackIssue> youTrackIssueCollection )
+    private String generateChangelogContent( final Collection<YouTrackIssue> youTrackIssueCollection,
+                                             final Predicate<YouTrackIssue> filter )
     {
         StringBuilder changeLogContent = new StringBuilder( "# Changelog\n" );
 
-        //Retrieves the root YouTrackIssues and group them by category
+        //Retrieves the filtered root YouTrackIssues and group them by category
         final Map<String, List<YouTrackIssue>> youTrackIssueByType = youTrackIssueCollection.stream().
             map( youTrackIssue -> findRootYouTrackIssue( youTrackIssue ) ).
             distinct().
+            filter( filter ).
             collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getField( YouTrackIssue.TYPE_FIELD_NAME ).toString() ) );
 
         //Sorts by type and for each type
@@ -52,8 +58,7 @@ public class ChangelogGenerationServiceImpl
 
                 //Calls recursively the writing of the root YouTrackIssues and their children
                 youTrackIssueEntry.getValue().
-                    stream().
-                    forEach( youTrackIssue -> generateChangelogContent( changeLogContent, youTrackIssue, 0 ) );
+                    forEach( youTrackIssue -> generateChangelogContent( changeLogContent, youTrackIssue, 0, filter ) );
             } );
 
         LOGGER.debug( "Changelog content: " + changeLogContent );
@@ -73,7 +78,8 @@ public class ChangelogGenerationServiceImpl
         }
     }
 
-    private void generateChangelogContent( final StringBuilder changeLogContent, final YouTrackIssue youTrackIssue, final int depth )
+    private void generateChangelogContent( final StringBuilder changeLogContent, final YouTrackIssue youTrackIssue, final int depth,
+                                           final Predicate<YouTrackIssue> filter )
     {
         for ( int i = 0; i < depth; i++ )
         {
@@ -95,7 +101,8 @@ public class ChangelogGenerationServiceImpl
 
         youTrackIssue.getChildren().
             stream().
-            forEach( childYouTrackIssue -> generateChangelogContent( changeLogContent, childYouTrackIssue, depth + 1 ) );
+            filter( filter ).
+            forEach( childYouTrackIssue -> generateChangelogContent( changeLogContent, childYouTrackIssue, depth + 1, filter ) );
     }
 
     private void generateChangelogFile( final String changelogContent, final String since, final String until )

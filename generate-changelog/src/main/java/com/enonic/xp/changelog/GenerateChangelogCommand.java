@@ -80,8 +80,8 @@ public class GenerateChangelogCommand
         throws Exception
     {
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( gitDirectoryPath, since, until );
-        final Set<YouTrackIssue> youTrackIssueSet =
-            youTrackService.retrieveYouTrackIssues( gitCommits, youTrackIssue -> ignoreFieldCheck || youTrackIssue.mustBeLogged() );
-        changelogGenerationService.generateChangelog( youTrackIssueSet, since, until );
+        final Set<YouTrackIssue> youTrackIssueSet = youTrackService.retrieveYouTrackIssues( gitCommits );
+        changelogGenerationService.generateChangelog( youTrackIssueSet, since, until,
+                                                      youTrackIssue -> ignoreFieldCheck || youTrackIssue.mustBeLogged() );
     }
 }

@@ -43,16 +43,13 @@ public class YouTrackIssuesRetrievalJob
 
     private final Collection<GitCommit> gitCommits;
 
-    private final Predicate<YouTrackIssue> filter;
-
     private OkHttpClient okHttpClient;
 
     private Map<String, YouTrackIssue> youTrackIssueMap;
 
-    public YouTrackIssuesRetrievalJob( final Collection<GitCommit> gitCommits, final Predicate<YouTrackIssue> filter )
+    public YouTrackIssuesRetrievalJob( final Collection<GitCommit> gitCommits )
     {
         this.gitCommits = gitCommits;
-        this.filter = filter;
         this.youTrackIssueMap = new HashMap<>();
     }
 
@@ -66,7 +63,7 @@ public class YouTrackIssuesRetrievalJob
 
         final Set<YouTrackIssue> filteredYouTrackIssues = retrieveFilteredYouTrackIssues();
 
-        LOGGER.info( filteredYouTrackIssues.size() + " Filtered YouTrack Issues retrieved." );
+        LOGGER.info( filteredYouTrackIssues.size() + " YouTrack Issues retrieved." );
         return filteredYouTrackIssues;
     }
 
@@ -93,7 +90,6 @@ public class YouTrackIssuesRetrievalJob
         return gitCommits.stream().
             map( gitCommit -> this.retrieveYouTrackIssue( gitCommit.getYouTrackId(), gitCommit.getShortMessage() ) ).
             filter( Objects::nonNull ).
-            filter( filter ).
             collect( Collectors.toSet() );
     }
 
