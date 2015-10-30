@@ -19,7 +19,13 @@ public final class YouTrackIssue
 
     public static final String CHANGE_LOG_FIELD_NAME = "Change Log";
 
-    private static final String EPIC_TYPE = "Epic";
+    public static final String EPIC_TYPE = "Epic";
+
+    public static final String FEATURE_TYPE = "Feature";
+
+    public static final String IMPROVEMENT_TYPE = "Improvement";
+
+    public static final String BUG_TYPE = "Bug";
 
     private String id;
 

@@ -66,7 +66,7 @@ public class ChangelogGenerationJob
         //Sorts by type and for each type
         youTrackIssueByType.entrySet().
             stream().
-            sorted( ( entry1, entry2 ) -> entry1.getKey().compareTo( entry2.getKey() ) ).
+            sorted( ( entry1, entry2 ) -> compareYouTrackTypes( entry1.getKey(), entry2.getKey() ) ).
             forEach( youTrackIssueEntry -> {
                 //Writes the category title
                 changeLogContent.append( "\n## " ).append( youTrackIssueEntry.getKey() ).append( "s\n" );
@@ -77,6 +77,32 @@ public class ChangelogGenerationJob
             } );
 
         LOGGER.debug( "Changelog content: " + changeLogContent );
+    }
+
+    private int compareYouTrackTypes( String youTrackType1, String youTrackType2 )
+    {
+        int priorityComparison = getYouTrackTypePriority( youTrackType1 ) - getYouTrackTypePriority( youTrackType2 );
+        if ( priorityComparison != 0 )
+        {
+            return priorityComparison;
+        }
+
+        return youTrackType1.compareTo( youTrackType2 );
+    }
+
+    private int getYouTrackTypePriority( String type )
+    {
+        switch ( type )
+        {
+            case YouTrackIssue.FEATURE_TYPE:
+                return 0;
+            case YouTrackIssue.IMPROVEMENT_TYPE:
+                return 1;
+            case YouTrackIssue.BUG_TYPE:
+                return 2;
+            default:
+                return Integer.MAX_VALUE;
+        }
     }
 
     private YouTrackIssue findRootYouTrackIssue( final YouTrackIssue youTrackIssue )
