@@ -61,7 +61,7 @@ public class ChangelogGenerationJob
             map( youTrackIssue -> findRootYouTrackIssue( youTrackIssue ) ).
             distinct().
             filter( filter ).
-            collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getField( YouTrackIssue.TYPE_FIELD_NAME ).toString() ) );
+            collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getType() ) );
 
         //Sorts by type and for each type
         youTrackIssueByType.entrySet().
@@ -82,7 +82,7 @@ public class ChangelogGenerationJob
     private YouTrackIssue findRootYouTrackIssue( final YouTrackIssue youTrackIssue )
     {
         final YouTrackIssue parentYouTrackIssue = youTrackIssue.getParent();
-        if ( parentYouTrackIssue == null )
+        if ( parentYouTrackIssue == null || parentYouTrackIssue.isEpic() )
         {
             return youTrackIssue;
         }

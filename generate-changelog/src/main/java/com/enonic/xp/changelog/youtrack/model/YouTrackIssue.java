@@ -19,6 +19,8 @@ public final class YouTrackIssue
 
     public static final String CHANGE_LOG_FIELD_NAME = "Change Log";
 
+    private static final String EPIC_TYPE = "Epic";
+
     private String id;
 
     private List<YouTrackField> fields;
@@ -91,6 +93,16 @@ public final class YouTrackIssue
     public List<YouTrackIssue> getChildren()
     {
         return children;
+    }
+
+    public String getType()
+    {
+        return getField( TYPE_FIELD_NAME ).toString();
+    }
+
+    public boolean isEpic()
+    {
+        return EPIC_TYPE.equals( getType() );
     }
 
     public boolean mustBeLogged()
