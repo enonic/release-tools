@@ -73,6 +73,8 @@ public class ChangelogGenerationJob
 
                 //Calls recursively the writing of the root YouTrackIssues and their filtered children
                 youTrackIssueEntry.getValue().
+                    stream().
+                    sorted( ( youTrackIssue1, youTrackIssue2 ) -> youTrackIssue1.getSummary().compareTo( youTrackIssue2.getSummary() ) ).
                     forEach( youTrackIssue -> generateChangelogContent( youTrackIssue, 0 ) );
             } );
 
@@ -128,7 +130,7 @@ public class ChangelogGenerationJob
         }
 
         changeLogContent.append( " - " ).
-            append( youTrackIssue.getField( YouTrackIssue.SUMMARY_FIELD_NAME ).toString().trim() ).
+            append( youTrackIssue.getSummary() ).
             append( " (" ).
             append( youTrackIssue.getId() );
 

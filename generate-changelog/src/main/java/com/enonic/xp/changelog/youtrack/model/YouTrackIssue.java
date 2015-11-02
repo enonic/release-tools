@@ -106,6 +106,12 @@ public final class YouTrackIssue
         return getField( TYPE_FIELD_NAME ).toString();
     }
 
+    public String getSummary()
+    {
+        return getField( SUMMARY_FIELD_NAME ).toString().trim();
+    }
+
+
     public boolean isEpic()
     {
         return EPIC_TYPE.equals( getType() );
