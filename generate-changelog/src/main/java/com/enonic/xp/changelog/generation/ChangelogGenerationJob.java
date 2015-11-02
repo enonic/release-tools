@@ -128,7 +128,7 @@ public class ChangelogGenerationJob
         }
 
         changeLogContent.append( " - " ).
-            append( youTrackIssue.getField( YouTrackIssue.SUMMARY_FIELD_NAME ) ).
+            append( youTrackIssue.getField( YouTrackIssue.SUMMARY_FIELD_NAME ).toString().trim() ).
             append( " (" ).
             append( youTrackIssue.getId() );
 
