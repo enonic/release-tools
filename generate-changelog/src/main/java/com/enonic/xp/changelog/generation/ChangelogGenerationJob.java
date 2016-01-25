@@ -58,6 +58,7 @@ public class ChangelogGenerationJob
     {
         //Retrieves the filtered root YouTrackIssues and group them by category
         final Map<String, List<YouTrackIssue>> youTrackIssueByType = youTrackIssueCollection.stream().
+            filter( youTrackIssue -> !youTrackIssue.isEpic() ).
             map( youTrackIssue -> findRootYouTrackIssue( youTrackIssue ) ).
             distinct().
             filter( filter ).
