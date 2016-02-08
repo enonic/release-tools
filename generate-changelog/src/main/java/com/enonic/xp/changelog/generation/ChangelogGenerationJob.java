@@ -143,10 +143,13 @@ public class ChangelogGenerationJob
         changeLogContent.append( ")." ).
             append( System.lineSeparator() );
 
-        youTrackIssue.getChildren().
-            stream().
-            filter( filter ).
-            forEach( childYouTrackIssue -> generateChangelogContent( childYouTrackIssue, depth + 1 ) );
+        if ( !youTrackIssue.isFeature() )
+        {
+            youTrackIssue.getChildren().
+                stream().
+                filter( filter ).
+                forEach( childYouTrackIssue -> generateChangelogContent( childYouTrackIssue, depth + 1 ) );
+        }
     }
 
     private void generateChangelogFile()
