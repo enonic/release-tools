@@ -117,6 +117,11 @@ public final class YouTrackIssue
         return EPIC_TYPE.equals( getType() );
     }
 
+    public boolean isFeature()
+    {
+        return FEATURE_TYPE.equals( getType() );
+    }
+
     public boolean mustBeLogged()
     {
         final YouTrackField changeLogField = getField( CHANGE_LOG_FIELD_NAME );
