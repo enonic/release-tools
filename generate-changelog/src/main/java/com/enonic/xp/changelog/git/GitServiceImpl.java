@@ -25,13 +25,13 @@ public class GitServiceImpl
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GitServiceImpl.class );
 
-    private static final Pattern YOUTRACK_ID_PATTERN = Pattern.compile( "^(XP-[0-9]+) ", Pattern.CASE_INSENSITIVE );
+    private static final Pattern GITHUB_ISSUE_ID_PATTERN = Pattern.compile( "(#[0-9]+)" );
 
     @Override
     public SortedSet<GitCommit> retrieveGitCommits( final String gitDirectoryPath, final String since, final String until )
         throws IOException, GitAPIException, ChangelogException
     {
-        LOGGER.info( "Retrieving Git commits with YouTrack IDs..." );
+        LOGGER.info( "Retrieving Git commits with GitHub issue IDs..." );
 
         //Retrieves the Git repository
         final Repository gitRepository = retrieveGitRepository( gitDirectoryPath );
@@ -40,10 +40,10 @@ public class GitServiceImpl
         final Iterable<RevCommit> revCommitIterable = retrieveGitRevCommits( gitRepository, since, until );
 
         //Parses the Git commits
-        final SortedSet<GitCommit> youTrackGitCommits = retrieveYouTrackGitCommits( revCommitIterable );
+        final SortedSet<GitCommit> gitHubIssueCommits = retrieveGitHubIssueCommits( revCommitIterable );
 
-        LOGGER.info( youTrackGitCommits.size() + " Git commits with YouTrack IDs retrieved." );
-        return youTrackGitCommits;
+        LOGGER.info( gitHubIssueCommits.size() + " Git commits with GitHub Issue IDs retrieved." );
+        return gitHubIssueCommits;
     }
 
     private Repository retrieveGitRepository( final String gitDirectoryPath )
@@ -85,29 +85,29 @@ public class GitServiceImpl
         return logCommand.call();
     }
 
-    private SortedSet<GitCommit> retrieveYouTrackGitCommits( final Iterable<RevCommit> revCommitIterable )
+    private SortedSet<GitCommit> retrieveGitHubIssueCommits( final Iterable<RevCommit> revCommitIterable )
     {
-        final SortedSet<GitCommit> youTrackGitCommitSet = new TreeSet<>();
+        final SortedSet<GitCommit> gitHubCommitSet = new TreeSet<>();
         int nbRevCommits = 0;
         for ( RevCommit revCommit : revCommitIterable )
         {
             final String revCommitShortMessage = revCommit.getShortMessage();
             LOGGER.debug( "Commit " + revCommit.getId().getName() + ": " + revCommitShortMessage );
 
-            final Matcher matcher = YOUTRACK_ID_PATTERN.matcher( revCommitShortMessage );
-            final boolean youTrackIdFound = matcher.find();
-            if ( youTrackIdFound )
+            final Matcher matcher = GITHUB_ISSUE_ID_PATTERN.matcher( revCommitShortMessage );
+            final boolean gitHubIdFound = matcher.find();
+            if ( gitHubIdFound )
             {
-                String youTrackID = matcher.group( 1 );
-                youTrackGitCommitSet.add( new GitCommit( youTrackID, revCommitShortMessage ) );
-                LOGGER.debug( "YouTrack ID: " + youTrackID );
+                String gitHubID = matcher.group( 1 );
+                gitHubCommitSet.add( new GitCommit( gitHubID, revCommitShortMessage ) );
+                LOGGER.debug( "GitHub Issue ID: " + gitHubID );
             }
 
             nbRevCommits++;
         }
         LOGGER.debug( "# Commits retrieved: " + nbRevCommits );
-        LOGGER.debug( "# Commits with YouTrack IDs retrieved: " + youTrackGitCommitSet.size() );
+        LOGGER.debug( "# Commits with GitHub Issue IDs retrieved: " + gitHubCommitSet.size() );
 
-        return youTrackGitCommitSet;
+        return gitHubCommitSet;
     }
 }
