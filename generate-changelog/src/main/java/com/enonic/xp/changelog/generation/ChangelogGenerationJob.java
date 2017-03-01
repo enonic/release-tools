@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.kohsuke.github.GHIssue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,7 @@ public class ChangelogGenerationJob
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( ChangelogGenerationJob.class );
 
-    private Collection<YouTrackIssue> youTrackIssueCollection;
+    private Collection<GHIssue> gitHubIssueCollection;
 
     private final String since;
 
@@ -33,10 +34,10 @@ public class ChangelogGenerationJob
 
     private StringBuilder changeLogContent = new StringBuilder( "# Changelog\n" );
 
-    public ChangelogGenerationJob( final Collection<YouTrackIssue> youTrackIssueCollection, final String since, final String until,
+    public ChangelogGenerationJob( final Collection<GHIssue> gitHubIssueCollection, final String since, final String until,
                                    final Predicate<YouTrackIssue> filter )
     {
-        this.youTrackIssueCollection = youTrackIssueCollection;
+        this.gitHubIssueCollection = gitHubIssueCollection;
         this.since = since;
         this.until = until;
         this.filter = filter;
@@ -57,7 +58,7 @@ public class ChangelogGenerationJob
     private void generateChangelogContent()
     {
         //Retrieves the filtered root YouTrackIssues and group them by category
-        final Map<String, List<YouTrackIssue>> youTrackIssueByType = youTrackIssueCollection.stream().
+        final Map<String, List<YouTrackIssue>> youTrackIssueByType = gitHubIssueCollection.stream().
             filter( youTrackIssue -> !youTrackIssue.isEpic() ).
             map( youTrackIssue -> findRootYouTrackIssue( youTrackIssue ) ).
             distinct().

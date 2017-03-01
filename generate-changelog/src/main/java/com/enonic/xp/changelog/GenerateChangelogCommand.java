@@ -1,10 +1,12 @@
 package com.enonic.xp.changelog;
 
 
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.kohsuke.github.GHIssue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,8 @@ import com.enonic.xp.changelog.generation.ChangelogGenerationServiceImpl;
 import com.enonic.xp.changelog.git.GitService;
 import com.enonic.xp.changelog.git.GitServiceImpl;
 import com.enonic.xp.changelog.git.model.GitCommit;
+import com.enonic.xp.changelog.github.GitHubService;
+import com.enonic.xp.changelog.github.GitHubServiceImpl;
 import com.enonic.xp.changelog.youtrack.YouTrackService;
 import com.enonic.xp.changelog.youtrack.YouTrackServiceImpl;
 import com.enonic.xp.changelog.youtrack.model.YouTrackIssue;
@@ -47,12 +51,15 @@ public class GenerateChangelogCommand
 
     private GitService gitService;
 
+    private GitHubService gitHubService;
+
     private ChangelogGenerationService changelogGenerationService;
 
     public GenerateChangelogCommand()
     {
         youTrackService = new YouTrackServiceImpl();
         gitService = new GitServiceImpl();
+        gitHubService = new GitHubServiceImpl();
         changelogGenerationService = new ChangelogGenerationServiceImpl();
     }
 
@@ -80,8 +87,8 @@ public class GenerateChangelogCommand
         throws Exception
     {
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( gitDirectoryPath, since, until );
-        final Set<YouTrackIssue> youTrackIssueSet = youTrackService.retrieveYouTrackIssues( gitCommits );
-        changelogGenerationService.generateChangelog( youTrackIssueSet, since, until,
-                                                      youTrackIssue -> ignoreFieldCheck || youTrackIssue.mustBeLogged() );
+        final List<GHIssue> ghIssues = gitHubService.retrieveGitHubIssues( gitDirectoryPath, gitCommits );
+//        changelogGenerationService.generateChangelog( youTrackIssueSet, since, until,
+//                                                      youTrackIssue -> ignoreFieldCheck || youTrackIssue.mustBeLogged() );
     }
 }

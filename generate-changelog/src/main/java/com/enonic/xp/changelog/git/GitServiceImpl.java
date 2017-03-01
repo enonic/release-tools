@@ -12,6 +12,7 @@ import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class GitServiceImpl
         return gitHubIssueCommits;
     }
 
-    private Repository retrieveGitRepository( final String gitDirectoryPath )
+    public static Repository retrieveGitRepository( final String gitDirectoryPath )
         throws ChangelogException, IOException
     {
         final File gitDirectory = new File( gitDirectoryPath, ".git" );
@@ -110,4 +111,26 @@ public class GitServiceImpl
 
         return gitHubCommitSet;
     }
+
+    public static String findRepoName( final String gitDirectoryPath )
+        throws ChangelogException, IOException
+    {
+        //Retrieves the Git repository
+        final Repository gitRepository = retrieveGitRepository( gitDirectoryPath );
+
+        final StoredConfig config = gitRepository.getConfig();
+        final String remoteURL = config.getString( "remote", "origin", "url" );
+        String[] tokens = remoteURL.split( ":" );
+        String repoName;
+        if ( tokens[1].endsWith( ".git" ) )
+        {
+            repoName = tokens[1].substring( 0, tokens[1].length() - 4 );
+        }
+        else
+        {
+            throw new ChangelogException( "Can't extract repoName from remoteURL: " + remoteURL );
+        }
+        return repoName;
+    }
+
 }

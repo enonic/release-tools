@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
@@ -88,7 +87,7 @@ public class YouTrackIssuesRetrievalJob
         throws Exception
     {
         return gitCommits.stream().
-            map( gitCommit -> this.retrieveYouTrackIssue( gitCommit.getYouTrackId(), gitCommit.getShortMessage() ) ).
+            map( gitCommit -> this.retrieveYouTrackIssue( gitCommit.getGitHubIdAsString(), gitCommit.getShortMessage() ) ).
             filter( Objects::nonNull ).
             collect( Collectors.toSet() );
     }
