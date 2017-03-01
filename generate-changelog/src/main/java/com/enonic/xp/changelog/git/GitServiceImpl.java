@@ -1,6 +1,5 @@
 package com.enonic.xp.changelog.git;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -12,9 +11,7 @@ import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +32,7 @@ public class GitServiceImpl
         LOGGER.info( "Retrieving Git commits with GitHub issue IDs..." );
 
         //Retrieves the Git repository
-        final Repository gitRepository = retrieveGitRepository( gitDirectoryPath );
+        final Repository gitRepository = GitServiceHelper.retrieveGitRepository( gitDirectoryPath );
 
         //Retrieves the Git commits
         final Iterable<RevCommit> revCommitIterable = retrieveGitRevCommits( gitRepository, since, until );
@@ -45,18 +42,6 @@ public class GitServiceImpl
 
         LOGGER.info( gitHubIssueCommits.size() + " Git commits with GitHub Issue IDs retrieved." );
         return gitHubIssueCommits;
-    }
-
-    public static Repository retrieveGitRepository( final String gitDirectoryPath )
-        throws ChangelogException, IOException
-    {
-        final File gitDirectory = new File( gitDirectoryPath, ".git" );
-        if ( !gitDirectory.isDirectory() )
-        {
-            throw new ChangelogException( "\"" + gitDirectory.getAbsolutePath() + "\" is not a directory" );
-        }
-        final FileRepositoryBuilder fileRepositoryBuilder = new FileRepositoryBuilder().setMustExist( true ).setGitDir( gitDirectory );
-        return fileRepositoryBuilder.build();
     }
 
     private Iterable<RevCommit> retrieveGitRevCommits( final Repository gitRepository, final String since, final String until )
@@ -110,27 +95,6 @@ public class GitServiceImpl
         LOGGER.debug( "# Commits with GitHub Issue IDs retrieved: " + gitHubCommitSet.size() );
 
         return gitHubCommitSet;
-    }
-
-    public static String findRepoName( final String gitDirectoryPath )
-        throws ChangelogException, IOException
-    {
-        //Retrieves the Git repository
-        final Repository gitRepository = retrieveGitRepository( gitDirectoryPath );
-
-        final StoredConfig config = gitRepository.getConfig();
-        final String remoteURL = config.getString( "remote", "origin", "url" );
-        String[] tokens = remoteURL.split( ":" );
-        String repoName;
-        if ( tokens[1].endsWith( ".git" ) )
-        {
-            repoName = tokens[1].substring( 0, tokens[1].length() - 4 );
-        }
-        else
-        {
-            throw new ChangelogException( "Can't extract repoName from remoteURL: " + remoteURL );
-        }
-        return repoName;
     }
 
 }

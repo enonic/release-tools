@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.enonic.xp.changelog.ChangelogException;
-import com.enonic.xp.changelog.git.GitServiceImpl;
+import com.enonic.xp.changelog.git.GitServiceHelper;
 import com.enonic.xp.changelog.git.model.GitCommit;
 
 public class GitHubServiceImpl
@@ -27,7 +27,7 @@ public class GitHubServiceImpl
         LOGGER.info( "Retrieving GitHub issues with GitHub issue IDs..." );
 
         final GitHub gitHub = GitHub.connectAnonymously();
-        final GHRepository repo = gitHub.getRepository( GitServiceImpl.findRepoName( gitDirectoryPath ) );
+        final GHRepository repo = gitHub.getRepository( GitServiceHelper.findRepoName( gitDirectoryPath ) );
         List<GHIssue> issues = new ArrayList<>( issueNumbers.size() );
         for ( GitCommit commit : issueNumbers )
         {
