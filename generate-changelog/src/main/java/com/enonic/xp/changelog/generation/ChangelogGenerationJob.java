@@ -30,7 +30,7 @@ public class ChangelogGenerationJob
 
     private final Predicate<YouTrackIssue> filter;
 
-    private int youTrackIssueGenerated = 0;
+    private int gitHubIssuesGenerated = 0;
 
     private StringBuilder changeLogContent = new StringBuilder( "# Changelog\n" );
 
@@ -52,35 +52,35 @@ public class ChangelogGenerationJob
 
         //Writes the content in the output MD file
         generateChangelogFile();
-        LOGGER.info( youTrackIssueGenerated + " YouTrack issues written in the changelog." );
+        LOGGER.info( gitHubIssuesGenerated + " YouTrack issues written in the changelog." );
     }
 
     private void generateChangelogContent()
     {
         //Retrieves the filtered root YouTrackIssues and group them by category
-        final Map<String, List<YouTrackIssue>> youTrackIssueByType = gitHubIssueCollection.stream().
-            filter( youTrackIssue -> !youTrackIssue.isEpic() ).
-            map( youTrackIssue -> findRootYouTrackIssue( youTrackIssue ) ).
-            distinct().
-            filter( filter ).
-            collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getType() ) );
-
-        //Sorts by type and for each type
-        youTrackIssueByType.entrySet().
-            stream().
-            sorted( ( entry1, entry2 ) -> compareYouTrackTypes( entry1.getKey(), entry2.getKey() ) ).
-            forEach( youTrackIssueEntry -> {
-                //Writes the category title
-                changeLogContent.append( "\n## " ).append( youTrackIssueEntry.getKey() ).append( "s\n" );
-
-                //Calls recursively the writing of the root YouTrackIssues and their filtered children
-                youTrackIssueEntry.getValue().
-                    stream().
-                    sorted( ( youTrackIssue1, youTrackIssue2 ) -> youTrackIssue1.getSummary().compareTo( youTrackIssue2.getSummary() ) ).
-                    forEach( youTrackIssue -> generateChangelogContent( youTrackIssue, 0 ) );
-            } );
-
-        LOGGER.debug( "Changelog content: " + changeLogContent );
+//        final Map<String, List<YouTrackIssue>> youTrackIssueByType = gitHubIssueCollection.stream().
+//            filter( youTrackIssue -> !youTrackIssue.isEpic() ).
+//            map( youTrackIssue -> findRootYouTrackIssue( youTrackIssue ) ).
+//            distinct().
+//            filter( filter ).
+//            collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getType() ) );
+//
+//        //Sorts by type and for each type
+//        youTrackIssueByType.entrySet().
+//            stream().
+//            sorted( ( entry1, entry2 ) -> compareYouTrackTypes( entry1.getKey(), entry2.getKey() ) ).
+//            forEach( youTrackIssueEntry -> {
+//                //Writes the category title
+//                changeLogContent.append( "\n## " ).append( youTrackIssueEntry.getKey() ).append( "s\n" );
+//
+//                //Calls recursively the writing of the root YouTrackIssues and their filtered children
+//                youTrackIssueEntry.getValue().
+//                    stream().
+//                    sorted( ( youTrackIssue1, youTrackIssue2 ) -> youTrackIssue1.getSummary().compareTo( youTrackIssue2.getSummary() ) ).
+//                    forEach( youTrackIssue -> generateChangelogContent( youTrackIssue, 0 ) );
+//            } );
+//
+//        LOGGER.debug( "Changelog content: " + changeLogContent );
     }
 
     private int compareYouTrackTypes( String youTrackType1, String youTrackType2 )
@@ -124,7 +124,7 @@ public class ChangelogGenerationJob
 
     private void generateChangelogContent( final YouTrackIssue youTrackIssue, final int depth )
     {
-        youTrackIssueGenerated++;
+        gitHubIssuesGenerated++;
 
         for ( int i = 0; i < depth; i++ )
         {

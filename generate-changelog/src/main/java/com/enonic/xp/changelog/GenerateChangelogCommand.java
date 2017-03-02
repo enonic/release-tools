@@ -1,6 +1,7 @@
 package com.enonic.xp.changelog;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -22,9 +23,10 @@ import com.enonic.xp.changelog.git.GitServiceImpl;
 import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.GitHubService;
 import com.enonic.xp.changelog.github.GitHubServiceImpl;
+import com.enonic.xp.changelog.github.model.GitHubIssue;
+import com.enonic.xp.changelog.github.model.GitHubLabel;
 import com.enonic.xp.changelog.youtrack.YouTrackService;
 import com.enonic.xp.changelog.youtrack.YouTrackServiceImpl;
-import com.enonic.xp.changelog.youtrack.model.YouTrackIssue;
 
 
 @Command(name = "generate-changelog", description = "Generates the changelog")
@@ -87,8 +89,9 @@ public class GenerateChangelogCommand
         throws Exception
     {
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( gitDirectoryPath, since, until );
-        final List<GHIssue> ghIssues = gitHubService.retrieveGitHubIssues( gitDirectoryPath, gitCommits );
+        final HashMap<GitHubLabel, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitDirectoryPath, gitCommits );
 //        changelogGenerationService.generateChangelog( youTrackIssueSet, since, until,
 //                                                      youTrackIssue -> ignoreFieldCheck || youTrackIssue.mustBeLogged() );
+        System.exit( 1 );
     }
 }

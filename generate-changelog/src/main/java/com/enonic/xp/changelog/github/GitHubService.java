@@ -1,17 +1,17 @@
 package com.enonic.xp.changelog.github;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-
-import org.kohsuke.github.GHIssue;
 
 import com.enonic.xp.changelog.ChangelogException;
 import com.enonic.xp.changelog.git.model.GitCommit;
+import com.enonic.xp.changelog.github.model.GitHubIssue;
+import com.enonic.xp.changelog.github.model.GitHubLabel;
 
 public interface GitHubService
 {
-    List<GHIssue> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers )
+    HashMap<GitHubLabel, List<GitHubIssue>> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers )
         throws IOException, ChangelogException;
 }
