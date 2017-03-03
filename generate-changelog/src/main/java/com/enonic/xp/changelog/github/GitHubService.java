@@ -8,10 +8,9 @@ import java.util.Set;
 import com.enonic.xp.changelog.ChangelogException;
 import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.model.GitHubIssue;
-import com.enonic.xp.changelog.github.model.GitHubLabel;
 
 public interface GitHubService
 {
-    HashMap<GitHubLabel, List<GitHubIssue>> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers )
+    HashMap<String, List<GitHubIssue>> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers )
         throws IOException, ChangelogException;
 }

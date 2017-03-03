@@ -3,45 +3,66 @@ package com.enonic.xp.changelog.generation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import org.kohsuke.github.GHIssue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
 
-import com.enonic.xp.changelog.youtrack.model.YouTrackIssue;
+import com.enonic.xp.changelog.github.model.GitHubIssue;
 
 public class ChangelogGenerationJob
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( ChangelogGenerationJob.class );
 
-    private Collection<GHIssue> gitHubIssueCollection;
+    private HashMap<String, List<GitHubIssue>> gitHubIssueCollection;
+
+    private List<String> labelOrder = new ArrayList<>();
 
     private final String since;
 
     private final String until;
 
-    private final Predicate<YouTrackIssue> filter;
-
     private int gitHubIssuesGenerated = 0;
 
-    private StringBuilder changeLogContent = new StringBuilder( "# Changelog\n" );
+    private StringBuilder changeLogContent = new StringBuilder( "# Changelog" ).append( System.lineSeparator() );
 
-    public ChangelogGenerationJob( final Collection<GHIssue> gitHubIssueCollection, final String since, final String until,
-                                   final Predicate<YouTrackIssue> filter )
+    public ChangelogGenerationJob( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until)
     {
         this.gitHubIssueCollection = gitHubIssueCollection;
         this.since = since;
         this.until = until;
-        this.filter = filter;
+        defineLabelOrder();
     }
+
+    private void defineLabelOrder()
+    {
+        if ( gitHubIssueCollection.containsKey( "Epic" ) )
+        {
+            labelOrder.add( "Epic" );
+        }
+        if ( gitHubIssueCollection.containsKey( "Feature" ) )
+        {
+            labelOrder.add( "Feature" );
+        }
+        if ( gitHubIssueCollection.containsKey( "Improvement" ) )
+        {
+            labelOrder.add( "Improvement" );
+        }
+        if ( gitHubIssueCollection.containsKey( "Bug" ) )
+        {
+            labelOrder.add( "Bug" );
+        }
+        if ( gitHubIssueCollection.containsKey( "Refactoring" ) )
+        {
+            labelOrder.add( "Refactoring" );
+        }
+    }
+
 
     public void run()
         throws IOException
@@ -52,77 +73,61 @@ public class ChangelogGenerationJob
 
         //Writes the content in the output MD file
         generateChangelogFile();
-        LOGGER.info( gitHubIssuesGenerated + " YouTrack issues written in the changelog." );
+        LOGGER.info( gitHubIssuesGenerated + " GitHub issues written in the changelog." );
     }
 
     private void generateChangelogContent()
     {
-        //Retrieves the filtered root YouTrackIssues and group them by category
-//        final Map<String, List<YouTrackIssue>> youTrackIssueByType = gitHubIssueCollection.stream().
-//            filter( youTrackIssue -> !youTrackIssue.isEpic() ).
-//            map( youTrackIssue -> findRootYouTrackIssue( youTrackIssue ) ).
-//            distinct().
-//            filter( filter ).
-//            collect( Collectors.groupingBy( youTrackIssue1 -> youTrackIssue1.getType() ) );
+        for ( String label : labelOrder )
+        {
+            changeLogContent.append( System.lineSeparator() ).append( "## " ).append( label ).append( "s" ).append(
+                System.lineSeparator() );
+            gitHubIssueCollection.get( label ).forEach( issue -> generateChangelogContent( issue, 0 ) );
+        }
+        LOGGER.debug( "Changelog content: " + changeLogContent );
+    }
+
+//    private int compareYouTrackTypes( String youTrackType1, String youTrackType2 )
+//    {
+//        int priorityComparison = getYouTrackTypePriority( youTrackType1 ) - getYouTrackTypePriority( youTrackType2 );
+//        if ( priorityComparison != 0 )
+//        {
+//            return priorityComparison;
+//        }
 //
-//        //Sorts by type and for each type
-//        youTrackIssueByType.entrySet().
-//            stream().
-//            sorted( ( entry1, entry2 ) -> compareYouTrackTypes( entry1.getKey(), entry2.getKey() ) ).
-//            forEach( youTrackIssueEntry -> {
-//                //Writes the category title
-//                changeLogContent.append( "\n## " ).append( youTrackIssueEntry.getKey() ).append( "s\n" );
+//        return youTrackType1.compareTo( youTrackType2 );
+//    }
 //
-//                //Calls recursively the writing of the root YouTrackIssues and their filtered children
-//                youTrackIssueEntry.getValue().
-//                    stream().
-//                    sorted( ( youTrackIssue1, youTrackIssue2 ) -> youTrackIssue1.getSummary().compareTo( youTrackIssue2.getSummary() ) ).
-//                    forEach( youTrackIssue -> generateChangelogContent( youTrackIssue, 0 ) );
-//            } );
 //
-//        LOGGER.debug( "Changelog content: " + changeLogContent );
-    }
+//    private int getYouTrackTypePriority( String type )
+//    {
+//        switch ( type )
+//        {
+//            case YouTrackIssue.FEATURE_TYPE:
+//                return 0;
+//            case YouTrackIssue.IMPROVEMENT_TYPE:
+//                return 1;
+//            case YouTrackIssue.BUG_TYPE:
+//                return 2;
+//            default:
+//                return Integer.MAX_VALUE;
+//        }
+//    }
 
-    private int compareYouTrackTypes( String youTrackType1, String youTrackType2 )
-    {
-        int priorityComparison = getYouTrackTypePriority( youTrackType1 ) - getYouTrackTypePriority( youTrackType2 );
-        if ( priorityComparison != 0 )
-        {
-            return priorityComparison;
-        }
+//    private YouTrackIssue findRootYouTrackIssue( final YouTrackIssue youTrackIssue )
+//    {
+//        final YouTrackIssue parentYouTrackIssue = youTrackIssue.getParent();
+//        if ( parentYouTrackIssue == null || parentYouTrackIssue.isEpic() )
+//        {
+//            return youTrackIssue;
+//        }
+//        else
+//        {
+//            return findRootYouTrackIssue( parentYouTrackIssue );
+//        }
+//    }
 
-        return youTrackType1.compareTo( youTrackType2 );
-    }
-
-    private int getYouTrackTypePriority( String type )
-    {
-        switch ( type )
-        {
-            case YouTrackIssue.FEATURE_TYPE:
-                return 0;
-            case YouTrackIssue.IMPROVEMENT_TYPE:
-                return 1;
-            case YouTrackIssue.BUG_TYPE:
-                return 2;
-            default:
-                return Integer.MAX_VALUE;
-        }
-    }
-
-    private YouTrackIssue findRootYouTrackIssue( final YouTrackIssue youTrackIssue )
-    {
-        final YouTrackIssue parentYouTrackIssue = youTrackIssue.getParent();
-        if ( parentYouTrackIssue == null || parentYouTrackIssue.isEpic() )
-        {
-            return youTrackIssue;
-        }
-        else
-        {
-            return findRootYouTrackIssue( parentYouTrackIssue );
-        }
-    }
-
-    private void generateChangelogContent( final YouTrackIssue youTrackIssue, final int depth )
+    private void generateChangelogContent( final GitHubIssue issue, final int depth )
     {
         gitHubIssuesGenerated++;
 
@@ -132,25 +137,24 @@ public class ChangelogGenerationJob
         }
 
         changeLogContent.append( " - " ).
-            append( youTrackIssue.getSummary() ).
-            append( " (" ).
-            append( youTrackIssue.getId() );
+            append( issue.getTitle() ).
+            append( " (#" ).
+            append( issue.getGitHubIssueId() );
 
-        if ( depth > 0 )
-        {
-            changeLogContent.append( ", " ).
-                append( youTrackIssue.getField( YouTrackIssue.TYPE_FIELD_NAME ) );
-        }
-        changeLogContent.append( ")." ).
-            append( System.lineSeparator() );
+//        if ( depth > 0 )
+//        {
+//            changeLogContent.append( ", " ).
+//                append( youTrackIssue.getField( YouTrackIssue.TYPE_FIELD_NAME ) );
+//        }
+        changeLogContent.append( ")." ).append( System.lineSeparator() );
 
-        if ( !youTrackIssue.isFeature() )
-        {
-            youTrackIssue.getChildren().
-                stream().
-                filter( filter ).
-                forEach( childYouTrackIssue -> generateChangelogContent( childYouTrackIssue, depth + 1 ) );
-        }
+//        if ( !youTrackIssue.isFeature() )
+//        {
+//            youTrackIssue.getChildren().
+//                stream().
+//                filter( filter ).
+//                forEach( childYouTrackIssue -> generateChangelogContent( childYouTrackIssue, depth + 1 ) );
+//        }
     }
 
     private void generateChangelogFile()

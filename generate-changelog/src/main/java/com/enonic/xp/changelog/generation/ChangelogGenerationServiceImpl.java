@@ -1,22 +1,19 @@
 package com.enonic.xp.changelog.generation;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.function.Predicate;
+import java.util.HashMap;
+import java.util.List;
 
-import org.kohsuke.github.GHIssue;
-
-import com.enonic.xp.changelog.youtrack.model.YouTrackIssue;
+import com.enonic.xp.changelog.github.model.GitHubIssue;
 
 public class ChangelogGenerationServiceImpl
     implements ChangelogGenerationService
 {
     @Override
-    public void generateChangelog( final Collection<GHIssue> gitHubIssueCollection, final String since, final String until,
-                                   final Predicate<YouTrackIssue> filter )
+    public void generateChangelog( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until )
         throws IOException
     {
-        final ChangelogGenerationJob changelogGenerationJob = new ChangelogGenerationJob( gitHubIssueCollection, since, until, filter );
+        final ChangelogGenerationJob changelogGenerationJob = new ChangelogGenerationJob( gitHubIssueCollection, since, until );
         changelogGenerationJob.run();
     }
 }

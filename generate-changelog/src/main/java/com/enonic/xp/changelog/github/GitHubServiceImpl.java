@@ -17,7 +17,6 @@ import com.enonic.xp.changelog.ChangelogException;
 import com.enonic.xp.changelog.git.GitServiceHelper;
 import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.model.GitHubIssue;
-import com.enonic.xp.changelog.github.model.GitHubLabel;
 
 public class GitHubServiceImpl
     implements GitHubService
@@ -25,15 +24,15 @@ public class GitHubServiceImpl
     private static final Logger LOGGER = LoggerFactory.getLogger( GitHubServiceImpl.class );
 
     @Override
-    public HashMap<GitHubLabel, List<GitHubIssue>> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers )
+    public HashMap<String, List<GitHubIssue>> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers )
         throws IOException, ChangelogException
     {
         LOGGER.info( "Retrieving GitHub issues with GitHub issue IDs..." );
 
-        final GitHub gitHub = GitHub.connectAnonymously();
+        final GitHub gitHub = GitHub.connect( "jsi@enonic.com", "1c6b6e795419400c39b1dde01778a25543c50e5a" );
         final GHRepository repo = gitHub.getRepository( GitServiceHelper.findRepoName( gitDirectoryPath ) );
 
-        HashMap<GitHubLabel, List<GitHubIssue>> issues = new HashMap<>( issueNumbers.size() );
+        HashMap<String, List<GitHubIssue>> issues = new HashMap<>( issueNumbers.size() );
         for ( GitCommit commit : issueNumbers )
         {
             GHIssue i = repo.getIssue( commit.getGitHubIdAsInt() );
@@ -43,9 +42,9 @@ public class GitHubServiceImpl
                 List<GitHubIssue> list = issues.get( label.getName() );
                 if (list == null) {
                     list = new ArrayList<GitHubIssue>(  );
-                    issues.put( new GitHubLabel( label.getName(), label.getColor() ), list );
+                    issues.put( label.getName(), list );
                 }
-                list.add( new GitHubIssue( i.getId(), i.getTitle() ) );
+                list.add( new GitHubIssue( i.getNumber(), i.getTitle() ) );
                 LOGGER.debug( "  - " + label.getName() + " (" + label.getColor() + ")");
             }
         }

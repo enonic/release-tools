@@ -7,7 +7,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.kohsuke.github.GHIssue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,6 @@ import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.GitHubService;
 import com.enonic.xp.changelog.github.GitHubServiceImpl;
 import com.enonic.xp.changelog.github.model.GitHubIssue;
-import com.enonic.xp.changelog.github.model.GitHubLabel;
 import com.enonic.xp.changelog.youtrack.YouTrackService;
 import com.enonic.xp.changelog.youtrack.YouTrackServiceImpl;
 
@@ -46,8 +44,8 @@ public class GenerateChangelogCommand
     @Option(name = "-u", description = "Until the provided Git reference.")
     public String until;
 
-    @Option(name = "--ignore-field-check", description = "Ignore the YouTrack Changelog field check.")
-    public boolean ignoreFieldCheck;
+//    @Option(name = "--ignore-field-check", description = "Ignore the YouTrack Changelog field check.")
+//    public boolean ignoreFieldCheck;
 
     private YouTrackService youTrackService;
 
@@ -89,9 +87,8 @@ public class GenerateChangelogCommand
         throws Exception
     {
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( gitDirectoryPath, since, until );
-        final HashMap<GitHubLabel, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitDirectoryPath, gitCommits );
-//        changelogGenerationService.generateChangelog( youTrackIssueSet, since, until,
-//                                                      youTrackIssue -> ignoreFieldCheck || youTrackIssue.mustBeLogged() );
+        final HashMap<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitDirectoryPath, gitCommits );
+        changelogGenerationService.generateChangelog( ghIssues, since, until );
         System.exit( 1 );
     }
 }
