@@ -38,6 +38,9 @@ public class GenerateChangelogCommand
     @Inject
     public HelpOption helpOption;
 
+    @Option(name = "-f", description = "Full path and file name of properties file.  Default is './changelog.properties'")
+    public String propertiesFile = "./changelog.properties";
+
     @Option(name = "-p", description = "Path of the Git repository (default value is the current directory).")
     public String gitDirectoryPath = ".";
 
@@ -99,7 +102,7 @@ public class GenerateChangelogCommand
     private Properties getPropertiesFromFile()
         throws IOException
     {
-        FileReader changelogFileReader = new FileReader( "./changelog.properties" );
+        FileReader changelogFileReader = new FileReader( propertiesFile );
         final Properties props = new Properties();
         props.load( changelogFileReader );
         return props;
