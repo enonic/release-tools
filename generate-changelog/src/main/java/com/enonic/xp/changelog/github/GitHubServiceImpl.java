@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.kohsuke.github.GHIssue;
@@ -24,12 +25,14 @@ public class GitHubServiceImpl
     private static final Logger LOGGER = LoggerFactory.getLogger( GitHubServiceImpl.class );
 
     @Override
-    public HashMap<String, List<GitHubIssue>> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers )
+    public HashMap<String, List<GitHubIssue>> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers,
+                                                                    final Properties changelogProperties )
         throws IOException, ChangelogException
     {
         LOGGER.info( "Retrieving GitHub issues with GitHub issue IDs..." );
 
-        final GitHub gitHub = GitHub.connect( "jsi@enonic.com", "1c6b6e795419400c39b1dde01778a25543c50e5a" );
+//        final GitHub gitHub = GitHub.connect( "jsi@enonic.com", " 1781d3e7ff950850cca058a55531e974e689baed" );
+        final GitHub gitHub = GitHub.connect( changelogProperties.getProperty( "user" ), changelogProperties.getProperty( "oAuthToken" ) );
         final GHRepository repo = gitHub.getRepository( GitServiceHelper.findRepoName( gitDirectoryPath ) );
 
         HashMap<String, List<GitHubIssue>> issues = new HashMap<>( issueNumbers.size() );
@@ -40,12 +43,13 @@ public class GitHubServiceImpl
             for ( GHLabel label : i.getLabels() )
             {
                 List<GitHubIssue> list = issues.get( label.getName() );
-                if (list == null) {
-                    list = new ArrayList<GitHubIssue>(  );
+                if ( list == null )
+                {
+                    list = new ArrayList<GitHubIssue>();
                     issues.put( label.getName(), list );
                 }
                 list.add( new GitHubIssue( i.getNumber(), i.getTitle() ) );
-                LOGGER.debug( "  - " + label.getName() + " (" + label.getColor() + ")");
+                LOGGER.debug( "  - " + label.getName() + " (" + label.getColor() + ")" );
             }
         }
         return issues;

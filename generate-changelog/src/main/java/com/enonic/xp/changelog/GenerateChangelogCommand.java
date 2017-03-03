@@ -1,8 +1,11 @@
 package com.enonic.xp.changelog;
 
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -87,8 +90,18 @@ public class GenerateChangelogCommand
         throws Exception
     {
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( gitDirectoryPath, since, until );
-        final HashMap<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitDirectoryPath, gitCommits );
+        final HashMap<String, List<GitHubIssue>> ghIssues =
+            gitHubService.retrieveGitHubIssues( gitDirectoryPath, gitCommits, getPropertiesFromFile() );
         changelogGenerationService.generateChangelog( ghIssues, since, until );
         System.exit( 1 );
+    }
+
+    private Properties getPropertiesFromFile()
+        throws IOException
+    {
+        FileReader changelogFileReader = new FileReader( "./changelog.properties" );
+        final Properties props = new Properties();
+        props.load( changelogFileReader );
+        return props;
     }
 }

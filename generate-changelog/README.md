@@ -18,14 +18,20 @@ Build all code:
 
 The script "generate-changelog" is generated in the sub-folder "build/install/generate-changelog/bin/"
 
+When running "generate-changelog", the script is looking for a properties file with two properties: "user" and "oAuthToken"
+These are used for logging in to GitHub.  the OAuthToken can be generated in GitHub by going to your setting/Personal Access Token.
+
     NAME
         generate-changelog - Generates the changelog
 
     SYNOPSIS
-        generate-changelog [(-h | --help)] [--ignore-field-check]
+        generate-changelog [(-f <propertiesFile>)] [(-h | --help)] [--ignore-field-check]
                 [-p <gitDirectoryPath>] [-s <since>] [-u <until>]
 
     OPTIONS
+        -f <propertiesFile>
+            Full path and file name of properties file.  Default is "./changelog.properties"
+
         -h, --help
             Display help information
 
@@ -40,7 +46,7 @@ The script "generate-changelog" is generated in the sub-folder "build/install/ge
 
         -u <until>
             Until the provided Git reference.
-
+            
 Example:
 
     generate-changelog -p Workspace/git/xp -s v6.0.0 -u 0624445611a32e8cbed6aa71f8ac15c5b7d9af1a
