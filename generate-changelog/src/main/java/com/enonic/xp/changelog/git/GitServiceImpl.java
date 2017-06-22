@@ -88,12 +88,16 @@ public class GitServiceImpl
                 gitHubCommitSet.add( new GitCommit( gitHubID, revCommitShortMessage ) );
                 LOGGER.debug( "GitHub Issue ID: " + gitHubID );
             }
-
             nbRevCommits++;
         }
-        LOGGER.debug( "# Commits retrieved: " + nbRevCommits );
-        LOGGER.debug( "# Commits with GitHub Issue IDs retrieved: " + gitHubCommitSet.size() );
 
+        LOGGER.info( "# Commits retrieved: " + nbRevCommits );
+        LOGGER.info( "# Different GitHub Issue IDs found in commits: " + gitHubCommitSet.size() );
+
+        for ( GitCommit gitHubCommit : gitHubCommitSet )
+        {
+            LOGGER.debug( gitHubCommit.getGitHubIdAsString() + " - " + gitHubCommit.getShortMessage() );
+        }
         return gitHubCommitSet;
     }
 

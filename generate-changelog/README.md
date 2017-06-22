@@ -30,13 +30,13 @@ These are used for logging in to GitHub.  the OAuthToken can be generated in Git
 
     OPTIONS
         -f <propertiesFile>
-            Full path and file name of properties file.  Default is "./changelog.properties"
+            Full path and file name of properties file with authentication properties.  Default is "./changelog.properties"
 
         -h, --help
             Display help information
 
         --ignore-field-check
-            Ignore the YouTrack Changelog field check.
+            Ignore the "Not In Changelog" field check.
 
         -p <gitDirectoryPath>
             Path of the Git repository (default value is the current directory).

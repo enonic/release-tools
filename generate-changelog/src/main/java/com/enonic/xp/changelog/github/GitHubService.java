@@ -15,4 +15,12 @@ public interface GitHubService
     HashMap<String, List<GitHubIssue>> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers,
                                                              final Properties changelogProperties )
         throws IOException, ChangelogException;
+
+    /**
+     * Labels added with this ignore method, will cause all issues where this label is one of the labels, to be ignored completely,
+     * no matter what other labels the issue have.
+     *
+     * @param label
+     */
+    void addIgnoreLabel( final String label );
 }

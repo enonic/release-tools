@@ -31,7 +31,7 @@ public class ChangelogGenerationJob
 
     private StringBuilder changeLogContent = new StringBuilder( "# Changelog" ).append( System.lineSeparator() );
 
-    public ChangelogGenerationJob( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until)
+    public ChangelogGenerationJob( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until )
     {
         this.gitHubIssueCollection = gitHubIssueCollection;
         this.since = since;
@@ -82,9 +82,12 @@ public class ChangelogGenerationJob
         {
             changeLogContent.append( System.lineSeparator() ).append( "## " ).append( label ).append( "s" ).append(
                 System.lineSeparator() );
-            gitHubIssueCollection.get( label ).forEach( issue -> generateChangelogContent( issue, 0 ) );
+            List<GitHubIssue> sectionIssues = gitHubIssueCollection.get( label );
+            sectionIssues.sort( GitHubIssue::compareTo );
+            sectionIssues.forEach( issue -> generateChangelogContent( issue, 0 ) );
         }
-        LOGGER.debug( "Changelog content: " + changeLogContent );
+        LOGGER.debug( "Changelog content: " );
+        LOGGER.debug( changeLogContent.toString() );
     }
 
 //    private int compareYouTrackTypes( String youTrackType1, String youTrackType2 )

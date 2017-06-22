@@ -66,6 +66,7 @@ public class GenerateChangelogCommand
         youTrackService = new YouTrackServiceImpl();
         gitService = new GitServiceImpl();
         gitHubService = new GitHubServiceImpl();
+        gitHubService.addIgnoreLabel( "Not in Changelog" );
         changelogGenerationService = new ChangelogGenerationServiceImpl();
     }
 
