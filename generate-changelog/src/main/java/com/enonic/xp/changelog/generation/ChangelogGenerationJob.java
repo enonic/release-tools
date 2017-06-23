@@ -41,10 +41,10 @@ public class ChangelogGenerationJob
 
     private void defineLabelOrder()
     {
-        if ( gitHubIssueCollection.containsKey( "Epic" ) )
-        {
-            labelOrder.add( "Epic" );
-        }
+//        if ( gitHubIssueCollection.containsKey( "Epic" ) )
+//        {
+//            labelOrder.add( "Epic" );
+//        }
         if ( gitHubIssueCollection.containsKey( "Feature" ) )
         {
             labelOrder.add( "Feature" );
