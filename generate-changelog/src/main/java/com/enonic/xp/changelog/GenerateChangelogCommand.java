@@ -55,12 +55,21 @@ public class GenerateChangelogCommand
 
     private GitHubService gitHubService;
 
+//    private ZenHubService zenHubService;
+
     private ChangelogGenerationService changelogGenerationService;
 
-    public GenerateChangelogCommand()
+    private void init()
+        throws IOException, ChangelogException
     {
-        gitService = new GitServiceImpl();
-        gitHubService = new GitHubServiceImpl();
+        gitService = new GitServiceImpl( gitDirectoryPath, since, until );
+        gitHubService = new GitHubServiceImpl(gitDirectoryPath, getPropertiesFromFile());
+//        zenHubService = new ZenHubServiceImpl();
+        if ( !ignoreChangelogCheck )  // Double negative logic: Do not add this label to ignorelist, if the ignore check should be ignored! :D
+        {
+            gitHubService.addIgnoreLabel( "Not in Changelog" );
+        }
+
         changelogGenerationService = new ChangelogGenerationServiceImpl();
     }
 
@@ -87,15 +96,10 @@ public class GenerateChangelogCommand
     public void run()
         throws Exception
     {
-        // Iniitialization must be done here, because the command line options are not set when Contructor is run:
-        if (!ignoreChangelogCheck)  // Double negative logic: Do not add this label to ignorelist, if the ignore check should be ignored! :D
-        {
-            gitHubService.addIgnoreLabel( "Not in Changelog" );
-        }
+        init();
 
-        final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( gitDirectoryPath, since, until );
-        final HashMap<String, List<GitHubIssue>> ghIssues =
-            gitHubService.retrieveGitHubIssues( gitDirectoryPath, gitCommits, getPropertiesFromFile() );
+        final Set<GitCommit> gitCommits = gitService.retrieveGitCommits();
+        final HashMap<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitCommits );
         changelogGenerationService.generateChangelog( ghIssues, since, until );
         System.exit( 1 );
     }

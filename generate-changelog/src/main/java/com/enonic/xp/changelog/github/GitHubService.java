@@ -3,7 +3,6 @@ package com.enonic.xp.changelog.github;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import com.enonic.xp.changelog.ChangelogException;
@@ -12,8 +11,7 @@ import com.enonic.xp.changelog.github.model.GitHubIssue;
 
 public interface GitHubService
 {
-    HashMap<String, List<GitHubIssue>> retrieveGitHubIssues( final String gitDirectoryPath, final Set<GitCommit> issueNumbers,
-                                                             final Properties changelogProperties )
+    HashMap<String, List<GitHubIssue>> retrieveGitHubIssues( final Set<GitCommit> issueNumbers )
         throws IOException, ChangelogException;
 
     /**
@@ -23,4 +21,11 @@ public interface GitHubService
      * @param label
      */
     void addIgnoreLabel( final String label );
+
+    /**
+     * This is the GitHub-internal numeric ID.
+     *
+     * @return The GitHub repository ID.
+     */
+    Integer getRepoId ();
 }

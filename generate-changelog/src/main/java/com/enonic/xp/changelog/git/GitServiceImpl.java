@@ -25,8 +25,20 @@ public class GitServiceImpl
 
     private static final Pattern GITHUB_ISSUE_ID_PATTERN = Pattern.compile( "(#[0-9]+)" );
 
+    private final String gitDirectoryPath;
+
+    private final String since;
+
+    private final String until;
+
+    public GitServiceImpl (final String gitDirectoryPath, final String since, final String until ) {
+        this.gitDirectoryPath = gitDirectoryPath;
+        this.since = since;
+        this.until = until;
+    }
+
     @Override
-    public SortedSet<GitCommit> retrieveGitCommits( final String gitDirectoryPath, final String since, final String until )
+    public SortedSet<GitCommit> retrieveGitCommits( )
         throws IOException, GitAPIException, ChangelogException
     {
         LOGGER.info( "Retrieving Git commits with GitHub issue IDs..." );

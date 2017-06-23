@@ -90,46 +90,6 @@ public class ChangelogGenerationJob
         LOGGER.debug( changeLogContent.toString() );
     }
 
-//    private int compareYouTrackTypes( String youTrackType1, String youTrackType2 )
-//    {
-//        int priorityComparison = getYouTrackTypePriority( youTrackType1 ) - getYouTrackTypePriority( youTrackType2 );
-//        if ( priorityComparison != 0 )
-//        {
-//            return priorityComparison;
-//        }
-//
-//        return youTrackType1.compareTo( youTrackType2 );
-//    }
-//
-//
-//    private int getYouTrackTypePriority( String type )
-//    {
-//        switch ( type )
-//        {
-//            case YouTrackIssue.FEATURE_TYPE:
-//                return 0;
-//            case YouTrackIssue.IMPROVEMENT_TYPE:
-//                return 1;
-//            case YouTrackIssue.BUG_TYPE:
-//                return 2;
-//            default:
-//                return Integer.MAX_VALUE;
-//        }
-//    }
-
-//    private YouTrackIssue findRootYouTrackIssue( final YouTrackIssue youTrackIssue )
-//    {
-//        final YouTrackIssue parentYouTrackIssue = youTrackIssue.getParent();
-//        if ( parentYouTrackIssue == null || parentYouTrackIssue.isEpic() )
-//        {
-//            return youTrackIssue;
-//        }
-//        else
-//        {
-//            return findRootYouTrackIssue( parentYouTrackIssue );
-//        }
-//    }
-
     private void generateChangelogContent( final GitHubIssue issue, final int depth )
     {
         gitHubIssuesGenerated++;
@@ -144,20 +104,8 @@ public class ChangelogGenerationJob
             append( " (#" ).
             append( issue.getGitHubIssueId() );
 
-//        if ( depth > 0 )
-//        {
-//            changeLogContent.append( ", " ).
-//                append( youTrackIssue.getField( YouTrackIssue.TYPE_FIELD_NAME ) );
-//        }
         changeLogContent.append( ")." ).append( System.lineSeparator() );
 
-//        if ( !youTrackIssue.isFeature() )
-//        {
-//            youTrackIssue.getChildren().
-//                stream().
-//                filter( filter ).
-//                forEach( childYouTrackIssue -> generateChangelogContent( childYouTrackIssue, depth + 1 ) );
-//        }
     }
 
     private void generateChangelogFile()

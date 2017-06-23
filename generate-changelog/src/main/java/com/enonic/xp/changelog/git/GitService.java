@@ -10,6 +10,6 @@ import com.enonic.xp.changelog.git.model.GitCommit;
 
 public interface GitService
 {
-    SortedSet<GitCommit> retrieveGitCommits( final String gitDirectoryPath, final String since, final String until )
+    SortedSet<GitCommit> retrieveGitCommits( )
         throws IOException, GitAPIException, ChangelogException;
 }
