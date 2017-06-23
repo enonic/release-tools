@@ -26,8 +26,6 @@ import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.GitHubService;
 import com.enonic.xp.changelog.github.GitHubServiceImpl;
 import com.enonic.xp.changelog.github.model.GitHubIssue;
-import com.enonic.xp.changelog.youtrack.YouTrackService;
-import com.enonic.xp.changelog.youtrack.YouTrackServiceImpl;
 
 
 @Command(name = "generate-changelog", description = "Generates the changelog")
@@ -50,10 +48,8 @@ public class GenerateChangelogCommand
     @Option(name = "-u", description = "Until the provided Git reference.")
     public String until;
 
-//    @Option(name = "--ignore-field-check", description = "Ignore the YouTrack Changelog field check.")
-//    public boolean ignoreFieldCheck;
-
-    private YouTrackService youTrackService;
+    @Option(name = "--ignore-changelog-check", description = "Ignore the ZenHub 'Not in Changelog' tag check.")
+    public boolean ignoreChangelogCheck;
 
     private GitService gitService;
 
@@ -63,10 +59,8 @@ public class GenerateChangelogCommand
 
     public GenerateChangelogCommand()
     {
-        youTrackService = new YouTrackServiceImpl();
         gitService = new GitServiceImpl();
         gitHubService = new GitHubServiceImpl();
-        gitHubService.addIgnoreLabel( "Not in Changelog" );
         changelogGenerationService = new ChangelogGenerationServiceImpl();
     }
 
@@ -93,6 +87,12 @@ public class GenerateChangelogCommand
     public void run()
         throws Exception
     {
+        // Iniitialization must be done here, because the command line options are not set when Contructor is run:
+        if (!ignoreChangelogCheck)  // Double negative logic: Do not add this label to ignorelist, if the ignore check should be ignored! :D
+        {
+            gitHubService.addIgnoreLabel( "Not in Changelog" );
+        }
+
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( gitDirectoryPath, since, until );
         final HashMap<String, List<GitHubIssue>> ghIssues =
             gitHubService.retrieveGitHubIssues( gitDirectoryPath, gitCommits, getPropertiesFromFile() );
