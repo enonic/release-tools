@@ -90,7 +90,7 @@ public class GenerateChangelogCommand
         }
     }
 
-    public void run()
+    private void run()
         throws Exception
     {
         init();

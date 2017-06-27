@@ -15,10 +15,6 @@ import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
 import com.enonic.xp.changelog.ChangelogException;
 import com.enonic.xp.changelog.git.GitServiceHelper;
 import com.enonic.xp.changelog.git.model.GitCommit;
@@ -40,8 +36,6 @@ public class GitHubServiceImpl
 
     private String gitDirectoryPath;
 
-    private OkHttpClient httpClient;
-
     private GHRepository repo;
 
     public GitHubServiceImpl( final String gitDirectoryPath, final Properties changelogProperties )
@@ -50,7 +44,6 @@ public class GitHubServiceImpl
         this.gitDirectoryPath = gitDirectoryPath;
         this.changelogProps = changelogProperties;
         this.repo = getRepository();
-        httpClient = new OkHttpClient();
     }
 
     private GHRepository getRepository()
@@ -89,7 +82,7 @@ public class GitHubServiceImpl
         HashSet<Integer> bugsInEpics = new HashSet<>();
         for ( GitHubIssue epic : epics )
         {
-            bugsInEpics.addAll( getIssuesInEpic( epic.getGitHubIssueId() ) );
+            bugsInEpics.addAll( ZenHubHelper.getIssuesInEpic( epic.getGitHubIssueId(), getRepoId(), changelogProps.getProperty( "zenHubToken" ) ) );
         }
         final List<GitHubIssue> bugs = new ArrayList<>();
         bugs.addAll( issues.get( "Bug" ) );
@@ -101,24 +94,6 @@ public class GitHubServiceImpl
                 LOGGER.debug( "Removed bug #" + bug.getGitHubIssueId() + " from changelog, because it is a child of an Epic." );
             }
         }
-    }
-
-    private List<Integer> getIssuesInEpic( final Integer epic )
-        throws IOException
-    {
-        String JSon = sendRequest( epic );
-        return ZenHubHelper.filterChildren( JSon );
-    }
-
-    private String sendRequest( final Integer epic )
-        throws IOException
-    {
-        String url =
-            "https://api.zenhub.io/p1/repositories/" + getRepoId().toString() + "/epics/" + epic.toString() + "?access_token=TOKEN";
-        Request request =
-            new Request.Builder().url( url ).header( "X-Authentication-Token", changelogProps.getProperty( "zenHubToken" ) ).build();
-        Response response = httpClient.newCall( request ).execute();
-        return response.body().string();
     }
 
     private void verifyAndAddIssue( final GHIssue i )
