@@ -3,6 +3,7 @@ package com.enonic.xp.changelog.github;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -14,10 +15,15 @@ import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
 import com.enonic.xp.changelog.ChangelogException;
 import com.enonic.xp.changelog.git.GitServiceHelper;
 import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.model.GitHubIssue;
+import com.enonic.xp.changelog.zenhub.ZenHubHelper;
 
 public class GitHubServiceImpl
     implements GitHubService
@@ -34,6 +40,8 @@ public class GitHubServiceImpl
 
     private String gitDirectoryPath;
 
+    private OkHttpClient httpClient;
+
     private GHRepository repo;
 
     public GitHubServiceImpl( final String gitDirectoryPath, final Properties changelogProperties )
@@ -42,6 +50,7 @@ public class GitHubServiceImpl
         this.gitDirectoryPath = gitDirectoryPath;
         this.changelogProps = changelogProperties;
         this.repo = getRepository();
+        httpClient = new OkHttpClient();
     }
 
     private GHRepository getRepository()
@@ -60,7 +69,6 @@ public class GitHubServiceImpl
         issues = new HashMap<>( issueNumbers.size() );
         noLabel = new ArrayList<>();
 
-        Commit:
         for ( GitCommit commit : issueNumbers )
         {
             GHIssue i = repo.getIssue( commit.getGitHubIdAsInt() );
@@ -70,7 +78,47 @@ public class GitHubServiceImpl
         {
             LOGGER.debug( "No label: #" + noLabelIssue.getGitHubIssueId() + " - " + noLabelIssue.getTitle() );
         }
+        filterBugsInEpics();
         return issues;
+    }
+
+    private void filterBugsInEpics()
+        throws IOException
+    {
+        final List<GitHubIssue> epics = issues.get( "Epic" );
+        HashSet<Integer> bugsInEpics = new HashSet<>();
+        for ( GitHubIssue epic : epics )
+        {
+            bugsInEpics.addAll( getIssuesInEpic( epic.getGitHubIssueId() ) );
+        }
+        final List<GitHubIssue> bugs = new ArrayList<>();
+        bugs.addAll( issues.get( "Bug" ) );
+        for ( GitHubIssue bug : bugs )
+        {
+            if ( bugsInEpics.contains( bug.getGitHubIssueId() ) )
+            {
+                issues.get( "Bug" ).remove( bug );
+                LOGGER.debug( "Removed bug #" + bug.getGitHubIssueId() + " from changelog, because it is a child of an Epic." );
+            }
+        }
+    }
+
+    private List<Integer> getIssuesInEpic( final Integer epic )
+        throws IOException
+    {
+        String JSon = sendRequest( epic );
+        return ZenHubHelper.filterChildren( JSon );
+    }
+
+    private String sendRequest( final Integer epic )
+        throws IOException
+    {
+        String url =
+            "https://api.zenhub.io/p1/repositories/" + getRepoId().toString() + "/epics/" + epic.toString() + "?access_token=TOKEN";
+        Request request =
+            new Request.Builder().url( url ).header( "X-Authentication-Token", changelogProps.getProperty( "zenHubToken" ) ).build();
+        Response response = httpClient.newCall( request ).execute();
+        return response.body().string();
     }
 
     private void verifyAndAddIssue( final GHIssue i )
@@ -80,11 +128,6 @@ public class GitHubServiceImpl
         {
             return;
         }
-
-//        if (i.getNumber() == 4864) {
-//            LOGGER.debug( "Just a place to stop" );
-//        }
-
         LOGGER.debug( i.toString() );
         if ( i.getLabels().size() < 1 )
         {
@@ -104,16 +147,7 @@ public class GitHubServiceImpl
         }
         for ( GHLabel label : i.getLabels() )
         {
-//            if  (label.getName().equalsIgnoreCase( "epic" )) {
-//                LOGGER.debug( "Just a place to stop" );
-//            }
-
-            List<GitHubIssue> list = issues.get( label.getName() );
-            if ( list == null )
-            {
-                list = new ArrayList<>();
-                issues.put( label.getName(), list );
-            }
+            List<GitHubIssue> list = issues.computeIfAbsent( label.getName(), k -> new ArrayList<>() );
             list.add( new GitHubIssue( i.getNumber(), i.getTitle() ) );
             LOGGER.debug( "  - " + label.getName() + " (" + label.getColor() + ")" );
         }

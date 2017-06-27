@@ -1,18 +1,19 @@
 package com.enonic.xp.changelog.github.model;
 
-public class GitHubIssue implements Comparable<GitHubIssue>
+public class GitHubIssue
+    implements Comparable<GitHubIssue>
 {
-    private long gitHubIssueId;
+    private int gitHubIssueId;
 
     private String title;
 
-    public GitHubIssue( final long gitHubIssueId, final String title )
+    public GitHubIssue( final int gitHubIssueId, final String title )
     {
         this.gitHubIssueId = gitHubIssueId;
         this.title = title;
     }
 
-    public long getGitHubIssueId()
+    public int getGitHubIssueId()
     {
         return gitHubIssueId;
     }

@@ -55,8 +55,6 @@ public class GenerateChangelogCommand
 
     private GitHubService gitHubService;
 
-//    private ZenHubService zenHubService;
-
     private ChangelogGenerationService changelogGenerationService;
 
     private void init()
@@ -64,7 +62,6 @@ public class GenerateChangelogCommand
     {
         gitService = new GitServiceImpl( gitDirectoryPath, since, until );
         gitHubService = new GitHubServiceImpl(gitDirectoryPath, getPropertiesFromFile());
-//        zenHubService = new ZenHubServiceImpl();
         if ( !ignoreChangelogCheck )  // Double negative logic: Do not add this label to ignorelist, if the ignore check should be ignored! :D
         {
             gitHubService.addIgnoreLabel( "Not in Changelog" );
@@ -100,6 +97,7 @@ public class GenerateChangelogCommand
 
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits();
         final HashMap<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitCommits );
+
         changelogGenerationService.generateChangelog( ghIssues, since, until );
         System.exit( 1 );
     }
