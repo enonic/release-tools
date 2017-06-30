@@ -79,6 +79,9 @@ public class GitHubServiceImpl
         throws IOException
     {
         final List<GitHubIssue> epics = issues.get( "Epic" );
+        if (epics == null) {
+            return;
+        }
         HashSet<Integer> bugsInEpics = new HashSet<>();
         for ( GitHubIssue epic : epics )
         {

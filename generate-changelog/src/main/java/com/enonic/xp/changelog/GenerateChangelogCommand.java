@@ -1,6 +1,5 @@
 package com.enonic.xp.changelog;
 
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
