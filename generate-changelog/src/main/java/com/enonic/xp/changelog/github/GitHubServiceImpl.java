@@ -64,8 +64,16 @@ public class GitHubServiceImpl
 
         for ( GitCommit commit : issueNumbers )
         {
-            GHIssue i = repo.getIssue( commit.getGitHubIdAsInt() );
-            verifyAndAddIssue( i );
+            try
+            {
+                GHIssue i = repo.getIssue( commit.getGitHubIdAsInt() );
+                verifyAndAddIssue( i );
+            }
+            catch ( IOException e )
+            {
+                Throwable parent = e.getCause();
+                LOGGER.warn("WARNING: Issue #" + commit.getGitHubIdAsString() + " can not be found: " + e.getMessage() + " - Caused by: " + parent.getMessage());
+            }
         }
         for ( GitHubIssue noLabelIssue : noLabel )
         {
