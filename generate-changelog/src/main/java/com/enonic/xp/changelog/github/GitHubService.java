@@ -28,4 +28,11 @@ public interface GitHubService
      * @return The GitHub repository ID.
      */
     Integer getRepoId ();
+
+    /**
+     * Retrieves the project name of the repo.
+     *
+     * @return The project Name.
+     */
+    String getProjectName();
 }

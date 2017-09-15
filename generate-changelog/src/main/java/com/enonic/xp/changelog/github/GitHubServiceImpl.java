@@ -151,4 +151,6 @@ public class GitHubServiceImpl
         return repo.getId();
     }
 
+    @Override
+    public String getProjectName() { return repo.getName(); }
 }

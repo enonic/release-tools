@@ -27,15 +27,18 @@ public class ChangelogGenerationJob
 
     private final String until;
 
+    private final String projectName;
+
     private int gitHubIssuesGenerated = 0;
 
     private StringBuilder changeLogContent = new StringBuilder( "# Changelog" ).append( System.lineSeparator() );
 
-    public ChangelogGenerationJob( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until )
+    public ChangelogGenerationJob( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until, final String projectName )
     {
         this.gitHubIssueCollection = gitHubIssueCollection;
         this.since = since;
         this.until = until;
+        this.projectName = projectName;
         defineLabelOrder();
     }
 
@@ -122,7 +125,8 @@ public class ChangelogGenerationJob
 
     private String generateFileName()
     {
-        StringBuilder changelogFileName = new StringBuilder( "changelog" );
+        StringBuilder changelogFileName = new StringBuilder( "changelog_" );
+        changelogFileName.append( projectName );
 
         if ( since != null || until != null )
         {

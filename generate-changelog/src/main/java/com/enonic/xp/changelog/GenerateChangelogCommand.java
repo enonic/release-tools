@@ -97,7 +97,7 @@ public class GenerateChangelogCommand
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits();
         final HashMap<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitCommits );
 
-        changelogGenerationService.generateChangelog( ghIssues, since, until );
+        changelogGenerationService.generateChangelog( ghIssues, since, until, gitHubService.getProjectName());
         System.exit( 1 );
     }
 

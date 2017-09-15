@@ -8,6 +8,6 @@ import com.enonic.xp.changelog.github.model.GitHubIssue;
 
 public interface ChangelogGenerationService
 {
-    void generateChangelog( HashMap<String, List<GitHubIssue>> gitHubIssueCollection, String since, String until )
+    void generateChangelog( HashMap<String, List<GitHubIssue>> gitHubIssueCollection, String since, String until, final String projectName )
         throws IOException;
 }
