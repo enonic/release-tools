@@ -2,9 +2,6 @@ package com.enonic.xp.changelog.git;
 
 import java.io.IOException;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
@@ -23,22 +20,21 @@ public class GitServiceImpl
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GitServiceImpl.class );
 
-    private static final Pattern GITHUB_ISSUE_ID_PATTERN = Pattern.compile( "(#[0-9]+)" );
-
     private final String gitDirectoryPath;
 
     private final String since;
 
     private final String until;
 
-    public GitServiceImpl (final String gitDirectoryPath, final String since, final String until ) {
+    public GitServiceImpl( final String gitDirectoryPath, final String since, final String until )
+    {
         this.gitDirectoryPath = gitDirectoryPath;
         this.since = since;
         this.until = until;
     }
 
     @Override
-    public Set<GitCommit> retrieveGitCommits( )
+    public Set<GitCommit> retrieveGitCommits()
         throws IOException, GitAPIException, ChangelogException
     {
         LOGGER.info( "Retrieving Git commits with GitHub issue IDs..." );
@@ -50,13 +46,13 @@ public class GitServiceImpl
         final Iterable<RevCommit> revCommitIterable = retrieveGitRevCommits( gitRepository, since, until );
 
         //Parses the Git commits
-        final Set<GitCommit> gitHubIssueCommits = retrieveGitHubIssueCommits( revCommitIterable );
+        final Set<GitCommit> gitHubIssueCommits = GitServiceHelper.retrieveGitHubIssueCommits( revCommitIterable );
 
         LOGGER.info( gitHubIssueCommits.size() + " Git commits with GitHub Issue IDs retrieved." );
 
         Set<GitCommit> gitCommitsNoPRs = GitServiceHelper.filterPullRequests( gitHubIssueCommits );
 
-        LOGGER.info("After filtering out Pull Requests, there are " + gitCommitsNoPRs.size() + " Git commits left to process for changelog.");
+        LOGGER.info(gitCommitsNoPRs.size() + " commits left after filtering out Pull Requests." );
 
         return gitCommitsNoPRs;
     }
@@ -87,35 +83,4 @@ public class GitServiceImpl
 
         return logCommand.call();
     }
-
-    private Set<GitCommit> retrieveGitHubIssueCommits( final Iterable<RevCommit> revCommitIterable )
-    {
-        final Set<GitCommit> gitHubCommitSet = new TreeSet<>();
-        int nbRevCommits = 0;
-        for ( RevCommit revCommit : revCommitIterable )
-        {
-            final String revCommitShortMessage = revCommit.getShortMessage();
-            LOGGER.debug( "Commit " + revCommit.getId().getName() + ": " + revCommitShortMessage );
-
-            final Matcher matcher = GITHUB_ISSUE_ID_PATTERN.matcher( revCommitShortMessage );
-            final boolean gitHubIdFound = matcher.find();
-            if ( gitHubIdFound )
-            {
-                String gitHubID = matcher.group( 1 );
-                gitHubCommitSet.add( new GitCommit( gitHubID, revCommitShortMessage ) );
-                LOGGER.debug( "GitHub Issue ID: " + gitHubID );
-            }
-            nbRevCommits++;
-        }
-
-        LOGGER.info( "# Commits retrieved: " + nbRevCommits );
-        LOGGER.info( "# Different GitHub Issue IDs found in commits: " + gitHubCommitSet.size() );
-
-        for ( GitCommit gitHubCommit : gitHubCommitSet )
-        {
-            LOGGER.debug( gitHubCommit.getGitHubIdAsString() + " - " + gitHubCommit.getShortMessage() );
-        }
-        return gitHubCommitSet;
-    }
-
 }

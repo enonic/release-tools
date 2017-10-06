@@ -3,20 +3,30 @@ package com.enonic.xp.changelog.git;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.enonic.xp.changelog.ChangelogException;
 import com.enonic.xp.changelog.git.model.GitCommit;
 
 public class GitServiceHelper
 {
-    static String PR_START_STRING = "Merge pull request #";
+    private static final Logger LOGGER = LoggerFactory.getLogger( GitServiceHelper.class );
 
-    public static Repository retrieveGitRepository( final String gitDirectoryPath )
+    private static final Pattern GITHUB_ISSUE_ID_PATTERN = Pattern.compile( "(#[0-9]+)" );
+
+    private static String PR_START_STRING = "Merge pull request #";
+
+    static Repository retrieveGitRepository( final String gitDirectoryPath )
         throws ChangelogException, IOException
     {
         final File gitDirectory = new File( gitDirectoryPath, ".git" );
@@ -49,9 +59,39 @@ public class GitServiceHelper
         return repoName;
     }
 
-    public static Set<GitCommit> filterPullRequests( Set<GitCommit> gitCommitIssues )
+    static Set<GitCommit> filterPullRequests( Set<GitCommit> gitCommitIssues )
     {
         return gitCommitIssues.stream().filter( gitCommit -> !gitCommit.getShortMessage().startsWith( PR_START_STRING ) ).collect(
             Collectors.toSet() );
+    }
+
+    static Set<GitCommit> retrieveGitHubIssueCommits( final Iterable<RevCommit> revCommitIterable )
+    {
+        final Set<GitCommit> gitHubCommitSet = new TreeSet<>();
+        int nbRevCommits = 0;
+        for ( RevCommit revCommit : revCommitIterable )
+        {
+            final String revCommitShortMessage = revCommit.getShortMessage();
+            LOGGER.debug( "Commit " + revCommit.getId().getName() + ": " + revCommitShortMessage );
+
+            final Matcher matcher = GITHUB_ISSUE_ID_PATTERN.matcher( revCommitShortMessage );
+            final boolean gitHubIdFound = matcher.find();
+            if ( gitHubIdFound )
+            {
+                String gitHubID = matcher.group( 1 );
+                gitHubCommitSet.add( new GitCommit( gitHubID, revCommitShortMessage ) );
+                LOGGER.debug( "GitHub Issue ID: " + gitHubID );
+            }
+            nbRevCommits++;
+        }
+
+        LOGGER.info( "# Commits retrieved: " + nbRevCommits );
+        LOGGER.info( "# Different GitHub Issue IDs found in commits: " + gitHubCommitSet.size() );
+
+        for ( GitCommit gitHubCommit : gitHubCommitSet )
+        {
+            LOGGER.debug( gitHubCommit.getGitHubIdAsString() + " - " + gitHubCommit.getShortMessage() );
+        }
+        return gitHubCommitSet;
     }
 }
