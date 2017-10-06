@@ -2,15 +2,20 @@ package com.enonic.xp.changelog.git;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import com.enonic.xp.changelog.ChangelogException;
+import com.enonic.xp.changelog.git.model.GitCommit;
 
 public class GitServiceHelper
 {
+    static String PR_START_STRING = "Merge pull request #";
+
     public static Repository retrieveGitRepository( final String gitDirectoryPath )
         throws ChangelogException, IOException
     {
@@ -42,5 +47,11 @@ public class GitServiceHelper
             throw new ChangelogException( "Can't extract repoName from remoteURL: " + remoteURL );
         }
         return repoName;
+    }
+
+    public static Set<GitCommit> filterPullRequests( Set<GitCommit> gitCommitIssues )
+    {
+        return gitCommitIssues.stream().filter( gitCommit -> !gitCommit.getShortMessage().startsWith( PR_START_STRING ) ).collect(
+            Collectors.toSet() );
     }
 }

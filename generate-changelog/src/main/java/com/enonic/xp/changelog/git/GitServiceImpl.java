@@ -1,7 +1,7 @@
 package com.enonic.xp.changelog.git;
 
 import java.io.IOException;
-import java.util.SortedSet;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,7 +38,7 @@ public class GitServiceImpl
     }
 
     @Override
-    public SortedSet<GitCommit> retrieveGitCommits( )
+    public Set<GitCommit> retrieveGitCommits( )
         throws IOException, GitAPIException, ChangelogException
     {
         LOGGER.info( "Retrieving Git commits with GitHub issue IDs..." );
@@ -50,10 +50,15 @@ public class GitServiceImpl
         final Iterable<RevCommit> revCommitIterable = retrieveGitRevCommits( gitRepository, since, until );
 
         //Parses the Git commits
-        final SortedSet<GitCommit> gitHubIssueCommits = retrieveGitHubIssueCommits( revCommitIterable );
+        final Set<GitCommit> gitHubIssueCommits = retrieveGitHubIssueCommits( revCommitIterable );
 
         LOGGER.info( gitHubIssueCommits.size() + " Git commits with GitHub Issue IDs retrieved." );
-        return gitHubIssueCommits;
+
+        Set<GitCommit> gitCommitsNoPRs = GitServiceHelper.filterPullRequests( gitHubIssueCommits );
+
+        LOGGER.info("After filtering out Pull Requests, there are " + gitCommitsNoPRs.size() + " Git commits left to process for changelog.");
+
+        return gitCommitsNoPRs;
     }
 
     private Iterable<RevCommit> retrieveGitRevCommits( final Repository gitRepository, final String since, final String until )
@@ -83,9 +88,9 @@ public class GitServiceImpl
         return logCommand.call();
     }
 
-    private SortedSet<GitCommit> retrieveGitHubIssueCommits( final Iterable<RevCommit> revCommitIterable )
+    private Set<GitCommit> retrieveGitHubIssueCommits( final Iterable<RevCommit> revCommitIterable )
     {
-        final SortedSet<GitCommit> gitHubCommitSet = new TreeSet<>();
+        final Set<GitCommit> gitHubCommitSet = new TreeSet<>();
         int nbRevCommits = 0;
         for ( RevCommit revCommit : revCommitIterable )
         {
