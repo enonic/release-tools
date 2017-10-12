@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
-mainClassName = "com.enonic.xp.changelog.GenerateChangelogCommand"
+mainClassName = "com.enonic.xp.release.phrases.ValidatePhrasesCommand"
 
 sourceCompatibility = 1.8
 version = '1.2'
@@ -20,6 +20,6 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'com.enonic.xp.changelog.GenerateChangelogCommand'
+        attributes 'Main-Class': 'com.enonic.xp.release.phrases.ValidatePhrasesCommand'
     }
 }
