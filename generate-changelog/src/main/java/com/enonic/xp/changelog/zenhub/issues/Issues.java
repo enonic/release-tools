@@ -1,6 +1,6 @@
-package com.enonic.xp.changelog.zenhub;
+package com.enonic.xp.changelog.zenhub.issues;
 
-class Issues
+public class Issues
 {
     private Pipeline pipeline;
 
@@ -9,6 +9,8 @@ class Issues
     private Integer issue_number;
 
     private boolean is_epic;
+
+    private Estimate estimate;
 
     public Pipeline getPipeline ()
     {
@@ -30,7 +32,7 @@ class Issues
         this.repo_id = repo_id;
     }
 
-    Integer getIssue_number()
+    public Integer getIssue_number()
     {
         return issue_number;
     }
@@ -49,6 +51,10 @@ class Issues
     {
         this.is_epic = is_epic;
     }
+
+    public Estimate getEstimate () { return estimate; }
+
+    public void setEstimate (Estimate estimate) { this.estimate = estimate; }
 
     @Override
     public String toString()

@@ -1,4 +1,4 @@
-package com.enonic.xp.changelog.zenhub;
+package com.enonic.xp.changelog.zenhub.issues;
 
 class Total_epic_estimates
 {

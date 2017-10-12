@@ -1,6 +1,6 @@
-package com.enonic.xp.changelog.zenhub;
+package com.enonic.xp.changelog.zenhub.issues;
 
-class IssuePojo
+public class IssuePojo
 {
     private Pipeline pipeline;
 
@@ -18,7 +18,7 @@ class IssuePojo
         this.pipeline = pipeline;
     }
 
-    Issues[] getIssues()
+    public Issues[] getIssues()
     {
         return issues;
     }

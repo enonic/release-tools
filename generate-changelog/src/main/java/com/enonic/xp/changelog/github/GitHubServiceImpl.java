@@ -3,7 +3,6 @@ package com.enonic.xp.changelog.github;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -19,6 +18,7 @@ import com.enonic.xp.changelog.ChangelogException;
 import com.enonic.xp.changelog.git.GitServiceHelper;
 import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.model.GitHubIssue;
+import com.enonic.xp.changelog.github.model.GitHubIssueIdComparator;
 import com.enonic.xp.changelog.zenhub.ZenHubHelper;
 
 public class GitHubServiceImpl
@@ -31,6 +31,8 @@ public class GitHubServiceImpl
     private List<GitHubIssue> noLabel;
 
     private HashMap<String, List<GitHubIssue>> issues;
+
+    private List<Integer> issuesInEpics;
 
     private Properties changelogProps;
 
@@ -75,31 +77,54 @@ public class GitHubServiceImpl
                 LOGGER.warn("WARNING: Issue #" + commit.getGitHubIdAsString() + " can not be found: " + e.getMessage() + " - Caused by: " + parent.getMessage());
             }
         }
+        filterBugsInEpics();
+        listIssuesWithoutLabelsInLog();
+        return issues;
+    }
+
+    private void listIssuesWithoutLabelsInLog()
+        throws IOException
+    {
+        filterNoLabelsInEpics();
+        noLabel.sort( new GitHubIssueIdComparator<GitHubIssue>() );
         for ( GitHubIssue noLabelIssue : noLabel )
         {
             LOGGER.debug( "No label: #" + noLabelIssue.getGitHubIssueId() + " - " + noLabelIssue.getTitle() );
         }
-        filterBugsInEpics();
-        return issues;
+    }
+
+    private void filterNoLabelsInEpics()
+        throws IOException
+    {
+        List<Integer> issuesInEpics = getAllIssuesInEpics();
+        if ( issuesInEpics == null )
+        {
+            return;
+        }
+        final List<GitHubIssue> issuesWithoutLable = new ArrayList<>(  );
+        issuesWithoutLable.addAll( noLabel );
+        for ( GitHubIssue issueWithoutLabel : issuesWithoutLable )
+        {
+            if ( issuesInEpics.contains( issueWithoutLabel.getGitHubIssueId() ) )
+            {
+                noLabel.remove( issueWithoutLabel );
+            }
+        }
     }
 
     private void filterBugsInEpics()
         throws IOException
     {
-        final List<GitHubIssue> epics = issues.get( "Epic" );
-        if (epics == null) {
-            return;
-        }
-        HashSet<Integer> bugsInEpics = new HashSet<>();
-        for ( GitHubIssue epic : epics )
+        List<Integer> allIssuesInEpics = getAllIssuesInEpics();
+        if ( allIssuesInEpics == null )
         {
-            bugsInEpics.addAll( ZenHubHelper.getIssuesInEpic( epic.getGitHubIssueId(), getRepoId(), changelogProps.getProperty( "zenHubToken" ) ) );
+            return;
         }
         final List<GitHubIssue> bugs = new ArrayList<>();
         bugs.addAll( issues.get( "Bug" ) );
         for ( GitHubIssue bug : bugs )
         {
-            if ( bugsInEpics.contains( bug.getGitHubIssueId() ) )
+            if ( allIssuesInEpics.contains( bug.getGitHubIssueId() ) )
             {
                 issues.get( "Bug" ).remove( bug );
                 LOGGER.debug( "Removed bug #" + bug.getGitHubIssueId() + " from changelog, because it is a child of an Epic." );
@@ -137,6 +162,15 @@ public class GitHubServiceImpl
             list.add( new GitHubIssue( i.getNumber(), i.getTitle() ) );
             LOGGER.debug( "  - " + label.getName() + " (" + label.getColor() + ")" );
         }
+    }
+
+    private List<Integer> getAllIssuesInEpics ()
+        throws IOException
+    {
+        if (issuesInEpics == null) {
+            issuesInEpics = ZenHubHelper.getAllIssuesInAllEpics( getRepoId(), changelogProps.getProperty( "zenHubToken" ) );
+        }
+        return issuesInEpics;
     }
 
     @Override
