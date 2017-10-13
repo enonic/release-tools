@@ -31,9 +31,11 @@ The script "validate-phrases" is generated in the sub-folder "build/install/vali
                 Path of the directory containing the phrases files
             
 Example:
-    XP_APP_REPO_PATH=/Users/gri/Workspace/git/xp-apps
-    validate-phrases -p $XP_APP_REPO_PATH/modules/app-applications/src/main/resources/admin/i18n
-    validate-phrases -p $XP_APP_REPO_PATH/modules/app-contentstudio/src/main/resources/admin/i18n
-    validate-phrases -p $XP_APP_REPO_PATH/modules/app-standardidprovider/src/main/resources/admin/i18n
-    validate-phrases -p $XP_APP_REPO_PATH/modules/app-users/src/main/resources/admin/i18n
+```
+XP_APP_REPO_PATH=/Users/gri/Workspace/git/xp-apps
+validate-phrases -p $XP_APP_REPO_PATH/modules/app-applications/src/main/resources/admin/i18n
+validate-phrases -p $XP_APP_REPO_PATH/modules/app-contentstudio/src/main/resources/admin/i18n
+validate-phrases -p $XP_APP_REPO_PATH/modules/app-standardidprovider/src/main/resources/admin/i18n
+validate-phrases -p $XP_APP_REPO_PATH/modules/app-users/src/main/resources/admin/i18n
+```
     
