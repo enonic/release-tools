@@ -34,7 +34,7 @@ public class ValidatePhrasesCommand
     @Inject
     public HelpOption helpOption;
 
-    @Option(name = "-p", description = "Path of the directory containing the phrases files", required = true)
+    @Option(name = "-p", description = "Path of the directory containing the phrases files")
     public String path;
 
 
@@ -61,6 +61,11 @@ public class ValidatePhrasesCommand
     private void run()
         throws IOException
     {
+        if ( this.path == null )
+        {
+            throw new RuntimeException( "Required option '-p' is missing" );
+        }
+
         File directory = new File( this.path );
         if ( !directory.isDirectory() )
         {
