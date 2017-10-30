@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -29,13 +30,18 @@ public class ValidatePhrasesCommand
 
     private static final Pattern PROPERTY_KEY_PATTERN = Pattern.compile( "^\\s*([\\S^#]+)\\s*=" );
 
-    private static final Pattern PHRASES_FILE_NAME_PATTERN = Pattern.compile( "phrases_([^\\.]+).properties" );
+    private static final String PHRASES_FILE_NAME_PATTERN_ENDING = "_([^\\.]+).properties";
 
     @Inject
     public HelpOption helpOption;
 
     @Option(name = "-p", description = "Path of the directory containing the phrases files")
     public String path;
+
+    @Option(name = "-f", description = "Name of phrases properties-file.  Default is 'phrases.properties'")
+    public String fileName;
+
+    public Pattern phrasesFileNamePattern;
 
 
     public static void main( String[] args )
@@ -66,6 +72,20 @@ public class ValidatePhrasesCommand
             throw new RuntimeException( "Required option '-p' is missing" );
         }
 
+        if ( this.fileName == null )
+        {
+            fileName = DEFAULT_PHRASE_FILE;
+        }
+
+        if ( !this.fileName.endsWith( ".properties" )) {
+            LOGGER.error( "The file with phrases must be a '.properties'-file." );
+            return;
+        }
+
+        String mainFileName = fileName.substring( 0, fileName.length() - ".properties".length() );
+
+        phrasesFileNamePattern = Pattern.compile( mainFileName + PHRASES_FILE_NAME_PATTERN_ENDING);
+
         File directory = new File( this.path );
         if ( !directory.isDirectory() )
         {
@@ -73,30 +93,32 @@ public class ValidatePhrasesCommand
             return;
         }
 
-        final File defaultPhraseFile = new File( directory, DEFAULT_PHRASE_FILE );
+        final File defaultPhraseFile = new File( directory, fileName );
         if ( !defaultPhraseFile.isFile() )
         {
-            LOGGER.error( "'" + directory.getAbsolutePath() + "' does not contain any file '" + DEFAULT_PHRASE_FILE + "'" );
+            LOGGER.error( "'" + directory.getAbsolutePath() + "' does not contain any file '" + fileName + "'" );
             return;
         }
 
         final Set<String> defaultKeys = getPropertyKeySet( defaultPhraseFile.toPath() );
 
         Files.list( directory.toPath() ).
-            forEach( filePath -> {
-                final Matcher matcher = PHRASES_FILE_NAME_PATTERN.matcher( filePath.getFileName().toString() );
-                if ( matcher.matches() )
-                {
-                    final String language = matcher.group( 1 );
-                    final Set<String> propertyKeySet = getPropertyKeySet( filePath );
-                    final Set<String> missingKeysSet =
-                        defaultKeys.stream().filter( defaultKey -> !propertyKeySet.contains( defaultKey ) ).collect( Collectors.toSet() );
-                    if ( !missingKeysSet.isEmpty() )
-                    {
-                        LOGGER.info( "The following keys are missing in '" + filePath.getFileName() + "': " + missingKeysSet );
-                    }
-                }
-            } );
+            forEach( filePath ->
+                     {
+                         final Matcher matcher = phrasesFileNamePattern.matcher( filePath.getFileName().toString() );
+                         if ( matcher.matches() )
+                         {
+                             final String language = matcher.group( 1 );
+                             final Set<String> propertyKeySet = getPropertyKeySet( filePath );
+                             final Set<String> missingKeysSet =
+                                 defaultKeys.stream().filter( defaultKey -> !propertyKeySet.contains( defaultKey ) ).collect(
+                                     Collectors.toSet() );
+                             if ( !missingKeysSet.isEmpty() )
+                             {
+                                 LOGGER.info( "The following keys are missing in '" + filePath.getFileName() + "': " + missingKeysSet );
+                             }
+                         }
+                     } );
     }
 
     private Set<String> getPropertyKeySet( final Path filePath )
@@ -105,14 +127,15 @@ public class ValidatePhrasesCommand
         {
             return Files.readAllLines( filePath ).
                 stream().
-                map( line -> {
-                    final Matcher matcher = PROPERTY_KEY_PATTERN.matcher( line );
-                    if ( matcher.find() )
-                    {
-                        return matcher.group( 1 );
-                    }
-                    return null;
-                } ).
+                map( line ->
+                     {
+                         final Matcher matcher = PROPERTY_KEY_PATTERN.matcher( line );
+                         if ( matcher.find() )
+                         {
+                             return matcher.group( 1 );
+                         }
+                         return null;
+                     } ).
                 filter( Objects::nonNull ).
                 collect( Collectors.toSet() );
         }
