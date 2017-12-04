@@ -74,7 +74,8 @@ public class GitHubServiceImpl
             catch ( IOException e )
             {
                 Throwable parent = e.getCause();
-                LOGGER.warn("WARNING: Issue #" + commit.getGitHubIdAsString() + " can not be found: " + e.getMessage() + " - Caused by: " + parent.getMessage());
+                LOGGER.warn( "WARNING: Issue #" + commit.getGitHubIdAsString() + " can not be found: " + e.getMessage() + " - Caused by: " +
+                                 parent.getMessage() );
             }
         }
         filterBugsInEpics();
@@ -101,7 +102,7 @@ public class GitHubServiceImpl
         {
             return;
         }
-        final List<GitHubIssue> issuesWithoutLable = new ArrayList<>(  );
+        final List<GitHubIssue> issuesWithoutLable = new ArrayList<>();
         issuesWithoutLable.addAll( noLabel );
         for ( GitHubIssue issueWithoutLabel : issuesWithoutLable )
         {
@@ -120,14 +121,17 @@ public class GitHubServiceImpl
         {
             return;
         }
-        final List<GitHubIssue> bugs = new ArrayList<>();
-        bugs.addAll( issues.get( "Bug" ) );
-        for ( GitHubIssue bug : bugs )
+        if ( issues.get( "Bug" ) != null )  // Small releases may not have any bugs at all
         {
-            if ( allIssuesInEpics.contains( bug.getGitHubIssueId() ) )
+            final List<GitHubIssue> bugs = new ArrayList<>();
+            bugs.addAll( issues.get( "Bug" ) );
+            for ( GitHubIssue bug : bugs )
             {
-                issues.get( "Bug" ).remove( bug );
-                LOGGER.debug( "Removed bug #" + bug.getGitHubIssueId() + " from changelog, because it is a child of an Epic." );
+                if ( allIssuesInEpics.contains( bug.getGitHubIssueId() ) )
+                {
+                    issues.get( "Bug" ).remove( bug );
+                    LOGGER.debug( "Removed bug #" + bug.getGitHubIssueId() + " from changelog, because it is a child of an Epic." );
+                }
             }
         }
     }
@@ -164,10 +168,11 @@ public class GitHubServiceImpl
         }
     }
 
-    private List<Integer> getAllIssuesInEpics ()
+    private List<Integer> getAllIssuesInEpics()
         throws IOException
     {
-        if (issuesInEpics == null) {
+        if ( issuesInEpics == null )
+        {
             issuesInEpics = ZenHubHelper.getAllIssuesInAllEpics( getRepoId(), changelogProps.getProperty( "zenHubToken" ) );
         }
         return issuesInEpics;
@@ -186,5 +191,8 @@ public class GitHubServiceImpl
     }
 
     @Override
-    public String getProjectName() { return repo.getName(); }
+    public String getProjectName()
+    {
+        return repo.getName();
+    }
 }
