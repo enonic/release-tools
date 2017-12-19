@@ -1,0 +1,28 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = "com.enonic.xp.changelog.ChangelogCombinerCommand"
+
+sourceCompatibility = 1.8
+version = '1.2'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "http://repo.jenkins-ci.org/releases/"
+    }
+}
+
+dependencies {
+    compile 'io.airlift:airline:0.7'
+    compile 'org.eclipse.jgit:org.eclipse.jgit:4.0.1.201506240215-r'
+    compile 'org.kohsuke:github-api:1.84'
+    compile 'org.slf4j:slf4j-log4j12:1.7.2'
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.enonic.xp.changelog.ChangelogCombinerCommand'
+    }
+}
