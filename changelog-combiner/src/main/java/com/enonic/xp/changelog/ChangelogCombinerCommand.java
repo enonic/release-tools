@@ -1,5 +1,6 @@
 package com.enonic.xp.changelog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -24,6 +25,9 @@ public class ChangelogCombinerCommand
     @Option(name = "-o", description = "GitHub organization owner.  Default is 'enonic'")
     public String ownerOrganization = "enonic";
 
+    @Option(name = "-p", description = "Path to folder with changelog files.  Default is ./")
+    public String path = "./";
+
     @Arguments(description = "List of changelog files to be combined.")
     public List<String> changelogFiles;
 
@@ -38,7 +42,7 @@ public class ChangelogCombinerCommand
                 return;
             }
 
-            if (changelogCombinerCommand.changelogFiles.size() < 1) {
+            if ((changelogCombinerCommand.changelogFiles == null) || (changelogCombinerCommand.changelogFiles.size() < 1)) {
                 LOGGER.debug( "No files to combine!" );
                 return;
             }
@@ -55,7 +59,20 @@ public class ChangelogCombinerCommand
     private void run()
         throws Exception
     {
-        LOGGER.debug( "There are " + changelogFiles.size() + " files to combine." );
+        List<IndividualChangelog> changelogs = new ArrayList<>();
+        for (String filename : changelogFiles) {
+            changelogs.add( IndividualChangelog.parse(path + filename) );
+        }
+        LOGGER.debug( "Found changelogs:" );
+        for ( IndividualChangelog ic : changelogs ) {
+            LOGGER.debug( ic.getProject() );
+            for (String section : ic.getEntries().keySet()) {
+                LOGGER.debug( "## " + section );
+                for (ChangelogEntry ce : ic.getEntries().get( section )) {
+                    LOGGER.debug( " - " + ce.getDescription() + " (#" + ce.getIssueNo().toString() + ")." );
+                }
+            }
+        }
 
     }
 }

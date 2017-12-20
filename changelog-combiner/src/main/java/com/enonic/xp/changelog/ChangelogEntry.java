@@ -1,6 +1,6 @@
 package com.enonic.xp.changelog;
 
-public class ChangelogEntry
+public class ChangelogEntry implements Comparable<ChangelogEntry>
 {
     private String description;
 
@@ -20,5 +20,11 @@ public class ChangelogEntry
     public Integer getIssueNo()
     {
         return issueNo;
+    }
+
+    @Override
+    public int compareTo( final ChangelogEntry o )
+    {
+        return this.description.compareTo( o.getDescription() );
     }
 }
