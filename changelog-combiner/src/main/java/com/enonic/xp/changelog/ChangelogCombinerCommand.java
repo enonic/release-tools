@@ -109,6 +109,31 @@ public class ChangelogCombinerCommand
             }
         }
         Collections.sort( combinedEntries );
+        return mergeDuplicates( combinedEntries );
+    }
+
+    private ArrayList<ChangelogEntry> mergeDuplicates( final ArrayList<ChangelogEntry> combinedEntries )
+    {
+        if (combinedEntries.size() < 1) {
+            return combinedEntries;
+        }
+        ChangelogEntry entry = combinedEntries.get( 0 );
+        for(int i = 1; i < combinedEntries.size(); i++) {
+            ChangelogEntry nextEntry = combinedEntries.get( i );
+            LOGGER.debug( "Comparing entry: " + nextEntry.getDescription() );
+            if (entry.getDescription().equals( nextEntry.getDescription() )) {
+                LOGGER.debug( "Two equal descriptions: " + entry.getDescription());
+                String mergedIssueNo = entry.getIssueNo() + ", " + nextEntry.getIssueNo();
+                ChangelogEntry mergedEntry = new ChangelogEntry( entry.getDescription(),  mergedIssueNo);
+                combinedEntries.remove( entry );
+                combinedEntries.remove( nextEntry );
+                combinedEntries.add( mergedEntry );
+                Collections.sort( combinedEntries );
+                mergeDuplicates( combinedEntries );
+                return combinedEntries;
+            }
+            entry = nextEntry;
+        }
         return combinedEntries;
     }
 
@@ -133,18 +158,21 @@ public class ChangelogCombinerCommand
         //Writes the output file content
         final CharSink charSink = Files.asCharSink( file, Charset.forName( "UTF-8" ) );
 
-        charSink.write( "# Changelog" + systemNewLineChar +
-                            createSection( "Features", completeChangelog ) +
-                            createSection( "Improvements", completeChangelog ) +
-                            createSection( "Bugs", completeChangelog ) +
+        charSink.write( "# Changelog" + systemNewLineChar + createSection( "Features", completeChangelog ) +
+                            createSection( "Improvements", completeChangelog ) + createSection( "Bugs", completeChangelog ) +
                             createSection( "Refactorings", completeChangelog ) );
     }
 
     private String createSection( final String section, final IndividualChangelog completeChangelog )
     {
+        final ArrayList<ChangelogEntry> changelogEntries = completeChangelog.getEntries().get( section );
+        if ( changelogEntries.size() < 1 )
+        {
+            return "";
+        }
         StringBuilder sb = new StringBuilder( systemNewLineChar );
         sb.append( "## " ).append( section ).append( systemNewLineChar );
-        for ( ChangelogEntry ce : completeChangelog.getEntries().get( section ) )
+        for ( ChangelogEntry ce : changelogEntries )
         {
             sb.append( " - " ).append( ce.getDescription() ).append( " (" ).append( ce.getIssueNo() ).append( ")" ).append(
                 systemNewLineChar );
