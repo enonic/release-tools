@@ -143,7 +143,7 @@ public class ChangelogCombinerCommand
             filename.append( ic.getProject() ).append( '_' );
         }
         Date today = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd-hhmmss" );
+        SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd-HHmmss" );
         filename.append( sdf.format( today ) );
         return filename.toString();
     }
