@@ -120,9 +120,7 @@ public class ChangelogCombinerCommand
         ChangelogEntry entry = combinedEntries.get( 0 );
         for(int i = 1; i < combinedEntries.size(); i++) {
             ChangelogEntry nextEntry = combinedEntries.get( i );
-            LOGGER.debug( "Comparing entry: " + nextEntry.getDescription() );
             if (entry.getDescription().equals( nextEntry.getDescription() )) {
-                LOGGER.debug( "Two equal descriptions: " + entry.getDescription());
                 String mergedIssueNo = entry.getIssueNo() + ", " + nextEntry.getIssueNo();
                 ChangelogEntry mergedEntry = new ChangelogEntry( entry.getDescription(),  mergedIssueNo);
                 combinedEntries.remove( entry );
