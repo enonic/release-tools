@@ -4,20 +4,20 @@ public class ChangelogEntry implements Comparable<ChangelogEntry>
 {
     private String description;
 
-    private Integer issueNo;
+    private String issueNo;
 
-    public ChangelogEntry( final String description, final Integer issueNo )
+    ChangelogEntry( final String description, final String issueNo )
     {
         this.description = description;
         this.issueNo = issueNo;
     }
 
-    public String getDescription()
+    String getDescription()
     {
         return description;
     }
 
-    public Integer getIssueNo()
+    String getIssueNo()
     {
         return issueNo;
     }

@@ -6,24 +6,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class IndividualChangelog
+class IndividualChangelog
 {
     private String project;
 
     private HashMap<String, ArrayList<ChangelogEntry>> entries;
 
-    private IndividualChangelog( final String project, final HashMap<String, ArrayList<ChangelogEntry>> entries )
+    IndividualChangelog( final String project, final HashMap<String, ArrayList<ChangelogEntry>> entries )
     {
         this.project = project;
         this.entries = entries;
     }
 
-    public String getProject()
+    String getProject()
     {
         return project;
     }
 
-    public HashMap<String, ArrayList<ChangelogEntry>> getEntries()
+    HashMap<String, ArrayList<ChangelogEntry>> getEntries()
     {
         return entries;
     }
@@ -41,7 +41,7 @@ public class IndividualChangelog
         ArrayList<ChangelogEntry> section = null;
         while ((text = reader.readLine()) != null) {
             if (text.startsWith( "##" )) {
-                section = new ArrayList<ChangelogEntry>(  );
+                section = new ArrayList<>();
                 ic.entries.put( text.substring( 3 ), section);
             }
             if (text.startsWith( " - " )) {
@@ -49,9 +49,9 @@ public class IndividualChangelog
                     throw new ChangelogException( "Found changelog entry outside of section in: " + file );
                 }
                 int titleEnd = text.indexOf( "(#" ) - 1;
-                int issueNoStart = titleEnd + 3;
+                int issueNoStart = titleEnd + 2;
                 int issueNoStop = text.indexOf( ")." );
-                section.add( new ChangelogEntry( text.substring( 3, titleEnd ), Integer.parseInt( text.substring( issueNoStart, issueNoStop ) ) ) );
+                section.add( new ChangelogEntry( text.substring( 3, titleEnd ), text.substring( issueNoStart, issueNoStop ) ) );
             }
         }
 
