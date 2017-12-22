@@ -64,6 +64,7 @@ public class GenerateChangelogCommand
         if ( !ignoreChangelogCheck )  // Double negative logic: Do not add this label to ignorelist, if the ignore check should be ignored! :D
         {
             gitHubService.addIgnoreLabel( "Not in Changelog" );
+            gitHubService.addIgnoreLabel( "Won't Fix" );
         }
 
         changelogGenerationService = new ChangelogGenerationServiceImpl();
