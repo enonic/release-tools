@@ -145,6 +145,7 @@ public class ChangelogCombinerCommand
         Date today = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd-HHmmss" );
         filename.append( sdf.format( today ) );
+        filename.append( ".md" );
         return filename.toString();
     }
 
