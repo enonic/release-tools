@@ -7,7 +7,8 @@ public class GitCommit
 
     private String shortMessage;
 
-    public GitCommit( final Integer gitHubId, final String shortMessage) {
+    public GitCommit( final Integer gitHubId, final String shortMessage )
+    {
         this.gitHubId = gitHubId;
         this.shortMessage = shortMessage;
     }

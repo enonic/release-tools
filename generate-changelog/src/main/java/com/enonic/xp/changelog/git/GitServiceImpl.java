@@ -52,7 +52,7 @@ public class GitServiceImpl
 
         Set<GitCommit> gitCommitsNoPRs = GitServiceHelper.filterPullRequests( gitHubIssueCommits );
 
-        LOGGER.info(gitCommitsNoPRs.size() + " commits left after filtering out Pull Requests." );
+        LOGGER.info( gitCommitsNoPRs.size() + " commits left after filtering out Pull Requests." );
 
         return gitCommitsNoPRs;
     }

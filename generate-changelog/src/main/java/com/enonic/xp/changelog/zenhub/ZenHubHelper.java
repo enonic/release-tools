@@ -33,20 +33,23 @@ public class ZenHubHelper
         throws IOException
     {
         List<Integer> result = new ArrayList<>();
-        for ( Integer epic : getAllEpics( repoId, zenHubToken ) ) {
+        for ( Integer epic : getAllEpics( repoId, zenHubToken ) )
+        {
             result.addAll( getIssuesInEpic( epic, repoId, zenHubToken ) );
         }
         return result;
     }
 
-    public static HashMap<Integer, Integer> getAllIssuesInEpicsWithEpic( Integer repoId, String zenHubToken)
+    public static HashMap<Integer, Integer> getAllIssuesInEpicsWithEpic( Integer repoId, String zenHubToken )
         throws IOException
     {
-        HashMap<Integer, Integer> result = new HashMap<>(  );
+        HashMap<Integer, Integer> result = new HashMap<>();
         List<Integer> epics = getAllEpics( repoId, zenHubToken );
-        for(Integer epic : epics) {
+        for ( Integer epic : epics )
+        {
             List<Integer> children = getIssuesInEpic( epic, repoId, zenHubToken );
-            for(Integer child : children) {
+            for ( Integer child : children )
+            {
                 result.put( child, epic );
             }
         }
@@ -56,7 +59,7 @@ public class ZenHubHelper
     private static List<Integer> getAllEpics( Integer repoId, String zenHubToken )
         throws IOException
     {
-        if (epics == null)
+        if ( epics == null )
         {
             ObjectMapper mapper = getObjectMapper();
             List<Integer> result = new ArrayList<>();

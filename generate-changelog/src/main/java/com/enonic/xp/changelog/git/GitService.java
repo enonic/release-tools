@@ -10,6 +10,6 @@ import com.enonic.xp.changelog.git.model.GitCommit;
 
 public interface GitService
 {
-    Set<GitCommit> retrieveGitCommits( )
+    Set<GitCommit> retrieveGitCommits()
         throws IOException, GitAPIException, ChangelogException;
 }

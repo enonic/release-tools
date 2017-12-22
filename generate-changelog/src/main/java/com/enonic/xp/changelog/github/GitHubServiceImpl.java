@@ -90,13 +90,15 @@ public class GitHubServiceImpl
     private Set<GitCommit> appendEpicsWithoutCommits( final Set<GitCommit> issueNumbers )
         throws IOException
     {
-        HashSet<Integer> issueNos = issueNumbers.stream().mapToInt( GitCommit::getGitHubIdAsInt ).boxed().collect( Collectors.toCollection(HashSet::new));
+        HashSet<Integer> issueNos =
+            issueNumbers.stream().mapToInt( GitCommit::getGitHubIdAsInt ).boxed().collect( Collectors.toCollection( HashSet::new ) );
 
         HashMap<Integer, Integer> issuesWithEpics =
             ZenHubHelper.getAllIssuesInEpicsWithEpic( getRepoId(), changelogProps.getProperty( "zenHubToken" ) );
 
-        HashSet<Integer> issuesInCommitsAndEpics = issueNos.stream().filter( issueNo -> issuesWithEpics.keySet().contains( issueNo ) ).collect(
-            Collectors.toCollection(HashSet::new));
+        HashSet<Integer> issuesInCommitsAndEpics =
+            issueNos.stream().filter( issueNo -> issuesWithEpics.keySet().contains( issueNo ) ).collect(
+                Collectors.toCollection( HashSet::new ) );
 
         HashSet<Integer> epicsOfCommits = new HashSet<>();
         for ( Integer issueInCommitAndEpic : issuesInCommitsAndEpics )
@@ -104,16 +106,17 @@ public class GitHubServiceImpl
             epicsOfCommits.add( issuesWithEpics.get( issueInCommitAndEpic ) );
         }
 
-        HashSet<GitCommit> missingEpics = new HashSet<>(  );
+        HashSet<GitCommit> missingEpics = new HashSet<>();
         for ( Integer epicOfCommit : epicsOfCommits )
         {
-            if (!issueNos.contains( epicOfCommit)) {
+            if ( !issueNos.contains( epicOfCommit ) )
+            {
                 missingEpics.add( new GitCommit( epicOfCommit, "" ) );
             }
 
         }
 
-        HashSet<GitCommit> result = new HashSet<>(  );
+        HashSet<GitCommit> result = new HashSet<>();
         result.addAll( issueNumbers );
         result.addAll( missingEpics );
         return result;

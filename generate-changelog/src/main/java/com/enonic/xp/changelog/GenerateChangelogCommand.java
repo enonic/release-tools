@@ -60,7 +60,7 @@ public class GenerateChangelogCommand
         throws IOException, ChangelogException
     {
         gitService = new GitServiceImpl( gitDirectoryPath, since, until );
-        gitHubService = new GitHubServiceImpl(gitDirectoryPath, getPropertiesFromFile());
+        gitHubService = new GitHubServiceImpl( gitDirectoryPath, getPropertiesFromFile() );
         if ( !ignoreChangelogCheck )  // Double negative logic: Do not add this label to ignorelist, if the ignore check should be ignored! :D
         {
             gitHubService.addIgnoreLabel( "Not in Changelog" );
@@ -98,7 +98,7 @@ public class GenerateChangelogCommand
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits();
         final HashMap<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitCommits );
 
-        changelogGenerationService.generateChangelog( ghIssues, since, until, gitHubService.getProjectName());
+        changelogGenerationService.generateChangelog( ghIssues, since, until, gitHubService.getProjectName() );
         System.exit( 1 );
     }
 

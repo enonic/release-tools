@@ -33,7 +33,8 @@ public class ChangelogGenerationJob
 
     private StringBuilder changeLogContent = new StringBuilder( "# Changelog" ).append( System.lineSeparator() );
 
-    public ChangelogGenerationJob( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until, final String projectName )
+    public ChangelogGenerationJob( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until,
+                                   final String projectName )
     {
         this.gitHubIssueCollection = gitHubIssueCollection;
         this.since = since;

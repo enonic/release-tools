@@ -14,7 +14,8 @@ public class ChangelogGenerationServiceImpl
                                    final String projectName )
         throws IOException
     {
-        final ChangelogGenerationJob changelogGenerationJob = new ChangelogGenerationJob( gitHubIssueCollection, since, until, projectName );
+        final ChangelogGenerationJob changelogGenerationJob =
+            new ChangelogGenerationJob( gitHubIssueCollection, since, until, projectName );
         changelogGenerationJob.run();
     }
 }
