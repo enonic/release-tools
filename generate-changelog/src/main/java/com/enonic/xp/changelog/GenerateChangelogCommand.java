@@ -33,22 +33,22 @@ public class GenerateChangelogCommand
     private static final Logger LOGGER = LoggerFactory.getLogger( GenerateChangelogCommand.class );
 
     @Inject
-    private HelpOption helpOption;
+    public HelpOption helpOption;
 
     @Option(name = "-f", description = "Full path and file name of properties file.  Default is './changelog.properties'")
-    private String propertiesFile = "./changelog.properties";
+    public String propertiesFile = "./changelog.properties";
 
     @Option(name = "-p", description = "Path of the Git repository (default value is the current directory).")
-    private String gitDirectoryPath = ".";
+    public String gitDirectoryPath = ".";
 
     @Option(name = "-s", description = "Since the provided Git reference.")
-    private String since;
+    public String since;
 
     @Option(name = "-u", description = "Until the provided Git reference.")
-    private String until;
+    public String until;
 
     @Option(name = "--ignore-changelog-check", description = "Ignore the ZenHub 'Not in Changelog' tag check.")
-    private boolean ignoreChangelogCheck;
+    public boolean ignoreChangelogCheck;
 
     private GitService gitService;
 
