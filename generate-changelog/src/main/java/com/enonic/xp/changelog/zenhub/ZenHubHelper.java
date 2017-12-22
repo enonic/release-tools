@@ -2,6 +2,7 @@ package com.enonic.xp.changelog.zenhub;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,6 +21,8 @@ public class ZenHubHelper
 
     private static ObjectMapper mapper;
 
+    private static List<Integer> epics;
+
     private static List<Integer> getIssuesInEpic( final Integer epic, final Integer repoId, final String zenHubToken )
         throws IOException
     {
@@ -36,22 +39,40 @@ public class ZenHubHelper
         return result;
     }
 
+    public static HashMap<Integer, Integer> getAllIssuesInEpicsWithEpic( Integer repoId, String zenHubToken)
+        throws IOException
+    {
+        HashMap<Integer, Integer> result = new HashMap<>(  );
+        List<Integer> epics = getAllEpics( repoId, zenHubToken );
+        for(Integer epic : epics) {
+            List<Integer> children = getIssuesInEpic( epic, repoId, zenHubToken );
+            for(Integer child : children) {
+                result.put( child, epic );
+            }
+        }
+        return result;
+    }
+
     private static List<Integer> getAllEpics( Integer repoId, String zenHubToken )
         throws IOException
     {
-        ObjectMapper mapper = getObjectMapper();
-        List<Integer> result = new ArrayList<>();
-
-        String url = "https://api.zenhub.io/p1/repositories/" + repoId.toString() + "/epics?access_token=TOKEN";
-        Request request = new Request.Builder().url( url ).header( "X-Authentication-Token", zenHubToken ).build();
-        Response response = getHttpClient().newCall( request ).execute();
-
-        JsonNode root = mapper.readTree( response.body().string() );
-        for ( JsonNode epicNode : root.get( "epic_issues" ) )
+        if (epics == null)
         {
-            result.add( epicNode.get( "issue_number" ).asInt() );
+            ObjectMapper mapper = getObjectMapper();
+            List<Integer> result = new ArrayList<>();
+
+            String url = "https://api.zenhub.io/p1/repositories/" + repoId.toString() + "/epics?access_token=TOKEN";
+            Request request = new Request.Builder().url( url ).header( "X-Authentication-Token", zenHubToken ).build();
+            Response response = getHttpClient().newCall( request ).execute();
+
+            JsonNode root = mapper.readTree( response.body().string() );
+            for ( JsonNode epicNode : root.get( "epic_issues" ) )
+            {
+                result.add( epicNode.get( "issue_number" ).asInt() );
+            }
+            epics = result;
         }
-        return result;
+        return epics;
     }
 
     private static String sendRequest( final Integer epic, Integer repoId, String zenHubToken )

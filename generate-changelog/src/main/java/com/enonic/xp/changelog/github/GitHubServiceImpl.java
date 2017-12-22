@@ -3,9 +3,11 @@ package com.enonic.xp.changelog.github;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
@@ -61,10 +63,12 @@ public class GitHubServiceImpl
     {
         LOGGER.info( "Retrieving GitHub issues with GitHub issue IDs..." );
 
-        issues = new HashMap<>( issueNumbers.size() );
+        Set<GitCommit> updatedIssueNumbers = appendEpicsWithoutCommits( issueNumbers );
+
+        issues = new HashMap<>( updatedIssueNumbers.size() );
         noLabel = new ArrayList<>();
 
-        for ( GitCommit commit : issueNumbers )
+        for ( GitCommit commit : updatedIssueNumbers )
         {
             try
             {
@@ -81,6 +85,38 @@ public class GitHubServiceImpl
         filterBugsInEpics();
         listIssuesWithoutLabelsInLog();
         return issues;
+    }
+
+    private Set<GitCommit> appendEpicsWithoutCommits( final Set<GitCommit> issueNumbers )
+        throws IOException
+    {
+        HashSet<Integer> issueNos = issueNumbers.stream().mapToInt( GitCommit::getGitHubIdAsInt ).boxed().collect( Collectors.toCollection(HashSet::new));
+
+        HashMap<Integer, Integer> issuesWithEpics =
+            ZenHubHelper.getAllIssuesInEpicsWithEpic( getRepoId(), changelogProps.getProperty( "zenHubToken" ) );
+
+        HashSet<Integer> issuesInCommitsAndEpics = issueNos.stream().filter( issueNo -> issuesWithEpics.keySet().contains( issueNo ) ).collect(
+            Collectors.toCollection(HashSet::new));
+
+        HashSet<Integer> epicsOfCommits = new HashSet<>();
+        for ( Integer issueInCommitAndEpic : issuesInCommitsAndEpics )
+        {
+            epicsOfCommits.add( issuesWithEpics.get( issueInCommitAndEpic ) );
+        }
+
+        HashSet<GitCommit> missingEpics = new HashSet<>(  );
+        for ( Integer epicOfCommit : epicsOfCommits )
+        {
+            if (!issueNos.contains( epicOfCommit)) {
+                missingEpics.add( new GitCommit( epicOfCommit, "" ) );
+            }
+
+        }
+
+        HashSet<GitCommit> result = new HashSet<>(  );
+        result.addAll( issueNumbers );
+        result.addAll( missingEpics );
+        return result;
     }
 
     private void listIssuesWithoutLabelsInLog()
