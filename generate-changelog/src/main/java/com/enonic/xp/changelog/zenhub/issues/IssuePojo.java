@@ -8,6 +8,8 @@ public class IssuePojo
 
     private Total_epic_estimates total_epic_estimates;
 
+    private String message;
+
     public Pipeline getPipeline()
     {
         return pipeline;
@@ -37,6 +39,10 @@ public class IssuePojo
     {
         this.total_epic_estimates = total_epic_estimates;
     }
+
+    public String getMessage() { return message; }
+
+    public void setMessage( String message ) {this.message = message; }
 
     @Override
     public String toString()

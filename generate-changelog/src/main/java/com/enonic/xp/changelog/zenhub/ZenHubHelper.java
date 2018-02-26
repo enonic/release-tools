@@ -94,9 +94,12 @@ public class ZenHubHelper
         List<Integer> childrenList = new ArrayList<>();
         ObjectMapper mapper = getObjectMapper();
         IssuePojo json = ( mapper.readValue( data, IssuePojo.class ) );
-        for ( Issues issue : json.getIssues() )
+        if ( json != null && json.getIssues() != null )
         {
-            childrenList.add( issue.getIssue_number() );
+            for ( Issues issue : json.getIssues() )
+            {
+                childrenList.add( issue.getIssue_number() );
+            }
         }
         return childrenList;
     }
