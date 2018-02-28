@@ -80,6 +80,7 @@ public class ChangelogCombinerCommand
 
         IndividualChangelog completeChangelog = combineChangelogs( changelogs );
         String completeChangelogFileName = composeFileName( changelogs );
+        LOGGER.debug( "Changelog file: " + completeChangelogFileName );
         writeCompleteChangelogToFile( completeChangelog, completeChangelogFileName );
     }
 
