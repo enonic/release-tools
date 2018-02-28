@@ -29,6 +29,9 @@ The script "validate-phrases" is generated in the sub-folder "build/install/vali
     
             -p <path>
                 Path of the directory containing the phrases files
+                
+            -f <filename>
+                Filename if not "phrases.properties"
             
 Example:
 ```
