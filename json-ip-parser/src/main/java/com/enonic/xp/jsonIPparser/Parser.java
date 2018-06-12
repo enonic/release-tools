@@ -13,6 +13,8 @@ public class Parser
 
     private JSONArray addresses;
 
+    private static final String resourceFile = "src/main/resources/ip-ranges.json";
+
 
     public Parser( File json )
         throws IOException
@@ -58,12 +60,27 @@ public class Parser
     public static void main( String... args )
         throws IOException
     {
-        String filename = args[0];
-        Parser parser = new Parser( new File( filename ) );
-        ArrayList<String> ips = new ArrayList<>(  );
-        ips = parser.getIpAdresses( ips, "eu-west-2" );
-        ips = parser.getIpAdresses( ips, "ap-south-1" );
-        System.out.println("Found : " + ips.size() + " IP adresses!");
+        Parser parser = new Parser( new File( resourceFile ) );
+        ArrayList<String> ips = new ArrayList<>();
+        int size = ips.size();
+        for ( String arg : args )
+        {
+            ips = parser.getIpAdresses( ips, arg );
+            if ( size == ips.size() )
+            {
+                System.out.println( "Warning: No IP-addresses found for region: " + arg );
+            }
+            else
+            {
+                size = ips.size();
+            }
+        }
+        System.out.println( "Found : " + ips.size() + " IP addresses in these regions: " );
+        for ( String arg : args )
+        {
+            System.out.println( " - " + arg );
+        }
+        System.out.println();
         System.out.print( parser.createApacheConfig( ips ) );
     }
 }
