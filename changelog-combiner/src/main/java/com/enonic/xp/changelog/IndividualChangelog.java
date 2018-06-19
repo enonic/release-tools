@@ -31,21 +31,33 @@ class IndividualChangelog
     static IndividualChangelog parse( final String file )
         throws IOException, ChangelogException
     {
+        String projectName;
         int dotdotLoc = file.indexOf( ".." );
         int versionLoc = file.substring( 0, dotdotLoc ).lastIndexOf( "v" );
-        String projectName = file.substring( 12, versionLoc-1 );
-        IndividualChangelog ic = new IndividualChangelog( projectName, new HashMap<>(  ) );
+        if ( versionLoc == -1 )
+        {
+            projectName = file.substring( 12, dotdotLoc - 1 );
+        }
+        else
+        {
+            projectName = file.substring( 12, versionLoc - 1 );
+        }
+        IndividualChangelog ic = new IndividualChangelog( projectName, new HashMap<>() );
 
         BufferedReader reader = new BufferedReader( new FileReader( file ) );
         String text;
         ArrayList<ChangelogEntry> section = null;
-        while ((text = reader.readLine()) != null) {
-            if (text.startsWith( "##" )) {
+        while ( ( text = reader.readLine() ) != null )
+        {
+            if ( text.startsWith( "##" ) )
+            {
                 section = new ArrayList<>();
-                ic.entries.put( text.substring( 3 ), section);
+                ic.entries.put( text.substring( 3 ), section );
             }
-            if (text.startsWith( " - " )) {
-                if (section == null) {
+            if ( text.startsWith( " - " ) )
+            {
+                if ( section == null )
+                {
                     throw new ChangelogException( "Found changelog entry outside of section in: " + file );
                 }
                 int titleEnd = text.indexOf( "(#" ) - 1;

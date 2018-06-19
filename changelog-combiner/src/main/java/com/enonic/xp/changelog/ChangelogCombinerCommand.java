@@ -1,6 +1,7 @@
 package com.enonic.xp.changelog;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -12,6 +13,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +77,22 @@ public class ChangelogCombinerCommand
         List<IndividualChangelog> changelogs = new ArrayList<>();
         for ( String filename : changelogFiles )
         {
-            changelogs.add( IndividualChangelog.parse( path + filename ) );
+            if ( filename.contains( "*" ) )
+            {
+                File dir = new File( path );
+                FileFilter fileFilter = new WildcardFileFilter( filename );
+                File[] changelogFiles = dir.listFiles( fileFilter );
+                for ( int i = 0; i < changelogFiles.length; i++ )
+                {
+                    changelogs.add( IndividualChangelog.parse( path + changelogFiles[i].getName() ) );
+                    System.out.println("Including " + changelogFiles[i].getName() + " in changelog!" );
+                }
+            }
+            else
+            {
+                changelogs.add( IndividualChangelog.parse( path + filename ) );
+                System.out.println("Including " + filename );
+            }
         }
 
         IndividualChangelog completeChangelog = combineChangelogs( changelogs );
@@ -115,15 +132,18 @@ public class ChangelogCombinerCommand
 
     private ArrayList<ChangelogEntry> mergeDuplicates( final ArrayList<ChangelogEntry> combinedEntries )
     {
-        if (combinedEntries.size() < 1) {
+        if ( combinedEntries.size() < 1 )
+        {
             return combinedEntries;
         }
         ChangelogEntry entry = combinedEntries.get( 0 );
-        for(int i = 1; i < combinedEntries.size(); i++) {
+        for ( int i = 1; i < combinedEntries.size(); i++ )
+        {
             ChangelogEntry nextEntry = combinedEntries.get( i );
-            if (entry.getDescription().equals( nextEntry.getDescription() )) {
+            if ( entry.getDescription().equals( nextEntry.getDescription() ) )
+            {
                 String mergedIssueNo = entry.getIssueNo() + ", " + nextEntry.getIssueNo();
-                ChangelogEntry mergedEntry = new ChangelogEntry( entry.getDescription(),  mergedIssueNo);
+                ChangelogEntry mergedEntry = new ChangelogEntry( entry.getDescription(), mergedIssueNo );
                 combinedEntries.remove( entry );
                 combinedEntries.remove( nextEntry );
                 combinedEntries.add( mergedEntry );
