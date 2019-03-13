@@ -7,4 +7,9 @@ public class ChangelogException
     {
         super( message );
     }
+
+    public ChangelogException( final String message, final Exception exception )
+    {
+        super( message, exception );
+    }
 }

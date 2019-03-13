@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
@@ -83,6 +84,7 @@ public class ZenHubHelper
     {
         String url = "https://api.zenhub.io/p1/repositories/" + repoId.toString() + "/epics/" + epic.toString() + "?access_token=TOKEN";
         Request request = new Request.Builder().url( url ).header( "X-Authentication-Token", zenHubToken ).build();
+//        System.out.println( "API request: " + request.toString() );
         Response response = getHttpClient().newCall( request ).execute();
         return response.body().string();
 
@@ -93,7 +95,16 @@ public class ZenHubHelper
     {
         List<Integer> childrenList = new ArrayList<>();
         ObjectMapper mapper = getObjectMapper();
-        IssuePojo json = ( mapper.readValue( data, IssuePojo.class ) );
+        IssuePojo json = null;
+        try
+        {
+            json = ( mapper.readValue( data, IssuePojo.class ) );
+        }
+        catch ( JsonProcessingException e )
+        {
+            System.out.println( "JSon exception, parsing: " + data );
+            throw e;
+        }
         if ( json != null && json.getIssues() != null )
         {
             for ( Issues issue : json.getIssues() )

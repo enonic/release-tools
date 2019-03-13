@@ -10,6 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
 
@@ -82,6 +83,7 @@ public class ChangelogGenerationJob
 
     private void generateChangelogContent()
     {
+        int issueCount = 0;
         for ( String label : labelOrder )
         {
             changeLogContent.append( System.lineSeparator() ).append( "## " ).append( label ).append( "s" ).append(
@@ -89,7 +91,26 @@ public class ChangelogGenerationJob
             List<GitHubIssue> sectionIssues = gitHubIssueCollection.get( label );
             sectionIssues.sort( GitHubIssue::compareTo );
             sectionIssues.forEach( issue -> generateChangelogContent( issue, 0 ) );
+            issueCount += sectionIssues.size();
         }
+
+        if ( issueCount == 0 )
+        {
+            changeLogContent.append( System.lineSeparator() ).append( "There have been no changes to the project " );
+            if ( !Strings.isNullOrEmpty( since ) && !Strings.isNullOrEmpty( until ) )
+            {
+                changeLogContent.append( "between " ).append( since ).append( " and " ).append( until ).append( "." );
+            }
+            else if ( Strings.isNullOrEmpty( since ) && !Strings.isNullOrEmpty( until ) )
+            {
+                changeLogContent.append( "before " ).append( until ).append( "." );
+            }
+            else if ( !Strings.isNullOrEmpty( since ) && Strings.isNullOrEmpty( until ) )
+            {
+                changeLogContent.append( "after " ).append( since ).append( "." );
+            }
+        }
+        changeLogContent.append( System.lineSeparator() );
         LOGGER.debug( "Changelog content: " );
         LOGGER.debug( changeLogContent.toString() );
     }
