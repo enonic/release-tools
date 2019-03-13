@@ -2,6 +2,8 @@ package com.enonic.xp.changelog.zenhub.issues;
 
 public class IssuePojo
 {
+    private Pipeline[] pipelines;
+
     private Pipeline pipeline;
 
     private Issues[] issues;
@@ -30,6 +32,16 @@ public class IssuePojo
         this.issues = issues;
     }
 
+    public Pipeline[] getPipelines()
+    {
+        return pipelines;
+    }
+
+    public void setPipelines( Pipeline[] pipelines )
+    {
+        this.pipelines = pipelines;
+    }
+
     public Total_epic_estimates getTotal_epic_estimates()
     {
         return total_epic_estimates;
@@ -47,6 +59,6 @@ public class IssuePojo
     @Override
     public String toString()
     {
-        return "ClassPojo [pipeline = " + pipeline + ", #issues = " + issues.length + ", total_epic_estimates = " + total_epic_estimates + "]";
+        return "ClassPojo [pipeline = " + pipeline + ", #pipelines = " + pipelines.length + ", #issues = " + issues.length + ", total_epic_estimates = " + total_epic_estimates + "]";
     }
 }
