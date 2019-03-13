@@ -158,7 +158,7 @@ public class ChangelogCombinerCommand
 
     private static String composeFileName( final List<IndividualChangelog> changelogs )
     {
-        StringBuilder filename = new StringBuilder( "changelog_" );
+        StringBuilder filename = new StringBuilder( "ccl_" );
         for ( IndividualChangelog ic : changelogs )
         {
             filename.append( ic.getProject() ).append( '_' );
