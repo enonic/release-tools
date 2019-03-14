@@ -42,7 +42,10 @@ public class ChangelogCombinerCommand
     @Option(name = "-p", description = "Path to folder with changelog files.  Default is ./")
     public String path = "./";
 
-    @Arguments(description = "List of changelog files to be combined.")
+    @Option(name = "-f", description = "Output filename.  Default is composing a name from all input files.")
+    public String filename = null;
+
+    @Arguments(description = "List of changelog files to be combined.  Wildcards may be used.")
     public List<String> changelogFiles;
 
     public static void main( String... args )
@@ -85,13 +88,13 @@ public class ChangelogCombinerCommand
                 for ( int i = 0; i < changelogFiles.length; i++ )
                 {
                     changelogs.add( IndividualChangelog.parse( path + changelogFiles[i].getName() ) );
-                    System.out.println("Including " + changelogFiles[i].getName() + " in changelog!" );
+                    System.out.println( "Including " + changelogFiles[i].getName() + " in changelog!" );
                 }
             }
             else
             {
                 changelogs.add( IndividualChangelog.parse( path + filename ) );
-                System.out.println("Including " + filename );
+                System.out.println( "Including " + filename );
             }
         }
 
@@ -156,18 +159,25 @@ public class ChangelogCombinerCommand
         return combinedEntries;
     }
 
-    private static String composeFileName( final List<IndividualChangelog> changelogs )
+    private String composeFileName( final List<IndividualChangelog> changelogs )
     {
-        StringBuilder filename = new StringBuilder( "ccl_" );
-        for ( IndividualChangelog ic : changelogs )
+        if ( this.filename != null )
         {
-            filename.append( ic.getProject() ).append( '_' );
+            return this.filename;
         }
-        Date today = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd-HHmmss" );
-        filename.append( sdf.format( today ) );
-        filename.append( ".md" );
-        return filename.toString();
+        else
+        {
+            StringBuilder filename = new StringBuilder( "ccl_" );
+            for ( IndividualChangelog ic : changelogs )
+            {
+                filename.append( ic.getProject() ).append( '_' );
+            }
+            Date today = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd-HHmmss" );
+            filename.append( sdf.format( today ) );
+            filename.append( ".md" );
+            return filename.toString();
+        }
     }
 
     private void writeCompleteChangelogToFile( final IndividualChangelog completeChangelog, final String completeChangelogFileName )
