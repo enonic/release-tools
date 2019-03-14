@@ -161,23 +161,27 @@ public class ChangelogCombinerCommand
 
     private String composeFileName( final List<IndividualChangelog> changelogs )
     {
+        StringBuilder outputFilename = new StringBuilder();
         if ( this.filename != null )
         {
-            return this.filename;
+            outputFilename.append( this.filename );
+            if (!this.filename.endsWith( ".md" )) {
+                outputFilename.append( ".md" );
+            }
         }
         else
         {
-            StringBuilder filename = new StringBuilder( "ccl_" );
+            outputFilename.append(  "ccl_"  );
             for ( IndividualChangelog ic : changelogs )
             {
-                filename.append( ic.getProject() ).append( '_' );
+                outputFilename.append( ic.getProject() ).append( '_' );
             }
             Date today = new Date();
             SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd-HHmmss" );
-            filename.append( sdf.format( today ) );
-            filename.append( ".md" );
-            return filename.toString();
+            outputFilename.append( sdf.format( today ) );
+            outputFilename.append( ".md" );
         }
+        return outputFilename.toString();
     }
 
     private void writeCompleteChangelogToFile( final IndividualChangelog completeChangelog, final String completeChangelogFileName )
