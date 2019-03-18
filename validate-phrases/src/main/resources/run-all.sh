@@ -5,7 +5,7 @@ echo -e "\nApplications App:"
 echo -e "\nUsers App:"
 ./validate-phrases -p /Users/sivesind/Documents/EnonicGIT/xp/apps/app-users/src/main/resources/i18n/
 echo -e "\nAdmin Home App:"
-./validate-phrases -p /Users/sivesind/Documents/EnonicGIT/xp/apps/app-users/src/main/resources/i18n/
+./validate-phrases -p /Users/sivesind/Documents/EnonicGIT/xp/apps/app-admin-home/src/main/resources/i18n/
 echo -e "\nStandard ID Provider App:"
 ./validate-phrases -p /Users/sivesind/Documents/EnonicGIT/xp/apps/app-standardidprovider/src/main/resources/i18n/
 echo -e "\nLib Admin UI:"
