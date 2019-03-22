@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -107,20 +108,24 @@ public class ValidatePhrasesCommand
                 final Matcher matcher = phrasesFileNamePattern.matcher( filePath.getFileName().toString() );
                 if ( matcher.matches() )
                 {
-//                    final String language = matcher.group( 1 );
                     final Set<String> propertyKeySet = getPropertyKeySet( filePath );
-                    final Set<String> missingKeysSet =
-                        defaultKeys.stream().filter( defaultKey -> !propertyKeySet.contains( defaultKey ) ).collect( Collectors.toSet() );
-                    final Set<String> removedKeysSet =
-                        propertyKeySet.stream().filter( removedKey -> !defaultKeys.contains( removedKey ) ).collect( Collectors.toSet() );
+
+                    final Set<String> missingKeysSet = new TreeSet(
+                        defaultKeys.stream().filter( defaultKey -> !propertyKeySet.contains( defaultKey ) ).collect( Collectors.toSet() ) );
+
+                    final Set<String> removedKeysSet = new TreeSet(
+                        propertyKeySet.stream().filter( removedKey -> !defaultKeys.contains( removedKey ) ).collect( Collectors.toSet() ) );
+
                     if ( !missingKeysSet.isEmpty() )
                     {
-                        LOGGER.info( "The following keys are missing in '" + filePath.getFileName() + "': " + missingKeysSet );
+                        LOGGER.info( "The following keys are missing in '" + filePath.getFileName() + "': " );
+                        missingKeysSet.stream().forEach( missingKey -> LOGGER.info( " - " + missingKey ) );
                     }
                     if ( !removedKeysSet.isEmpty() )
                     {
-                        LOGGER.info(
-                            "The following keys are in '" + filePath.getFileName() + "' but not in source file: " + removedKeysSet );
+                        LOGGER.info( "The following keys are in '" + filePath.getFileName() + "' but not in source file: " );
+                        removedKeysSet.stream().forEach( removedKey -> LOGGER.info( " -" + removedKey ) );
+
                     }
                 }
             } );
