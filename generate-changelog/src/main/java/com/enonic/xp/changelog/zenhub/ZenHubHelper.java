@@ -27,7 +27,8 @@ public class ZenHubHelper
     private static List<Integer> getIssuesInEpic( final Integer epic, final Integer repoId, final String zenHubToken )
         throws IOException
     {
-        return getChildren( sendRequest( epic, repoId, zenHubToken ) );
+        System.out.println( "Fetching children for epic: " + epic + ", in repo: " + repoId );
+        return getChildren( sendRequest( epic, repoId, zenHubToken ), repoId );
     }
 
     public static List<Integer> getAllIssuesInAllEpics( Integer repoId, String zenHubToken )
@@ -90,7 +91,7 @@ public class ZenHubHelper
 
     }
 
-    private static List<Integer> getChildren( String data )
+    private static List<Integer> getChildren( String data, Integer repoId )
         throws IOException
     {
         List<Integer> childrenList = new ArrayList<>();
@@ -109,7 +110,10 @@ public class ZenHubHelper
         {
             for ( Issues issue : json.getIssues() )
             {
-                childrenList.add( issue.getIssue_number() );
+                if ( issue.getRepo_id().equals( repoId ) )
+                {
+                    childrenList.add( issue.getIssue_number() );
+                }
             }
         }
         return childrenList;

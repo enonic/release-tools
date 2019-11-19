@@ -100,6 +100,10 @@ public class GitHubServiceImpl
             issueNos.stream().filter( issueNo -> issuesWithEpics.keySet().contains( issueNo ) ).collect(
                 Collectors.toCollection( HashSet::new ) );
 
+        LOGGER.debug( "Issues in Epics:" );
+        issuesInCommitsAndEpics.stream().forEach(
+            issueNo -> LOGGER.debug( issueNo.toString() + " - " + issuesWithEpics.get( issueNo ).toString() ) );
+
         HashSet<Integer> epicsOfCommits = new HashSet<>();
         for ( Integer issueInCommitAndEpic : issuesInCommitsAndEpics )
         {
@@ -182,7 +186,7 @@ public class GitHubServiceImpl
         {
             return;
         }
-        LOGGER.debug( i.toString() );
+        LOGGER.debug( i.getNumber() + " : " + i.toString() );
         if ( i.getLabels().size() < 1 )
         {
             noLabel.add( new GitHubIssue( i.getNumber(), i.getTitle() ) );
@@ -203,7 +207,7 @@ public class GitHubServiceImpl
         {
             List<GitHubIssue> list = issues.computeIfAbsent( label.getName(), k -> new ArrayList<>() );
             list.add( new GitHubIssue( i.getNumber(), i.getTitle() ) );
-            LOGGER.debug( "  - " + label.getName() + " (" + label.getColor() + ")" );
+            LOGGER.debug( "  - " + label.getName() );
         }
     }
 
