@@ -24,16 +24,25 @@ public class ZenHubHelper
 
     private static List<Integer> epics;
 
+    private static HashMap<Integer, List<Integer>> issuesInEpics = new HashMap<>(  );
+
     private static List<Integer> getIssuesInEpic( final Integer epic, final Integer repoId, final String zenHubToken )
         throws IOException
     {
-        System.out.println( "Fetching children for epic: " + epic + ", in repo: " + repoId );
-        return getChildren( sendRequest( epic, repoId, zenHubToken ), repoId );
+        List<Integer> issues = issuesInEpics.get( epic );
+        if (issues == null)
+        {
+            System.out.println("getIssuesInEpic(): Fetching children for epic: " + epic + " in repo: " + repoId + " from ZenHub.");
+            issues = getChildren( sendRequest( epic, repoId, zenHubToken ), repoId );
+            issuesInEpics.put( epic, issues );
+        }
+        return issues;
     }
 
     public static List<Integer> getAllIssuesInAllEpics( Integer repoId, String zenHubToken )
         throws IOException
     {
+        System.out.println("getAllIssuesInAllEpics()");
         List<Integer> result = new ArrayList<>();
         for ( Integer epic : getAllEpics( repoId, zenHubToken ) )
         {
@@ -45,6 +54,7 @@ public class ZenHubHelper
     public static HashMap<Integer, Integer> getAllIssuesInEpicsWithEpic( Integer repoId, String zenHubToken )
         throws IOException
     {
+        System.out.println("getAllIssuesInEpicsWithEpic");
         HashMap<Integer, Integer> result = new HashMap<>();
         List<Integer> epics = getAllEpics( repoId, zenHubToken );
         for ( Integer epic : epics )
@@ -63,6 +73,7 @@ public class ZenHubHelper
     {
         if ( epics == null )
         {
+            System.out.println("getAllEpics(): Fetching epics for the first time");
             ObjectMapper mapper = getObjectMapper();
             List<Integer> result = new ArrayList<>();
 
