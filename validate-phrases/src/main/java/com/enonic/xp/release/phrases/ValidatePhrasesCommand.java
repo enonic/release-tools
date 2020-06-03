@@ -105,6 +105,8 @@ public class ValidatePhrasesCommand
 
         Files.list( directory.toPath() ).
             forEach( filePath -> {
+                LOGGER.info( "" );  // Empty line.
+                LOGGER.info( "Checking: " + filePath.getFileName() );
                 final Matcher matcher = phrasesFileNamePattern.matcher( filePath.getFileName().toString() );
                 if ( matcher.matches() )
                 {
@@ -124,7 +126,7 @@ public class ValidatePhrasesCommand
                     if ( !removedKeysSet.isEmpty() )
                     {
                         LOGGER.info( "The following keys are in '" + filePath.getFileName() + "' but not in source file: " );
-                        removedKeysSet.stream().forEach( removedKey -> LOGGER.info( " -" + removedKey ) );
+                        removedKeysSet.stream().forEach( removedKey -> LOGGER.info( " - " + removedKey ) );
 
                     }
                 }
