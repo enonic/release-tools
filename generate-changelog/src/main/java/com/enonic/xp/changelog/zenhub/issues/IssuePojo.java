@@ -8,6 +8,10 @@ public class IssuePojo
 
     private Issues[] issues;
 
+    private Integer issue_number;
+
+    private Integer repo_id;
+
     private Total_epic_estimates total_epic_estimates;
 
     private String message;
@@ -30,6 +34,26 @@ public class IssuePojo
     public void setIssues( Issues[] issues )
     {
         this.issues = issues;
+    }
+
+    public Integer getIssue_number()
+    {
+        return issue_number;
+    }
+
+    public void setIssue_number (Integer issue_number)
+    {
+        this.issue_number = issue_number;
+    }
+
+    public Integer getRepo_id()
+    {
+        return repo_id;
+    }
+
+    public void setRepo_id (Integer repo_id)
+    {
+        this.repo_id = repo_id;
     }
 
     public Pipeline[] getPipelines()
@@ -59,6 +83,6 @@ public class IssuePojo
     @Override
     public String toString()
     {
-        return "ClassPojo [pipeline = " + pipeline + ", #pipelines = " + pipelines.length + ", #issues = " + issues.length + ", total_epic_estimates = " + total_epic_estimates + "]";
+        return "ClassPojo [pipeline = " + pipeline + ", #pipelines = " + pipelines.length + ", issue_number = " + issue_number + ", #issues = " + issues.length + ", total_epic_estimates = " + total_epic_estimates + "]";
     }
 }
