@@ -1,12 +1,15 @@
 package com.enonic.xp.changelog.git;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
@@ -22,19 +25,13 @@ public class GitServiceImpl
 
     private final String gitDirectoryPath;
 
-    private final String since;
-
-    private final String until;
-
-    public GitServiceImpl( final String gitDirectoryPath, final String since, final String until )
+    public GitServiceImpl( final String gitDirectoryPath )
     {
         this.gitDirectoryPath = gitDirectoryPath;
-        this.since = since;
-        this.until = until;
     }
 
     @Override
-    public Set<GitCommit> retrieveGitCommits()
+    public Set<GitCommit> retrieveGitCommits(final String since, final String until)
         throws IOException, GitAPIException, ChangelogException
     {
         LOGGER.info( "Retrieving Git commits with GitHub issue IDs..." );
@@ -70,6 +67,13 @@ public class GitServiceImpl
                 throw new ChangelogException( "The git object reference \"" + since + "\" cannot be resolved" );
             }
             logCommand.not( sinceObjectId );
+        } else {
+            final List<Ref> tags = gitRepository.getRefDatabase().getRefsByPrefix(Constants.R_TAGS);
+            if (!tags.isEmpty()) {
+                final Ref ref = tags.get(0);
+                LOGGER.info("Automatic since {}", ref.getName());
+                logCommand.not( ref.getLeaf().getObjectId() );
+            }
         }
         if ( until != null )
         {

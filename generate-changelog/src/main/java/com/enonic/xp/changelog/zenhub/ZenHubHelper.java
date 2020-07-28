@@ -8,12 +8,12 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import com.enonic.xp.changelog.zenhub.issues.IssuePojo;
 import com.enonic.xp.changelog.zenhub.issues.Issues;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ZenHubHelper
 {
@@ -26,7 +26,7 @@ public class ZenHubHelper
 
     private static HashMap<Integer, List<Integer>> issuesInEpics = new HashMap<>(  );
 
-    private static List<Integer> getIssuesInEpic( final Integer epic, final Integer repoId, final String zenHubToken )
+    private static List<Integer> getIssuesInEpic( final Integer epic, final long repoId, final String zenHubToken )
         throws IOException
     {
         List<Integer> issues = issuesInEpics.get( epic );
@@ -39,7 +39,7 @@ public class ZenHubHelper
         return issues;
     }
 
-    public static List<Integer> getAllIssuesInAllEpics( Integer repoId, String zenHubToken )
+    public static List<Integer> getAllIssuesInAllEpics( long repoId, String zenHubToken )
         throws IOException
     {
         System.out.println("getAllIssuesInAllEpics()");
@@ -51,7 +51,7 @@ public class ZenHubHelper
         return result;
     }
 
-    public static HashMap<Integer, Integer> getAllIssuesInEpicsWithEpic( Integer repoId, String zenHubToken )
+    public static HashMap<Integer, Integer> getAllIssuesInEpicsWithEpic( long repoId, String zenHubToken )
         throws IOException
     {
         System.out.println("getAllIssuesInEpicsWithEpic");
@@ -68,7 +68,7 @@ public class ZenHubHelper
         return result;
     }
 
-    private static List<Integer> getAllEpics( Integer repoId, String zenHubToken )
+    private static List<Integer> getAllEpics( long repoId, String zenHubToken )
         throws IOException
     {
         if ( epics == null )
@@ -77,7 +77,7 @@ public class ZenHubHelper
             ObjectMapper mapper = getObjectMapper();
             List<Integer> result = new ArrayList<>();
 
-            String url = "https://api.zenhub.io/p1/repositories/" + repoId.toString() + "/epics?access_token=TOKEN";
+            String url = "https://api.zenhub.io/p1/repositories/" + repoId + "/epics?access_token=TOKEN";
             Request request = new Request.Builder().url( url ).header( "X-Authentication-Token", zenHubToken ).build();
             Response response = getHttpClient().newCall( request ).execute();
 
@@ -91,10 +91,10 @@ public class ZenHubHelper
         return epics;
     }
 
-    private static String sendRequest( final Integer epic, Integer repoId, String zenHubToken )
+    private static String sendRequest( final Integer epic, long repoId, String zenHubToken )
         throws IOException
     {
-        String url = "https://api.zenhub.io/p1/repositories/" + repoId.toString() + "/epics/" + epic.toString() + "?access_token=TOKEN";
+        String url = "https://api.zenhub.io/p1/repositories/" + repoId + "/epics/" + epic.toString() + "?access_token=TOKEN";
         Request request = new Request.Builder().url( url ).header( "X-Authentication-Token", zenHubToken ).build();
 //        System.out.println( "API request: " + request.toString() );
         Response response = getHttpClient().newCall( request ).execute();
@@ -102,7 +102,7 @@ public class ZenHubHelper
 
     }
 
-    private static List<Integer> getChildren( String data, Integer repoId )
+    private static List<Integer> getChildren( String data, long repoId )
         throws IOException
     {
         List<Integer> childrenList = new ArrayList<>();
@@ -121,7 +121,7 @@ public class ZenHubHelper
         {
             for ( Issues issue : json.getIssues() )
             {
-                if ( issue.getRepo_id().equals( repoId ) )
+                if ( issue.getRepo_id() == repoId  )
                 {
                     childrenList.add( issue.getIssue_number() );
                 }

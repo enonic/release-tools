@@ -1,10 +1,9 @@
 package com.enonic.xp.changelog;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -20,6 +19,7 @@ import io.airlift.airline.SingleCommand;
 import com.enonic.xp.changelog.generation.ChangelogGenerationService;
 import com.enonic.xp.changelog.generation.ChangelogGenerationServiceImpl;
 import com.enonic.xp.changelog.git.GitService;
+import com.enonic.xp.changelog.git.GitServiceHelper;
 import com.enonic.xp.changelog.git.GitServiceImpl;
 import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.GitHubService;
@@ -35,9 +35,6 @@ public class GenerateChangelogCommand
     @Inject
     public HelpOption helpOption;
 
-    @Option(name = "-f", description = "Full path and file name of properties file.  Default is './changelog.properties'")
-    public String propertiesFile = "./changelog.properties";
-
     @Option(name = "-p", description = "Path of the Git repository (default value is the current directory).")
     public String gitDirectoryPath = ".";
 
@@ -46,6 +43,9 @@ public class GenerateChangelogCommand
 
     @Option(name = "-u", description = "Until the provided Git reference.")
     public String until;
+
+    @Option(name = "-r", description = "GitHub repository (calculated from git directory if not set)")
+    public String githubRepository;
 
     @Option(name = "--ignore-changelog-check", description = "Ignore the ZenHub 'Not in Changelog' tag check.")
     public boolean ignoreChangelogCheck;
@@ -59,8 +59,10 @@ public class GenerateChangelogCommand
     private void init()
         throws IOException, ChangelogException
     {
-        gitService = new GitServiceImpl( gitDirectoryPath, since, until );
-        gitHubService = new GitHubServiceImpl( gitDirectoryPath, getPropertiesFromFile() );
+        gitHubService = new GitHubServiceImpl( Optional.ofNullable( githubRepository ).
+            orElse( GitServiceHelper.findRepoName( gitDirectoryPath ) ) );
+
+        gitService = new GitServiceImpl( gitDirectoryPath );
         if ( !ignoreChangelogCheck )  // Double negative logic: Do not add this label to ignorelist, if the ignore check should be ignored! :D
         {
             gitHubService.addIgnoreLabel( "Not in Changelog" );
@@ -71,23 +73,16 @@ public class GenerateChangelogCommand
     }
 
     public static void main( String... args )
+        throws Exception
     {
-        try
-        {
-            GenerateChangelogCommand generateChangelogCommand = SingleCommand.singleCommand( GenerateChangelogCommand.class ).parse( args );
+        GenerateChangelogCommand generateChangelogCommand = SingleCommand.singleCommand( GenerateChangelogCommand.class ).parse( args );
 
-            if ( generateChangelogCommand.helpOption.showHelpIfRequested() )
-            {
-                return;
-            }
-
-            generateChangelogCommand.run();
-        }
-        catch ( Exception e )
+        if ( generateChangelogCommand.helpOption.showHelpIfRequested() )
         {
-            LOGGER.error( "Error while generating the change log: " + e.getMessage() );
-            LOGGER.debug( "Error details: ", e );
+            return;
         }
+
+        generateChangelogCommand.run();
     }
 
     private void run()
@@ -95,19 +90,10 @@ public class GenerateChangelogCommand
     {
         init();
 
-        final Set<GitCommit> gitCommits = gitService.retrieveGitCommits();
+        final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( since, until );
         final HashMap<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitCommits );
 
         changelogGenerationService.generateChangelog( ghIssues, since, until, gitHubService.getProjectName() );
-        System.exit( 1 );
-    }
-
-    private Properties getPropertiesFromFile()
-        throws IOException
-    {
-        FileReader changelogFileReader = new FileReader( propertiesFile );
-        final Properties props = new Properties();
-        props.load( changelogFileReader );
-        return props;
+        System.exit( 0 );
     }
 }

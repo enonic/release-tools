@@ -77,15 +77,3 @@ Set the path of this file as a system property "log4j.configuration"
 Example:
 
     JAVA_OPTS=-Dlog4j.configuration=file:./log4j.properties generate-changelog -s master
-    
-## GOTCHAs
-
-At the moment, the project only supports Git-project using SSH.  If you get an error like this:
-
-    Error details: 
-    java.io.FileNotFoundException: {"message":"Not Found","documentation_url":"https://developer.github.com/v3"}
-            at org.kohsuke.github.Requester.handleApiError(Requester.java:666)
-            at org.kohsuke.github.Requester._to(Requester.java:284)
-            
-... it is not very clear what the problem is, but it happens because the project in the path (-p), was checked out with
-https, not ssh.

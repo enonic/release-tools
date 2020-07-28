@@ -1,14 +1,9 @@
 package com.enonic.xp.changelog.github;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.enonic.xp.changelog.git.model.GitCommit;
+import com.enonic.xp.changelog.github.model.GitHubIssue;
+import com.enonic.xp.changelog.github.model.GitHubIssueIdComparator;
+import com.enonic.xp.changelog.zenhub.ZenHubHelper;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHRepository;
@@ -16,12 +11,9 @@ import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.enonic.xp.changelog.ChangelogException;
-import com.enonic.xp.changelog.git.GitServiceHelper;
-import com.enonic.xp.changelog.git.model.GitCommit;
-import com.enonic.xp.changelog.github.model.GitHubIssue;
-import com.enonic.xp.changelog.github.model.GitHubIssueIdComparator;
-import com.enonic.xp.changelog.zenhub.ZenHubHelper;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GitHubServiceImpl
     implements GitHubService
@@ -36,30 +28,18 @@ public class GitHubServiceImpl
 
     private List<Integer> issuesInEpics;
 
-    private Properties changelogProps;
+    private final GHRepository repo;
 
-    private String gitDirectoryPath;
-
-    private GHRepository repo;
-
-    public GitHubServiceImpl( final String gitDirectoryPath, final Properties changelogProperties )
-        throws IOException, ChangelogException
+    public GitHubServiceImpl( final String repository )
+        throws IOException
     {
-        this.gitDirectoryPath = gitDirectoryPath;
-        this.changelogProps = changelogProperties;
-        this.repo = getRepository();
-    }
-
-    private GHRepository getRepository()
-        throws IOException, ChangelogException
-    {
-        final GitHub gitHub = GitHub.connect( changelogProps.getProperty( "user" ), changelogProps.getProperty( "oAuthToken" ) );
-        return gitHub.getRepository( GitServiceHelper.findRepoName( gitDirectoryPath ) );
+        final GitHub gitHub = GitHub.connectUsingOAuth( System.getenv("GITHUB_TOKEN") );
+        repo = gitHub.getRepository( repository );
     }
 
     @Override
     public HashMap<String, List<GitHubIssue>> retrieveGitHubIssues( final Set<GitCommit> issueNumbers )
-        throws IOException, ChangelogException
+        throws IOException
     {
         LOGGER.info( "Retrieving GitHub issues with GitHub issue IDs..." );
 
@@ -94,7 +74,7 @@ public class GitHubServiceImpl
             issueNumbers.stream().mapToInt( GitCommit::getGitHubIdAsInt ).boxed().collect( Collectors.toCollection( HashSet::new ) );
 
         HashMap<Integer, Integer> issuesWithEpics =
-            ZenHubHelper.getAllIssuesInEpicsWithEpic( getRepoId(), changelogProps.getProperty( "zenHubToken" ) );
+            ZenHubHelper.getAllIssuesInEpicsWithEpic( getRepoId(), System.getenv("ZENHUB_TOKEN") );
 
         HashSet<Integer> issuesInCommitsAndEpics =
             issueNos.stream().filter( issueNo -> issuesWithEpics.keySet().contains( issueNo ) ).collect(
@@ -216,7 +196,7 @@ public class GitHubServiceImpl
     {
         if ( issuesInEpics == null )
         {
-            issuesInEpics = ZenHubHelper.getAllIssuesInAllEpics( getRepoId(), changelogProps.getProperty( "zenHubToken" ) );
+            issuesInEpics = ZenHubHelper.getAllIssuesInAllEpics( getRepoId(), System.getenv("ZENHUB_TOKEN") );
         }
         return issuesInEpics;
     }
@@ -228,7 +208,7 @@ public class GitHubServiceImpl
     }
 
     @Override
-    public Integer getRepoId()
+    public long getRepoId()
     {
         return repo.getId();
     }

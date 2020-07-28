@@ -6,7 +6,7 @@ public class Issues
 
     private Pipeline pipeline;
 
-    private Integer repo_id;
+    private long repo_id;
 
     private Integer issue_number;
 
@@ -34,12 +34,12 @@ public class Issues
         this.pipeline = pipeline;
     }
 
-    public Integer getRepo_id ()
+    public long getRepo_id ()
     {
         return repo_id;
     }
 
-    public void setRepo_id (Integer repo_id)
+    public void setRepo_id (long repo_id)
     {
         this.repo_id = repo_id;
     }

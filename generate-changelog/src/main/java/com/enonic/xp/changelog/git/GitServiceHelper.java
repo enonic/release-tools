@@ -50,7 +50,11 @@ public class GitServiceHelper
         String repoName;
         if ( tokens[1].endsWith( ".git" ) )
         {
-            repoName = tokens[1].substring( 0, tokens[1].length() - 4 );
+            if ( remoteURL.startsWith("https://") ) {
+                repoName = tokens[1].substring(13, tokens[1].length() - 4);
+            } else {
+                repoName = tokens[1].substring(0, tokens[1].length() - 4);
+            }
         }
         else
         {
