@@ -1,6 +1,6 @@
 FROM adoptopenjdk:11-jdk-hotspot
 
-RUN apt install -y git
+RUN apt-get update && apt-get install -y git
 
 COPY . .
 
