@@ -11,11 +11,11 @@ public class ChangelogGenerationServiceImpl
 {
     @Override
     public void generateChangelog( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until,
-                                   final String projectName )
+                                   final String projectName, final String filename )
         throws IOException
     {
         final ChangelogGenerationJob changelogGenerationJob =
-            new ChangelogGenerationJob( gitHubIssueCollection, since, until, projectName );
+            new ChangelogGenerationJob( gitHubIssueCollection, since, until, projectName, filename );
         changelogGenerationJob.run();
     }
 }

@@ -47,6 +47,9 @@ public class GenerateChangelogCommand
     @Option(name = "--ignore-changelog-check", description = "Ignore the ZenHub 'Not in Changelog' tag check.")
     public boolean ignoreChangelogCheck;
 
+    @Option( name = "-f", description = "Output Filename")
+    public String filename;
+
     private GitService gitService;
 
     private GitHubService gitHubService;
@@ -89,7 +92,7 @@ public class GenerateChangelogCommand
         final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( since, until );
         final HashMap<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitCommits );
 
-        changelogGenerationService.generateChangelog( ghIssues, since, until, gitHubService.getProjectName() );
+        changelogGenerationService.generateChangelog( ghIssues, since, until, gitHubService.getProjectName(), filename );
         System.exit( 0 );
     }
 }

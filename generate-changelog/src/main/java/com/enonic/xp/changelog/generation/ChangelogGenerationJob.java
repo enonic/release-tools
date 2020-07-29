@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,17 +31,20 @@ public class ChangelogGenerationJob
 
     private final String projectName;
 
+    private final String filename;
+
     private int gitHubIssuesGenerated = 0;
 
     private StringBuilder changeLogContent = new StringBuilder( "# Changelog" ).append( System.lineSeparator() );
 
     public ChangelogGenerationJob( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until,
-                                   final String projectName )
+                                   final String projectName, final String filename )
     {
         this.gitHubIssueCollection = gitHubIssueCollection;
         this.since = since;
         this.until = until;
         this.projectName = projectName;
+        this.filename = filename;
         defineLabelOrder();
     }
 
@@ -137,8 +141,8 @@ public class ChangelogGenerationJob
         throws IOException
     {
         //Creates the output file
-        final String fileName = generateFileName();
-        LOGGER.info( "Write to {}", fileName );
+        final String fileName = Optional.ofNullable( filename ).orElseGet( this::generateFileName );
+
         final File file = new File( fileName );
 
         //Writes the output file content
