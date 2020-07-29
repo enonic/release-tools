@@ -3,4 +3,4 @@
 DIR=$PWD
 cd /
 
-/gradlew run --args="-s $PREVIOS_RELEASE_TAG -p $DIR -f changelog.md"
+/gradlew run --args="-s $PREVIOS_RELEASE_TAG -p $DIR -f $DIR/changelog.md"
