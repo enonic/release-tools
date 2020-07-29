@@ -1,6 +1,4 @@
 FROM adoptopenjdk:11-jdk-hotspot
-COPY . .
+COPY . /github/workflow/
 
-WORKDIR /
-
-ENTRYPOINT ["/gradlew", "run", "--args", "\"-r $GITHUB_REPOSITORY -s $PREVIOS_RELEASE_TAG -p $REPOSITORY_PATH\""]
+ENTRYPOINT ["./gradlew", "run", "--args", "\"-r $GITHUB_REPOSITORY -s $PREVIOS_RELEASE_TAG -p $REPOSITORY_PATH\""]
