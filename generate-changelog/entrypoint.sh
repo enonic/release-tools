@@ -1,5 +1,7 @@
 #!/bin/sh -l
 
+PREVIOUS_RELEASE_TAG=$(git tag --sort=-version:refname --merged | grep -E '^v([[:digit:]]+\.){2}[[:digit:]]$' | head -1)
+
 DIR=$PWD
 cd /
 
