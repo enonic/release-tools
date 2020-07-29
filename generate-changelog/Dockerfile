@@ -1,3 +1,3 @@
-FROM gradle:jdk11
+FROM adoptopenjdk:11-jre-hotspot
 COPY . .
-ENTRYPOINT ["gradle", "run", "--args", "\"-r $GITHUB_REPOSITORY -s $PREVIOS_RELEASE_TAG\""]
+ENTRYPOINT ["gradlew", "run", "--args", "\"-r $GITHUB_REPOSITORY -s $PREVIOS_RELEASE_TAG\""]
