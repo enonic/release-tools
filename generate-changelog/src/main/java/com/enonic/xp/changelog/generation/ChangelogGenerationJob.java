@@ -138,6 +138,7 @@ public class ChangelogGenerationJob
     {
         //Creates the output file
         final String fileName = generateFileName();
+        LOGGER.info( "Write to {}", fileName );
         final File file = new File( fileName );
 
         //Writes the output file content
