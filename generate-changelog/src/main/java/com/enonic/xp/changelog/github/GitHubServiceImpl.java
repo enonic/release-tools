@@ -37,7 +37,7 @@ public class GitHubServiceImpl
         final GitHub gitHub;
         if ( System.getenv( "GITHUB_ACTOR" ) != null )
         {
-            gitHub = GitHub.connectUsingOAuth( System.getenv( "GITHUB_ACTOR" ), System.getenv( "GITHUB_TOKEN" ) );
+            gitHub = GitHub.connect( System.getenv( "GITHUB_ACTOR" ), System.getenv( "GITHUB_TOKEN" ) );
         }
         else
         {
