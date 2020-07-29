@@ -4,6 +4,7 @@ import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.model.GitHubIssue;
 import com.enonic.xp.changelog.github.model.GitHubIssueIdComparator;
 import com.enonic.xp.changelog.zenhub.ZenHubHelper;
+
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHRepository;
@@ -33,7 +34,15 @@ public class GitHubServiceImpl
     public GitHubServiceImpl( final String repository )
         throws IOException
     {
-        final GitHub gitHub = GitHub.connectUsingOAuth( System.getenv("GITHUB_TOKEN") );
+        final GitHub gitHub;
+        if ( System.getenv( "GITHUB_ACTOR" ) != null )
+        {
+            gitHub = GitHub.connectUsingOAuth( System.getenv( "GITHUB_ACTOR" ), System.getenv( "GITHUB_TOKEN" ) );
+        }
+        else
+        {
+            gitHub = GitHub.connectUsingOAuth( System.getenv( "GITHUB_TOKEN" ) );
+        }
         repo = gitHub.getRepository( repository );
     }
 
@@ -74,7 +83,7 @@ public class GitHubServiceImpl
             issueNumbers.stream().mapToInt( GitCommit::getGitHubIdAsInt ).boxed().collect( Collectors.toCollection( HashSet::new ) );
 
         HashMap<Integer, Integer> issuesWithEpics =
-            ZenHubHelper.getAllIssuesInEpicsWithEpic( getRepoId(), System.getenv("ZENHUB_TOKEN") );
+            ZenHubHelper.getAllIssuesInEpicsWithEpic( getRepoId(), System.getenv( "ZENHUB_TOKEN" ) );
 
         HashSet<Integer> issuesInCommitsAndEpics =
             issueNos.stream().filter( issueNo -> issuesWithEpics.keySet().contains( issueNo ) ).collect(
@@ -196,7 +205,7 @@ public class GitHubServiceImpl
     {
         if ( issuesInEpics == null )
         {
-            issuesInEpics = ZenHubHelper.getAllIssuesInAllEpics( getRepoId(), System.getenv("ZENHUB_TOKEN") );
+            issuesInEpics = ZenHubHelper.getAllIssuesInAllEpics( getRepoId(), System.getenv( "ZENHUB_TOKEN" ) );
         }
         return issuesInEpics;
     }
