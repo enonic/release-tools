@@ -59,6 +59,11 @@ public class GenerateChangelogCommand
     private void init()
         throws IOException, ChangelogException
     {
+        LOGGER.info( "-p {}", gitDirectoryPath );
+        LOGGER.info( "-s {}", since);
+        LOGGER.info( "-u {}", until);
+        LOGGER.info( "-r {}", githubRepository);
+
         gitHubService = new GitHubServiceImpl( Optional.ofNullable( githubRepository ).
             orElse( GitServiceHelper.findRepoName( gitDirectoryPath ) ) );
 
