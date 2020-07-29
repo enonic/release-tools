@@ -44,9 +44,6 @@ public class GenerateChangelogCommand
     @Option(name = "-u", description = "Until the provided Git reference.")
     public String until;
 
-    @Option(name = "-r", description = "GitHub repository (calculated from git directory if not set)")
-    public String githubRepository;
-
     @Option(name = "--ignore-changelog-check", description = "Ignore the ZenHub 'Not in Changelog' tag check.")
     public boolean ignoreChangelogCheck;
 
@@ -59,13 +56,7 @@ public class GenerateChangelogCommand
     private void init()
         throws IOException, ChangelogException
     {
-        LOGGER.info( "-p {}", gitDirectoryPath );
-        LOGGER.info( "-s {}", since);
-        LOGGER.info( "-u {}", until);
-        LOGGER.info( "-r {}", githubRepository);
-
-        gitHubService = new GitHubServiceImpl( Optional.ofNullable( githubRepository ).
-            orElse( GitServiceHelper.findRepoName( gitDirectoryPath ) ) );
+        gitHubService = new GitHubServiceImpl( GitServiceHelper.findRepoName( gitDirectoryPath ) );
 
         gitService = new GitServiceImpl( gitDirectoryPath );
         if ( !ignoreChangelogCheck )  // Double negative logic: Do not add this label to ignorelist, if the ignore check should be ignored! :D

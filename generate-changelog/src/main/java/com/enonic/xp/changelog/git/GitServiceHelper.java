@@ -46,14 +46,27 @@ public class GitServiceHelper
 
         final StoredConfig config = gitRepository.getConfig();
         final String remoteURL = config.getString( "remote", "origin", "url" );
+        return getFromRemoteUrl( remoteURL );
+    }
+
+    private static String getFromRemoteUrl( final String remoteURL )
+        throws ChangelogException
+    {
         String[] tokens = remoteURL.split( ":" );
         String repoName;
-        if ( tokens[1].endsWith( ".git" ) )
+        if ( remoteURL.startsWith( "git" ) )
         {
-            if ( remoteURL.startsWith("https://") ) {
-                repoName = tokens[1].substring(13, tokens[1].length() - 4);
-            } else {
-                repoName = tokens[1].substring(0, tokens[1].length() - 4);
+            repoName = tokens[1].substring( 0, tokens[1].length() - 4 );
+        }
+        else if ( remoteURL.startsWith( "https://" ) )
+        {
+            if ( tokens[1].endsWith( ".git" ) )
+            {
+                repoName = tokens[1].substring( 13, tokens[1].length() - 4 );
+            }
+            else
+            {
+                repoName = tokens[1].substring( 13 );
             }
         }
         else
