@@ -1,14 +1,11 @@
 # Generate-changelog
 
-This tools generates the changelog for a Git repository between two Git references.
-The changelog is based on the YouTrack IDs defined in the Git Rev Commits
+This tool generates the changelog for a Git repository between two Git references.
+The changelog is based on the GitHub IDs defined in the Git Rev Commits.
 
 ## Building
 
-Before trying to build the project, you need to verify that the following software are installed:
-
-* Java 8 (update 40 or above) for building and running.
-* Gradle 2.x build system.
+Before trying to build the project, you need to verify that Java 11 installed.
 
 Build all code:
 
@@ -18,22 +15,24 @@ Build all code:
 
 The script "generate-changelog" is generated in the sub-folder "build/install/generate-changelog/bin/"
 
-When running "generate-changelog", the script is looking for a properties file with two properties: "user" and "oAuthToken"
-These are used for logging in to GitHub.  the OAuthToken can be generated in GitHub by going to your setting/Personal Access Token.
+When running "generate-changelog", the script is looking for `GITHUB_TOKEN` environment variable and optionally `GITHUB_ACTOR`.
+These are used for logging in to GitHub. The GITHUB_TOKEN can be generated in GitHub by going to your setting/Personal Access Token.
+
+the script is looking for `ZENHUB_TOKEN` environment variable to login to ZenHub. Form more info visit https://github.com/ZenHubIO/API
 
     NAME
         generate-changelog - Generates the changelog
 
     SYNOPSIS
-        generate-changelog [(-f <propertiesFile>)] [(-h | --help)] [--ignore-field-check]
+        generate-changelog [(-o <outputFiename>)] [(-h | --help)] [--ignore-field-check]
                 [-p <gitDirectoryPath>] [-s <since>] [-u <until>]
 
     OPTIONS
-        -f <propertiesFile>
-            Full path and file name of properties file with authentication properties.  Default is "./changelog.properties"
+        -o <outputFiename>
+            Full path and file name of output. Default is changelog_<projectName>[-[<since>]..[<until>]].md in the current directory.
 
         -h, --help
-            Display help information
+            Display help information.
 
         --ignore-field-check
             Ignore the "Not In Changelog" field check.
@@ -46,14 +45,14 @@ These are used for logging in to GitHub.  the OAuthToken can be generated in Git
 
         -u <until>
             Until the provided Git reference.
-            
+
 Example:
 
     generate-changelog -p Workspace/git/xp -s v6.0.0 -u 0624445611a32e8cbed6aa71f8ac15c5b7d9af1a
 
 ## Output
 
-The tool generates a MD file "changelog[-[since]..[until]].md", in the current directory, listing the YouTrack issues contained in the Git commits
+The tool generates an MD file listing the GitHub issues contained in the Git commits.
 
 ## Verbosity
 

@@ -47,7 +47,7 @@ public class GenerateChangelogCommand
     @Option(name = "--ignore-changelog-check", description = "Ignore the ZenHub 'Not in Changelog' tag check.")
     public boolean ignoreChangelogCheck;
 
-    @Option( name = "-f", description = "Output Filename")
+    @Option( name = "-o", description = "Output Filename")
     public String filename;
 
     private GitService gitService;
