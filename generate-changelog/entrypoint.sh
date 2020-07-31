@@ -2,7 +2,7 @@
 
 DIR=${PWD}
 cd /
-if [[ -z "${PREVIOS_RELEASE_TAG}" ]]
+if [ -z "${PREVIOS_RELEASE_TAG}" ]
 then
       /gradlew run --args="-p $DIR -o ${DIR}/${OUTPUT_FILE}"
 else
