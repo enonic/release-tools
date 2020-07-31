@@ -1,9 +1,9 @@
 package com.enonic.xp.changelog;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,12 +13,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.CharSink;
-import com.google.common.io.Files;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -36,42 +32,35 @@ public class ChangelogCombinerCommand
     @Inject
     public HelpOption helpOption;
 
-    @Option(name = "-o", description = "GitHub organization owner.  Default is 'enonic'")
+    @Option(name = "-w", description = "GitHub organization owner.  Default is 'enonic'")
     public String ownerOrganization = "enonic";
 
-    @Option(name = "-p", description = "Path to folder with changelog files.  Default is ./")
-    public String path = "./";
+    @Option(name = "-p", description = "Path to folder with changelog files.  Default is current directory")
+    public String path = ".";
 
-    @Option(name = "-f", description = "Output filename.  Default is composing a name from all input files.")
+    @Option(name = "-o", description = "Output filename. Default is composing a name from all input files.")
     public String filename = null;
 
     @Arguments(description = "List of changelog files to be combined.  Wildcards may be used.")
     public List<String> changelogFiles;
 
     public static void main( String... args )
+        throws Exception
     {
-        try
+        ChangelogCombinerCommand changelogCombinerCommand = SingleCommand.singleCommand( ChangelogCombinerCommand.class ).parse( args );
+
+        if ( changelogCombinerCommand.helpOption.showHelpIfRequested() )
         {
-            ChangelogCombinerCommand changelogCombinerCommand = SingleCommand.singleCommand( ChangelogCombinerCommand.class ).parse( args );
-
-            if ( changelogCombinerCommand.helpOption.showHelpIfRequested() )
-            {
-                return;
-            }
-
-            if ( ( changelogCombinerCommand.changelogFiles == null ) || ( changelogCombinerCommand.changelogFiles.size() < 1 ) )
-            {
-                LOGGER.debug( "No files to combine!" );
-                return;
-            }
-
-            changelogCombinerCommand.run();
+            return;
         }
-        catch ( Exception e )
+
+        if ( ( changelogCombinerCommand.changelogFiles == null ) || ( changelogCombinerCommand.changelogFiles.size() < 1 ) )
         {
-            LOGGER.error( "Error while generating the change log: " + e.getMessage() );
-            LOGGER.debug( "Error details: ", e );
+            LOGGER.warn( "No files to combine!" );
+            return;
         }
+
+        changelogCombinerCommand.run();
     }
 
     private void run()
@@ -82,18 +71,18 @@ public class ChangelogCombinerCommand
         {
             if ( filename.contains( "*" ) )
             {
-                File dir = new File( path );
-                FileFilter fileFilter = new WildcardFileFilter( filename );
-                File[] changelogFiles = dir.listFiles( fileFilter );
-                for ( int i = 0; i < changelogFiles.length; i++ )
+                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream( Path.of( path ), filename ))
                 {
-                    changelogs.add( IndividualChangelog.parse( path + changelogFiles[i].getName() ) );
-                    System.out.println( "Including " + changelogFiles[i].getName() + " in changelog!" );
+                    for ( Path file : dirStream )
+                    {
+                        changelogs.add( IndividualChangelog.parse( file ) );
+                        System.out.println( "Including " + file + " in changelog!" );
+                    }
                 }
             }
             else
             {
-                changelogs.add( IndividualChangelog.parse( path + filename ) );
+                changelogs.add( IndividualChangelog.parse( Path.of( path, filename )  ) );
                 System.out.println( "Including " + filename );
             }
         }
@@ -165,13 +154,14 @@ public class ChangelogCombinerCommand
         if ( this.filename != null )
         {
             outputFilename.append( this.filename );
-            if (!this.filename.endsWith( ".md" )) {
+            if ( !this.filename.endsWith( ".md" ) )
+            {
                 outputFilename.append( ".md" );
             }
         }
         else
         {
-            outputFilename.append(  "ccl_"  );
+            outputFilename.append( "ccl_" );
             for ( IndividualChangelog ic : changelogs )
             {
                 outputFilename.append( ic.getProject() ).append( '_' );
@@ -187,14 +177,11 @@ public class ChangelogCombinerCommand
     private void writeCompleteChangelogToFile( final IndividualChangelog completeChangelog, final String completeChangelogFileName )
         throws IOException
     {
-        final File file = new File( completeChangelogFileName );
+        final Path file = Path.of( completeChangelogFileName );
 
-        //Writes the output file content
-        final CharSink charSink = Files.asCharSink( file, Charset.forName( "UTF-8" ) );
-
-        charSink.write( "# Changelog" + systemNewLineChar + createSection( "Features", completeChangelog ) +
-                            createSection( "Improvements", completeChangelog ) + createSection( "Bugs", completeChangelog ) +
-                            createSection( "Refactorings", completeChangelog ) );
+        Files.writeString( file, "# Changelog" + systemNewLineChar + createSection( "Features", completeChangelog ) +
+            createSection( "Improvements", completeChangelog ) + createSection( "Bugs", completeChangelog ) +
+            createSection( "Refactorings", completeChangelog ) );
     }
 
     private String createSection( final String section, final IndividualChangelog completeChangelog )

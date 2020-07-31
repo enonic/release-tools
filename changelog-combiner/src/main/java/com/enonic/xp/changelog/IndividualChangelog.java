@@ -3,8 +3,11 @@ package com.enonic.xp.changelog;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import com.google.common.io.Files;
 
 class IndividualChangelog
 {
@@ -28,23 +31,23 @@ class IndividualChangelog
         return entries;
     }
 
-    static IndividualChangelog parse( final String file )
+    static IndividualChangelog parse( final Path file )
         throws IOException, ChangelogException
     {
         String projectName;
-        int dotdotLoc = file.indexOf( ".." );
-        int versionLoc = file.substring( 0, dotdotLoc ).lastIndexOf( "v" );
+        final String fileName = Files.getNameWithoutExtension( file.getFileName().toString() );
+        int versionLoc = fileName.lastIndexOf( "-v" );
         if ( versionLoc == -1 )
         {
-            projectName = file.substring( 12, dotdotLoc - 1 );
+            projectName = fileName.substring( fileName.indexOf( "_" ) + 1 );
         }
         else
         {
-            projectName = file.substring( 12, versionLoc - 1 );
+            projectName = fileName.substring( fileName.indexOf( "_" ) + 1, versionLoc );
         }
         IndividualChangelog ic = new IndividualChangelog( projectName, new HashMap<>() );
 
-        BufferedReader reader = new BufferedReader( new FileReader( file ) );
+        BufferedReader reader = new BufferedReader( new FileReader( file.toFile() ) );
         String text;
         ArrayList<ChangelogEntry> section = null;
         while ( ( text = reader.readLine() ) != null )
