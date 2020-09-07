@@ -1,9 +1,12 @@
 package com.enonic.xp.changelog.github;
 
-import com.enonic.xp.changelog.git.model.GitCommit;
-import com.enonic.xp.changelog.github.model.GitHubIssue;
-import com.enonic.xp.changelog.github.model.GitHubIssueIdComparator;
-import com.enonic.xp.changelog.zenhub.ZenHubHelper;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHLabel;
@@ -12,9 +15,10 @@ import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.enonic.xp.changelog.git.model.GitCommit;
+import com.enonic.xp.changelog.github.model.GitHubIssue;
+import com.enonic.xp.changelog.github.model.GitHubIssueIdComparator;
+import com.enonic.xp.changelog.zenhub.ZenHubHelper;
 
 public class GitHubServiceImpl
     implements GitHubService
@@ -194,7 +198,16 @@ public class GitHubServiceImpl
         }
         for ( GHLabel label : i.getLabels() )
         {
-            List<GitHubIssue> list = issues.computeIfAbsent( label.getName(), k -> new ArrayList<>() );
+            String labelName = label.getName();
+            if ( "bug".equals( labelName ) )
+            {
+                labelName = "Bug";
+            }
+            else if ( "enhancement".equals( labelName ) )
+            {
+                labelName = "Improvement";
+            }
+            List<GitHubIssue> list = issues.computeIfAbsent( labelName, k -> new ArrayList<>() );
             list.add( new GitHubIssue( i.getNumber(), i.getTitle() ) );
             LOGGER.debug( "  - " + label.getName() );
         }
