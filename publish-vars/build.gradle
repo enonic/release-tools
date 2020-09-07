@@ -1,0 +1,32 @@
+plugins {
+    id 'java-library'
+    id 'application'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.2"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:5.6.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.2"
+}
+
+application {
+    version = null
+    mainClassName = "com.enonic.xp.publish.PublishVars"
+}
+
+test {
+    useJUnitPlatform {
+
+    }
+}
