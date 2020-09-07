@@ -2,7 +2,6 @@ FROM adoptopenjdk:11-jdk-hotspot AS builder
 
 COPY . .
 RUN /gradlew installDist
-RUN ls -la /build/install/
 
 FROM adoptopenjdk:11-jdk-hotspot
 COPY --from=builder /build/install/publish-vars .
