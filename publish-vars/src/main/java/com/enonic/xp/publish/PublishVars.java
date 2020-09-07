@@ -43,7 +43,7 @@ public class PublishVars
         System.out.println( "::set-output name=repo::" + ( isSnapshot ? "snapshot" : "public" ) );
         System.out.println( "::set-output name=release::" + !isSnapshot );
         System.out.println( "::set-output name=prerelease::" + version.contains( "-" ) );
-        System.out.println( "::set-output name=tag::" + "v" + version );
+        System.out.println( "::set-output name=tag_name::" + "v" + version );
         System.out.println( "::set-output name=version::" + version );
         if ( projectName != null )
         {

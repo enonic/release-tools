@@ -1,3 +1,3 @@
 #!/bin/sh -l
 
-/gradlew run --args="${PROPERTIES_PATH}"
+java -jar publish-vars.jar "${PROPERTIES_PATH}"

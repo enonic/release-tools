@@ -1,5 +1,6 @@
 FROM adoptopenjdk:11-jdk-hotspot
 
-COPY . .
+RUN /gradlew build
+COPY /build/install/publish-vars/ .
 
 ENTRYPOINT ["/entrypoint.sh"]
