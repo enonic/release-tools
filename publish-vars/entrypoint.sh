@@ -1,3 +1,3 @@
 #!/bin/sh -l
 
-/gradlew run --args="${CURRENT_VERSION}"
+/gradlew run --args="${PROPERTIES_PATH}"
