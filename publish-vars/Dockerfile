@@ -4,7 +4,7 @@ COPY . .
 RUN /gradlew installDist
 RUN ls -la /build/install/
 
-FROM alpine:3.10
+FROM adoptopenjdk:11-jdk-hotspot
 COPY --from=builder /build/install/publish-vars .
 COPY /entrypoint.sh .
 ENTRYPOINT ["/entrypoint.sh"]
