@@ -1,3 +1,3 @@
 #!/bin/sh -l
 
-java -jar publish-vars.jar "${PROPERTIES_PATH}"
+publish-vars/bin/publish-vars "${PROPERTIES_PATH}"
