@@ -1,4 +1,4 @@
-FROM adoptopenjdk:11-jdk-hotspot AS builder
+FROM adoptopenjdk:11-jdk-hotspot-bionic AS builder
 
 COPY . .
 RUN /gradlew installDist
