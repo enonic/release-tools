@@ -1,4 +1,4 @@
-FROM adoptopenjdk:11-jdk-hotspot
+FROM adoptopenjdk:11-jdk-hotspot-bionic
 
 COPY . .
 

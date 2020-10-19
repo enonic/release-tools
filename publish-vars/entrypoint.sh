@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-/bin/publish-vars "${PROPERTIES_PATH}"
+/publish-vars/bin/publish-vars "${PROPERTIES_PATH}"
