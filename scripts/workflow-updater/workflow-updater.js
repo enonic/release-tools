@@ -31,7 +31,7 @@ async function updateWorkflow(owner, repo, path, content) {
 
     return await request({
         headers: {
-            Authorization: `Basic ${process.argv.slice(2)[AUTH_INDEX]}`
+            Authorization: `token ${process.argv.slice(2)[AUTH_INDEX]}`
         },
         method: 'PUT',
         url: `/repos/${owner}/${repo}/contents/${path}`,
@@ -45,7 +45,7 @@ function execute() {
             let repos = process.argv.slice(3);
 
             repos.forEach(async (repo) => {
-                await updateWorkflow('anatol-sialitski', repo, '.github/workflows/enonic-gradle.yml', template.data.content)
+                await updateWorkflow('enonic', repo, '.github/workflows/enonic-gradle.yml', template.data.content)
                     .then(res => {
                         console.log(`Repo "${repo}" was updated`);
                     })
