@@ -8,7 +8,7 @@ The template you can find [here](https://github.com/enonic/release-tools/blob/ma
 
 You can copy a custom configuration file for `Dependabot` with the following command:
 
-    dependabot.js run <token> <file> <repo>
+    node dependabot.js run <token> <file> <repo>
     
 **List of arguments:**
 
