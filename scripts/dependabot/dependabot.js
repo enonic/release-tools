@@ -28,45 +28,50 @@ function doExecute() {
     }
 
     fs.readFile(argv.file, 'utf8', async (err, content) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
+            if (err) {
+                console.error(err);
+                return;
+            }
 
-        repositories.forEach(async (repository) => {
-            let url = `/repos/enonic/${repository}/contents/.github/dependabot.yml`;
+            for (const repository of repositories) {
+                let url = `/repos/enonic/${repository}/contents/.github/dependabot.yml`;
 
-            let sha = await request(`GET ${url}`)
-                .then(res => {
+                let sha = await request({
+                    method: 'GET',
+                    headers: {
+                        Authorization: `token ${argv.token}`
+                    },
+                    url: url
+                }).then(res => {
                     return res.data.sha;
-                })
-                .catch(err => {
+                }).catch(err => {
                     return null
                 });
 
-            let data = {
-                content: Buffer.from(content).toString('base64'),
-                message: "Updated dependabot.yml file"
-            };
+                let data = {
+                    content: Buffer.from(content).toString('base64'),
+                    message: "Updated dependabot.yml file"
+                };
 
-            if (sha !== null) {
-                data.sha = sha;
+                if (sha !== null) {
+                    data.sha = sha;
+                }
+
+                await request({
+                    headers: {
+                        Authorization: `token ${argv.token}`
+                    },
+                    method: 'PUT',
+                    url: url,
+                    data: data
+                }).then((res, err) => {
+                    console.log(`The repository "${repository}" successfully updated.`);
+                }).catch(err => {
+                    console.error(`Error: Update of the repository "${repository}" is failed.\n ${err}`);
+                });
             }
-
-            await request({
-                headers: {
-                    Authorization: `token ${argv.token}`
-                },
-                method: 'PUT',
-                url: url,
-                data: data
-            }).then((res, err) => {
-                console.log(`The repository "${repository}" successfully updated.`);
-            }).catch(err => {
-                console.error(`Error: Update of the repository "${repository}" is failed.\n ${err}`);
-            });
-        });
-    });
+        }
+    );
 }
 
 function execute() {
