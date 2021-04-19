@@ -12,6 +12,7 @@ class PublishVarsTest
     {
         assertAll( () -> assertEquals( "3.0.9-SNAPSHOT", PublishVars.nextSnapshot( "3.0.8" ) ),
                    () -> assertEquals( "3.0.8-SNAPSHOT", PublishVars.nextSnapshot( "3.0.8-SNAPSHOT" ) ),
+                   () -> assertEquals( "1.11.0-SNAPSHOT", PublishVars.nextSnapshot( "1.11.0-SNAPSHOT" ) ),
                    () -> assertEquals( "3.0.8-SNAPSHOT", PublishVars.nextSnapshot( "3.0.8-RC1" ) ),
                    () -> assertEquals( "3.0.8-SNAPSHOT", PublishVars.nextSnapshot( "3.0.8-BETA1" ) ) );
     }

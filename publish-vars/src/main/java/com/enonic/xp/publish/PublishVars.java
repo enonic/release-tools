@@ -10,7 +10,7 @@ public class PublishVars
 {
     public static String nextSnapshot( String currentVersion )
     {
-        final Matcher matcher = Pattern.compile( "(\\d+\\.\\d\\.)(\\d+)(-.*)?" ).matcher( currentVersion );
+        final Matcher matcher = Pattern.compile( "(\\d+\\.\\d+\\.)(\\d+)(-.*)?" ).matcher( currentVersion );
         if ( matcher.matches() )
         {
             final String mainPart = matcher.group( 1 );
