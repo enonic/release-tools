@@ -8,12 +8,13 @@ The template you can find [here](https://github.com/enonic/release-tools/blob/ma
 
 You can copy a custom configuration file for `Dependabot` with the following command:
 
-    node dependabot.js run <token> <file> <repo>
-    
+    node github-update.js run <token> dependabot-template.yml .github/dependabot.yml <repo>
+
 **List of arguments:**
 
-- `token` - The personal access token. In order to set it up to visit this [page](https://github.com/settings/tokens).
-- `file` -  The absolute path to a file.
-- `repo` -  The name of the repository for which the changes are applied. If you want to specify more than one repository use space between repository.
+- `token` - Personal access token. In order to set it up to visit this [page](https://github.com/settings/tokens).
+- `file` -  Path to a file with content.
+- `location` - Relative destination path.
+- `repo` -  Name of the repository for which the changes are applied. Use space between repositories to specify multiple.
 
 **_Note:_** All arguments are required.

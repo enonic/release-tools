@@ -3,12 +3,15 @@ const yargs = require('yargs');
 const fs = require('fs');
 
 const argv = yargs
-    .command('run <token> <file> <repo>', 'Copies the given "dependabot.yml" file to the specified repositories.', (yargs) => {
+    .command('run <token> <file> <location> <repo>', 'Copies the given file to the specified repositories.', (yargs) => {
         yargs.positional('token', {
             describe: 'The personal access token. In order to set it up to visit https://github.com/settings/tokens page.',
             type: 'string'
         }).positional('file', {
             describe: 'The absolute path to a file',
+            type: 'string'
+        }).positional('location', {
+            describe: 'The relative destination path',
             type: 'string'
         }).positional('repo', {
             describe: 'The name of the repository for which the changes are applied. If you want to specify more than one repository use space between repository names.',
@@ -20,6 +23,7 @@ const argv = yargs
     .argv;
 
 function doExecute() {
+    let location = argv.location;
     let repositories = argv.repo.split(' ');
 
     if (repositories.length === 0) {
@@ -34,7 +38,7 @@ function doExecute() {
             }
 
             for (const repository of repositories) {
-                let url = `/repos/enonic/${repository}/contents/.github/dependabot.yml`;
+                let url = `/repos/enonic/${repository}/contents/${location}`;
 
                 let sha = await request({
                     method: 'GET',
@@ -45,12 +49,17 @@ function doExecute() {
                 }).then(res => {
                     return res.data.sha;
                 }).catch(err => {
-                    return null
+                    if (err.status === 404) {
+                        console.warn(`${url} not found`);
+                        return null
+                    } else {
+                        throw err
+                    }
                 });
 
                 let data = {
                     content: Buffer.from(content).toString('base64'),
-                    message: "Updated dependabot.yml file"
+                    message: `Updated ${location} file`
                 };
 
                 if (sha !== null) {
