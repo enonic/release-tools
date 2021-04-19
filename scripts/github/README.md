@@ -18,6 +18,7 @@ To fetch repositories by specific criteria use the following command:
 
 **List of options:**
 
+- `public` - Includes public repositories that you can access
 - `private` - Includes private repositories that you can access
 - `not-archived` - Includes repositories that are not archived
 - `archived` - Includes repositories that are archived

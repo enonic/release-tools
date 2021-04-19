@@ -53,6 +53,10 @@ const argv = yargs.command('repos <token> [name] [delimiter]', 'Returns reposito
     }, async (argv) => {
         let query = `org:enonic`;
 
+        if (argv.public) {
+            query += ` is:public`;
+        }
+
         if (argv.private) {
             query += ` is:private`;
         }
@@ -89,6 +93,10 @@ const argv = yargs.command('repos <token> [name] [delimiter]', 'Returns reposito
         });
 
         console.log(repositoryNames.join(argv.delimiter));
+    })
+    .option('public', {
+        type: 'boolean',
+        description: 'Includes public repositories that you can access'
     })
     .option('private', {
         type: 'boolean',
