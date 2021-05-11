@@ -1,10 +1,10 @@
 const {request} = require("@octokit/request");
 const yargs = require('yargs');
 
-const fetchRepos = async (token, query, perPage, page) => {
+const fetchRepos = async (token, perPage, page) => {
     let result = [];
 
-    let res = await doFetchRepos(token, query, perPage, page);
+    let res = await doFetchRepos(token, perPage, page);
 
     if (res.status === 200) {
         result.push.apply(result, res.data.items);
@@ -13,20 +13,20 @@ const fetchRepos = async (token, query, perPage, page) => {
 
         if (page <= numberOfPage) {
             page = page + 1;
-            result.push.apply(result, await fetchRepos(token, query, perPage, page));
+            result.push.apply(result, await fetchRepos(token, perPage, page));
         }
     }
 
     return result;
 };
 
-async function doFetchRepos(token, query, perPage, page) {
+async function doFetchRepos(token, perPage, page) {
     return await request({
         headers: {
             Authorization: `token ${token}`
         },
         method: 'GET',
-        url: `/search/repositories?q=${encodeURIComponent(query)}&per_page=${perPage}&page=${page}`
+        url: `/search/repositories?q=${encodeURIComponent('org:enonic')}&per_page=${perPage}&page=${page}`
     }).then((res) => {
         return res;
     }).catch(err => {
@@ -34,65 +34,75 @@ async function doFetchRepos(token, query, perPage, page) {
     });
 }
 
-const argv = yargs.command('repos <token> [name] [delimiter]', 'Returns repositories of the specific organization by the criteria',
+const argv = yargs.command('find <token> <repoNameRegExp> [fileLocation] [contentRegExp]',
+    'Returns repository names of the specific organization by the criteria',
     (yargs) => {
-        yargs
-            .positional('token', {
-                describe: 'The personal access token. In order to set it up to visit https://github.com/settings/tokens page.',
-                type: 'string'
-            })
-            .positional('name', {
-                describe: 'RegExp pattern for a repository name.',
-                type: 'string'
-            })
-            .positional('delimiter', {
-                describe: 'The delimiter',
-                type: 'string',
-                default: "\n"
-            })
+        yargs.positional('token', {
+            describe: 'The personal access token. In order to set it up to visit https://github.com/settings/tokens page.',
+            type: 'string'
+        }).positional('repoNameRegExp', {
+            describe: 'RegExp pattern for a repository name.',
+            type: 'string'
+        }).positional('fileLocation', {
+            describe: 'File location.',
+            type: 'string'
+        }).positional('contentRegExp', {
+            describe: 'RegExp pattern for a content.',
+            type: 'string'
+        })
     }, async (argv) => {
-        let query = `org:enonic`;
-
-        if (argv.public) {
-            query += ` is:public`;
+        let isContainsFile = true;
+        if (argv['not-contains-file']) {
+            isContainsFile = false;
         }
 
-        if (argv.private) {
-            query += ` is:private`;
-        }
+        let repositories = await fetchRepos(argv.token, 100, 1);
 
-        if (argv['not-archived']) {
-            query += ` archived:false`;
-        }
-        if (argv.archived) {
-            query += ` archived:true`;
-        }
-
-        if (argv['not-mirror']) {
-            query += ` mirror:false`;
-        }
-        if (argv.mirror) {
-            query += ` mirror:true`;
-        }
-
-        if (argv.fork) {
-            query += ` fork:only`;
-        } else {
-            query += ` fork:true`
-        }
-
-        let repositories = await fetchRepos(argv.token, query, 100, 1);
-
-        let repositoryNames = repositories.filter(repository => {
-            if (argv.name) {
-                return RegExp(argv.name).test(repository.name);
-            }
-            return true;
-        }).map(repository => {
+        let repositoryNames = repositories.filter(repository => doFilterRepo(repository, argv)).map(repository => {
             return repository.name;
         });
 
-        console.log(repositoryNames.join(argv.delimiter));
+        let resultForContains = [];
+        let resultForNotContains = [];
+
+        for (const repositoryName of repositoryNames) {
+
+            if (argv.fileLocation && argv.fileLocation.length > 0) {
+                let url = `/repos/enonic/${repositoryName}/contents/${argv.fileLocation}`;
+                await request({
+                    method: 'GET',
+                    headers: {
+                        Authorization: `token ${argv.token}`,
+                        Accept: 'application/vnd.github.v3.raw'
+                    },
+                    url: url
+                }).then(res => {
+                    if (argv.contentRegExp && argv.contentRegExp.length > 0) {
+                        let data = res.data.split('\n');
+
+                        data.some(function (input) {
+                            if (new RegExp(argv.contentRegExp).test(input)) {
+                                resultForContains.push(repositoryName);
+                                return true;
+                            }
+                        });
+                    } else {
+                        resultForContains.push(repositoryName);
+                    }
+                }).catch(err => {
+                    if (err.status === 404) {
+                        resultForNotContains.push(repositoryName);
+                    } else {
+                        console.error(err);
+                    }
+                    return null
+                });
+            } else {
+                resultForContains.push(repositoryName);
+            }
+        }
+
+        console.log(isContainsFile === true ? resultForContains.join(' ') : resultForNotContains.join(' '));
     })
     .option('public', {
         type: 'boolean',
@@ -122,6 +132,68 @@ const argv = yargs.command('repos <token> [name] [delimiter]', 'Returns reposito
         type: 'boolean',
         description: 'Includes repositories that are forks'
     })
+    .option('not-contains-file', {
+        type: 'boolean',
+        description: 'Includes repositories that are forks'
+    })
     .help()
     .alias('help', 'h')
     .argv;
+
+function doFilterRepo(repository, argv) {
+    let argumentsCount = 0;
+    let matchesCount = 0;
+
+    if (argv.repoNameRegExp && argv.repoNameRegExp.length > 0) {
+        repoNameMatched = new RegExp(argv.repoNameRegExp).test(repository.name);
+        if (!repoNameMatched) {
+            return false;
+        }
+    }
+
+    if (argv.public) {
+        argumentsCount++;
+        if (repository.private === false) {
+            matchesCount++;
+        }
+    }
+
+    if (argv.private) {
+        argumentsCount++;
+        if (repository.private === true) {
+            matchesCount++;
+        }
+    }
+    if (argv['not-archived']) {
+        argumentsCount++;
+        if (repository.archived === false) {
+            matchesCount++;
+        }
+    }
+    if (argv.archived) {
+        argumentsCount++;
+        if (repository.archived === true) {
+            matchesCount++;
+        }
+    }
+    if (argv.fork) {
+        argumentsCount++;
+        if (repository.fork === true) {
+            matchesCount++;
+        }
+    }
+    if (argv.mirror) {
+        argumentsCount++;
+        if (repository.mirror_url !== null) {
+            matchesCount++;
+        }
+    }
+    if (argv['not-mirror']) {
+        argumentsCount++;
+        if (repository.mirror_url === null) {
+            matchesCount++;
+        }
+    }
+
+    return argumentsCount === matchesCount;
+}
