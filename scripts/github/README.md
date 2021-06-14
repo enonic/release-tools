@@ -4,6 +4,10 @@ This script allows you to use Github Search API for Enonic organization.
 
 # Usage
 
+## Install dependencies
+
+    npm install
+
 ## Fetch repositories
 
 To fetch repositories by specific criteria use the following command:
