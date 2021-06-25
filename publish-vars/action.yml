@@ -1,3 +1,42 @@
+name: publish-vars
+description: This is an action to extract publishing variables based on project configuration and environment.
+
+outputs:
+  nextSnapshot:
+    description: next snapshot version
+    value: ${{ steps.generator.outputs.nextSnapshot }}
+  repo:
+    description: maven repository name for publishing
+    value: ${{ steps.generator.outputs.repo }}
+  release:
+    description: true if release version (including prerelease)
+    value: ${{ steps.generator.outputs.release }}
+  prerelease:
+    description: true if prerelease version (such as RC or beta)
+    value: ${{ steps.generator.outputs.prerelease }}
+  tag_name:
+    description: git tage name for release
+    value: ${{ steps.generator.outputs.tag_name }}
+  version:
+    description: version from properties
+    value: ${{ steps.generator.outputs.version }}
+  projectName:
+    description: project name
+    value: ${{ steps.generator.outputs.projectName }}
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "composite"
+  steps:
+    - id: generator
+      run: java --source 11 ${{ github.action_path }}/src/main/java/com/enonic/xp/publish/PublishVars.java
+      shell: bash
+
+    - run: |
+        echo Publishing variables:
+        echo nextSnapshot ${{ steps.generator.outputs.nextSnapshot }}
+        echo repo ${{ steps.generator.outputs.repo }}
+        echo release ${{ steps.generator.outputs.release }}
+        echo prerelease ${{ steps.generator.outputs.prerelease }}
+        echo tag_name ${{ steps.generator.outputs.tag_name }}
+        echo version ${{ steps.generator.outputs.version }}
+        echo projectName ${{ steps.generator.outputs.projectName }}
+      shell: bash
