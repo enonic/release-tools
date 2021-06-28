@@ -31,8 +31,8 @@ class PublishVarsTest
                    () -> assertEquals( "other", PublishVars.adjustedRepoKey( "other", false, false ) ),
 
                    () -> assertEquals( "public", PublishVars.adjustedRepoKey( null, false, false ) ),
-                   () -> assertEquals( "inhouse", PublishVars.adjustedRepoKey( null, true, true ) ),
-                   () -> assertEquals( "inhouse", PublishVars.adjustedRepoKey( null, true, false ) ),
+                   () -> assertEquals( "", PublishVars.adjustedRepoKey( null, true, true ) ),
+                   () -> assertEquals( "", PublishVars.adjustedRepoKey( null, true, false ) ),
                    () -> assertEquals( "snapshot", PublishVars.adjustedRepoKey( null, false, true ) ) );
     }
 }

@@ -28,7 +28,7 @@ public class PublishVars
 
     public static String adjustedRepoKey( String repoKey, boolean isPrivateCodeRepo, boolean isSnapshot )
     {
-        String repoKeyOrDefault = Objects.requireNonNullElse( repoKey, isPrivateCodeRepo ? "inhouse" : "public" );
+        String repoKeyOrDefault = Objects.requireNonNullElse( repoKey, isPrivateCodeRepo ? "" : "public" );
 
         return ( repoKeyOrDefault.equals( "public" ) && isSnapshot ) ? "snapshot" : repoKeyOrDefault;
     }
