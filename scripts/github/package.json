@@ -9,6 +9,7 @@
   "author": "Enonic AS",
   "dependencies": {
     "@octokit/request": "^5.4.7",
+    "js-yaml": "^4.1.0",
     "yargs": "16.2.0"
   }
 }
