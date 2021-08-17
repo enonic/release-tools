@@ -102,3 +102,39 @@ The template you can find [here](https://github.com/enonic/release-tools/blob/ma
 ```
  node update-interval.js run <token> <file> <repoNameRegExp> <packageEcosystem> <interval>
 ```
+
+
+## GitHub Gradle version API:
+
+In order to know current version of gradle for repository you can call the following command:
+
+```
+  node gradle.js run <token> "<repoNameRegExp>"
+  
+```
+
+**List of arguments:**
+
+- `token` - The personal access token. In order to set it up to visit this [page](https://github.com/settings/tokens).
+- `repoNameRegExp` - RegExp pattern for a repository name.
+
+In the result you will see something like that:
+
+```
+xp-distro 6.2.1
+app-poll 5.4.1
+```
+
+## GitHub Commit API:
+
+In order to commit files you can use the following command:
+
+```
+node commit.js commit <token> <repos> <dir> <comment>
+```
+**List of arguments:**
+
+- `token` - The personal access token. In order to set it up to visit this [page](https://github.com/settings/tokens).
+- `repos` - Repository names space separated.
+- `dir` - Path to directory with files for commit.
+- `comment` - Comment for GitHub commit.
