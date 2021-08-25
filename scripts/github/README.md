@@ -85,22 +85,12 @@ The template you can find [here](https://github.com/enonic/release-tools/blob/ma
 - `repoNameRegExp` - RegExp pattern for a repository name.
 - `packageEcosystem` - Package Ecosystem, for instance gradle, npm and etc
 - `interval` - Schedule interval weekly|monthly etc
-
-**List of options:**
-
-- `not-contains-file` - If this option is specified then result will contain repository names which don't have a given file
-- `public` - Include only public repositories that you can access
-- `private` - Include only private repositories that you can access
-- `not-archived` - Include only repositories that are not archived
-- `archived` - Include only repositories that are archived
-- `not-mirror` - Include only repositories that are not mirrors
-- `mirror` Include only repositories that are mirrors
-- `fork` - Include only repositories that are forks
+- `repo` -  Name of the repository for which the changes are applied. Use space between repositories to specify multiple.
 
 **Examples**
 
 ```
- node update-interval.js run <token> <file> <repoNameRegExp> <packageEcosystem> <interval>
+ node update-interval.js run <token> npm <interval> <repo>
 ```
 
 
@@ -110,7 +100,7 @@ In order to know current version of gradle for repository you can call the follo
 
 ```
   node gradle.js run <token> "<repoNameRegExp>"
-  
+
 ```
 
 **List of arguments:**
