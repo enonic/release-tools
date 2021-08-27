@@ -81,9 +81,10 @@ const argv = yargs.command('find <token> <repoNameRegExp> [fileLocation] [conten
                         let data = res.data.split('\n');
 
                         data.some(function (input) {
-                            if (new RegExp(argv.contentRegExp).test(input)) {
+                            const match = input.match(new RegExp(argv.contentRegExp));
+                            if (match) {
                                 resultForContains.push(repositoryName);
-                                console.log(`${repositoryName} ${input}`)
+                                console.log(`${repositoryName} ${match.groups.out || input }`)
                                 return true;
                             }
                         });

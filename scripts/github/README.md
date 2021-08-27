@@ -40,6 +40,11 @@ To fetch all repositories where gradle.properties file does not contain a `versi
 node github.js find <your_personal_token> "^app-" "gradle.properties" '^version=.*(?<!SNAPSHOT)$'
 ```
 
+Find version of gradle in all repositories (only include Gradle versions 6.x )
+
+```
+node github.js find <your_personal_token> ".*" gradle/wrapper/gradle-wrapper.properties "gradle-(?<out>6.+)-.*" --not-archived
+```
 Find all repositories without dependabot integration
 
 ```

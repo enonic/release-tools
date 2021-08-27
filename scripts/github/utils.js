@@ -105,8 +105,8 @@ function creteBlob(token, owner, repository, content) {
         method: 'POST',
         url: `/repos/${owner}/${repository}/git/blobs`,
         data: {
-            content: content,
-            encoding: 'utf-8'
+            content: content.toString('base64'),
+            encoding: 'base64'
         }
     });
 }

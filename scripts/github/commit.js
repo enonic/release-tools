@@ -2,20 +2,20 @@ const yargs = require('yargs');
 const githubUtils = require('./utils');
 const fs = require('fs');
 
-const argv = yargs.command('commit <token> <repos> <dir> <comment>',
+const argv = yargs.command('commit <token> <dir> <comment> <repos>',
     'GitHub commit. Allows to commit multiple files in one commit.',
     (yargs) => {
         yargs.positional('token', {
             describe: 'The personal access token. In order to set it up to visit https://github.com/settings/tokens page.',
-            type: 'string'
-        }).positional('repos', {
-            describe: 'Repository names space separated.',
             type: 'string'
         }).positional('dir', {
             describe: 'Path to directory with files for commit.',
             type: 'string'
         }).positional('comment', {
             describe: 'Comment for GitHub commit',
+            type: 'string'
+        }).positional('repo', {
+            describe: 'Repository names space separated.',
             type: 'string'
         })
     }, async (argv) => {
@@ -36,7 +36,7 @@ function doBuildDistributionsConfig(baseDir, dir) {
         } else {
             let mode = (stat.mode & parseInt('777', 8)).toString(8);
             result.push({
-                content: fs.readFileSync(path, 'utf8'),
+                content: fs.readFileSync(path),
                 path: path.replace(baseDir + '/', ''),
                 mode: '100' + (mode.startsWith('7') ? '755' : '644')
             });
