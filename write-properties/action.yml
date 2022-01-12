@@ -1,0 +1,19 @@
+name: write-properties
+description: This is an action to write property into properties file
+
+inputs:
+  path:
+    description: 'The path to the properties file.'
+    required: true
+  property:
+    description: 'The property key.'
+    required: true
+  value:
+    description: 'The property value.'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - id: generator
+      run: java --source 11 ${{ github.action_path }}/src/main/java/com/enonic/actions/WriteProperties.java ${{ inputs.path }} ${{ inputs.property }} ${{ inputs.value }}
+      shell: bash
