@@ -1,6 +1,14 @@
 name: build-and-push
 description: This is an action to automate Gradle build and push tasks
 
+inputs:
+  repoUser:
+    description: 'When publishing which user to use.'
+    required: true
+  repoPassword:
+    description: 'When publishing which password to use.'
+    required: true
+
 outputs:
   release:
     description: "If this build should be released"
@@ -29,7 +37,7 @@ runs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - run: ./gradlew ${TASK} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ secrets.ARTIFACTORY_USERNAME }} -PrepoPassword=${{ secrets.ARTIFACTORY_PASSWORD }}
+    - run: ./gradlew ${TASK} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }}
       env:
         TASK: ${{ steps.publish_vars.outputs.publish != '' && github.ref == 'refs/heads/master' && 'publish' || 'build' }}
       shell: bash
