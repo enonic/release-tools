@@ -42,4 +42,4 @@ runs:
         TASK: ${{ steps.publish_vars.outputs.repo != '' && github.ref == 'refs/heads/master' && 'publish' || 'build' }}
       shell: bash
 
-    - uses: codecov/codecov-action@v2.1.0
+    - uses: codecov/codecov-action@v2
