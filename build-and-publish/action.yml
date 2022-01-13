@@ -1,0 +1,37 @@
+name: build-and-push
+description: This is an action to automate Gradle build and push tasks
+
+outputs:
+  release:
+    description: "If this build should be released"
+    value: ${{ steps.publish_vars.outputs.repo != '' && github.ref == 'refs/heads/master' }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Get publishing variables
+      id: publish_vars
+      uses: enonic/release-tools/publish-vars@master
+      env:
+        PROPERTIES_PATH: './gradle.properties'
+        GITHUB_REPO_PRIVATE: ${{ github.event.repository.private }}
+
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - run: ./gradlew ${TASK} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ secrets.ARTIFACTORY_USERNAME }} -PrepoPassword=${{ secrets.ARTIFACTORY_PASSWORD }}
+      env:
+        TASK: ${{ steps.publish_vars.outputs.publish != '' && github.ref == 'refs/heads/master' && 'publish' || 'build' }}
+      shell: bash
+
+    - uses: codecov/codecov-action@v2.1.0
