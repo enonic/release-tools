@@ -37,12 +37,9 @@ runs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - run: |
-        echo ${{ github.ref }}
-        echo ${TASK}
-        ./gradlew ${TASK} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }}
+    - run: ./gradlew ${TASK} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }}
       env:
-        TASK: ${{ steps.publish_vars.outputs.publish != '' && github.ref == 'refs/heads/master' && 'publish' || 'build' }}
+        TASK: ${{ steps.publish_vars.outputs.repo != '' && github.ref == 'refs/heads/master' && 'publish' || 'build' }}
       shell: bash
 
     - uses: codecov/codecov-action@v2.1.0
