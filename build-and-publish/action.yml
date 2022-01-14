@@ -12,7 +12,7 @@ inputs:
 outputs:
   release:
     description: "If this build should be released"
-    value: ${{ steps.publish_vars.outputs.repo != '' && github.ref == 'refs/heads/master' }}
+    value: ${{ steps.publish_vars.outputs.release == 'true' && github.ref == 'refs/heads/master' }}
 
 runs:
   using: "composite"
