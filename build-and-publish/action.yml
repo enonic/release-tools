@@ -8,6 +8,22 @@ inputs:
   repoPassword:
     description: 'When publishing which password to use.'
     required: true
+  publishTask:
+    description: 'Gradle task when publishing is needed'
+    default: 'publish'
+    required: false
+  buildTask:
+    description: 'Gradle task when only build is needed'
+    default: 'build'
+    required: false
+  publishRelease:
+    description: 'Should release be published'
+    default: 'true'
+    required: false
+  skipPublishing:
+    description: 'Should publishing be fully skipped regardless of any other conditions'
+    default: ''
+    required: false
 
 outputs:
   release:
@@ -27,6 +43,20 @@ runs:
       env:
         PROPERTIES_PATH: './gradle.properties'
         GITHUB_REPO_PRIVATE: ${{ github.event.repository.private }}
+
+
+    - id: task_generator
+      run:
+        |
+        if [ "${{ inputs.skipPublishing == 'true' || steps.publish_vars.outputs.repo == '' }}" = true ] ||
+           [ "${{ inputs.publishRelease != 'true' && steps.publish_vars.outputs.release == 'true' }}" = true ] ||
+           [ "${{ inputs.skipPublishing == '' && github.ref != 'refs/heads/master' }}" = true ]
+        then
+          echo ::set-output name=task::${{ buildTask }}
+        else
+          echo ::set-output name=task::${{ publishTask }}
+        fi
+      shell: bash
 
     - uses: actions/cache@v2
       with:
