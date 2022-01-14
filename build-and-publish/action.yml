@@ -48,9 +48,9 @@ runs:
     - id: task_generator
       run:
         |
-        if [ "${{ inputs.skipPublishing == 'true' || steps.publish_vars.outputs.repo == '' }}" = true ] ||
-           [ "${{ inputs.publishRelease != 'true' && steps.publish_vars.outputs.release == 'true' }}" = true ] ||
-           [ "${{ inputs.skipPublishing == '' && github.ref != 'refs/heads/master' }}" = true ]
+        if [ ${{ inputs.skipPublishing == 'true' || steps.publish_vars.outputs.repo == '' }} = true ] ||
+           [ ${{ inputs.publishRelease != 'true' && steps.publish_vars.outputs.release == 'true' }} = true ] ||
+           [ ${{ inputs.skipPublishing == '' && github.ref != 'refs/heads/master' }} = true ]
         then
           echo ::set-output name=task::${{ inputs.buildTask }}
         else
@@ -67,9 +67,7 @@ runs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - run: ./gradlew ${TASK} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }}
-      env:
-        TASK: ${{ steps.publish_vars.outputs.repo != '' && github.ref == 'refs/heads/master' && 'publish' || 'build' }}
+    - run: ./gradlew ${steps.task_generator.outputs.task} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }}
       shell: bash
 
     - uses: codecov/codecov-action@v2
