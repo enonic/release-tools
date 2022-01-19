@@ -26,6 +26,10 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: '11'
     - id: generator
       run: java --source 11 ${{ github.action_path }}/src/main/java/com/enonic/xp/publish/PublishVars.java
       shell: bash
