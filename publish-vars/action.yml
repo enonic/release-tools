@@ -23,6 +23,9 @@ outputs:
   projectName:
     description: project name
     value: ${{ steps.generator.outputs.projectName }}
+  group:
+    description: publish group
+    value: ${{ steps.generator.outputs.group }}
 runs:
   using: "composite"
   steps:
@@ -39,4 +42,5 @@ runs:
         echo tag_name ${{ steps.generator.outputs.tag_name }}
         echo version ${{ steps.generator.outputs.version }}
         echo projectName ${{ steps.generator.outputs.projectName }}
+        echo group ${{ steps.generator.outputs.group }}
       shell: bash

@@ -51,6 +51,7 @@ public class PublishVars
             return;
         }
         final String projectName = properties.getProperty( "projectName" );
+        final String group = properties.getProperty( "group" );
         final String repoKey = properties.getProperty( "repoKey" );
         final boolean isSnapshot = version.endsWith( "-SNAPSHOT" );
 
@@ -63,6 +64,9 @@ public class PublishVars
         if ( projectName != null )
         {
             System.out.println( "::set-output name=projectName::" + projectName );
+        }
+        if ( group != null ) {
+            System.out.println( "::set-output name=group::" + group );
         }
     }
 }
