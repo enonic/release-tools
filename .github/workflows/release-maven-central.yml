@@ -32,10 +32,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Save secring file
-        run: 'echo base64 -d "$SIGNING_SECRET_KEY_RING_FILE" > secring.gpg; ls -la'
+        run: 'echo base64 -d "$SIGNING_SECRET_KEY_RING_FILE" > secring.gpg; ls -la; pwd'
         shell: bash
       - name: Release the artifacts to Maven Central
         run: |
+          ls -la
           cd ./publish-mvn-central
           ./gradlew clean downloadArtifacts -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION
           ./gradlew publish -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION -P signing.keyId=$SIGNING_KEY_ID -P signing.password=$SIGNING_PASSWORD -P signing.secretKeyRingFile="../secring.gpg" -P nexusUsername=$NEXUS_USERNAME -P nexusUserPassword=$NEXUS_USERNAME_PASSWORD
