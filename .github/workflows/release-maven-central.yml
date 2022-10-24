@@ -33,6 +33,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Release the artifacts to Maven Central
         run: |
-          ./publish-mvn-central/gradlew clean downloadArtifacts -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION
-          ./publish-mvn-central/gradlew publish -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION -P signing.keyId=$SIGNING_KEY_ID -P signing.password=$SIGNING_PASSWORD -P signing.secretKeyRingFile=$SIGNING_SECRET_KEY_RING_FILE -P nexusUsername=$NEXUS_USERNAME -P nexusUserPassword=$NEXUS_USERNAME_PASSWORD
-          ./publish-mvn-central/gradlew closeAndReleaseNexusStagingRepository -P nexusUsername=$NEXUS_USERNAME -P nexusUserPassword=$NEXUS_USERNAME_PASSWORD
+          cd ./publish-mvn-central
+          ./gradlew clean downloadArtifacts -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION
+          ./gradlew publish -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION -P signing.keyId=$SIGNING_KEY_ID -P signing.password=$SIGNING_PASSWORD -P signing.secretKeyRingFile=$SIGNING_SECRET_KEY_RING_FILE -P nexusUsername=$NEXUS_USERNAME -P nexusUserPassword=$NEXUS_USERNAME_PASSWORD
+          ./gradlew closeAndReleaseNexusStagingRepository -P nexusUsername=$NEXUS_USERNAME -P nexusUserPassword=$NEXUS_USERNAME_PASSWORD
