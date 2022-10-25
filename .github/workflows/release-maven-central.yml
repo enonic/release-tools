@@ -38,4 +38,4 @@ jobs:
         run: |
           cd ./publish-mvn-central
           ./gradlew clean downloadArtifacts -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION
-          ./gradlew publish closeAndReleaseNexusStagingRepository -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION -P signing.keyId=$SIGNING_KEY_ID -P signing.password=$SIGNING_PASSWORD -P signing.secretKeyRingFile="../secring.gpg" -P nexusUsername=$MAVEN_CENTRAL_USERNAME -P nexusUserPassword=$MAVEN_CENTRAL_PASSWORD
+          ./gradlew publish closeAndReleaseStagingRepository -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION -P signing.keyId=$SIGNING_KEY_ID -P signing.password=$SIGNING_PASSWORD -P signing.secretKeyRingFile="../secring.gpg" -P nexusUsername=$MAVEN_CENTRAL_USERNAME -P nexusUserPassword=$MAVEN_CENTRAL_PASSWORD
