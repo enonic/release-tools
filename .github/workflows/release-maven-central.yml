@@ -23,7 +23,7 @@ env:
   NEXUS_USERNAME_PASSWORD: ${{ secrets.nexusUserPassword }}
   SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
   SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSPHRASE }}
-  SIGNING_SECRET_KEY_RING_FILE: ${{ secrets.SIGNING_SECRET_KEY_RING }}
+  SIGNING_SECRET_KEY_RING: ${{ secrets.SIGNING_SECRET_KEY_RING }}
 
 jobs:
   publish-to-maven-central:
@@ -32,7 +32,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Save secring file
-        run: 'base64 -d "$SIGNING_SECRET_KEY_RING_FILE" > secring.gpg'
+        run: 'echo "$SIGNING_SECRET_KEY_RING" | base64 --decode > secring.gpg'
         shell: bash
       - name: Release the artifacts to Maven Central
         run: |
