@@ -71,7 +71,8 @@ signing {
 
 nexusPublishing {
     repositories {
-        sonatype {        
+        sonatype {
+            stagingProfileId = "35ebd1456ce050"
             username = "${nexusUsername}"
             password = "${nexusUserPassword}"
         }
