@@ -53,16 +53,6 @@ publishing {
             }
         }
     }
-    repositories {
-        maven {
-            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-            name = "mavenCentral"
-            credentials {
-                username "${nexusUsername}"
-                password "${nexusUserPassword}"
-            }
-        }
-    }
 }
 
 signing {
