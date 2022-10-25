@@ -71,8 +71,7 @@ signing {
 
 nexusPublishing {
     repositories {
-        nexus {
-            nexusUrl = uri( "https://oss.sonatype.org/service/local/staging" )
+        sonatype {        
             username = "${nexusUsername}"
             password = "${nexusUserPassword}"
         }
