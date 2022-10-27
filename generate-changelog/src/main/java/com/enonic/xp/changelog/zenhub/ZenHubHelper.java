@@ -77,7 +77,7 @@ public class ZenHubHelper
             ObjectMapper mapper = getObjectMapper();
             List<Integer> result = new ArrayList<>();
 
-            String url = "https://api.zenhub.io/p1/repositories/" + repoId + "/epics?access_token=TOKEN";
+            String url = "https://api.zenhub.com/p1/repositories/" + repoId + "/epics?access_token=TOKEN";
             Request request = new Request.Builder().url( url ).header( "X-Authentication-Token", zenHubToken ).build();
             Response response = getHttpClient().newCall( request ).execute();
 
