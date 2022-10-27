@@ -94,7 +94,7 @@ public class ZenHubHelper
     private static String sendRequest( final Integer epic, long repoId, String zenHubToken )
         throws IOException
     {
-        String url = "https://api.zenhub.io/p1/repositories/" + repoId + "/epics/" + epic.toString() + "?access_token=TOKEN";
+        String url = "https://api.zenhub.com/p1/repositories/" + repoId + "/epics/" + epic.toString() + "?access_token=TOKEN";
         Request request = new Request.Builder().url( url ).header( "X-Authentication-Token", zenHubToken ).build();
 //        System.out.println( "API request: " + request.toString() );
         Response response = getHttpClient().newCall( request ).execute();
