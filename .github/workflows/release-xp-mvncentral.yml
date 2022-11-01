@@ -1,0 +1,31 @@
+name: Release APIs and Libs of XP to Maven Central Repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+        type: string
+env:
+  VERSION: ${{ inputs.version }}
+  MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+  MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+  SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+  SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSPHRASE }}
+  SIGNING_SECRET_KEY_RING: ${{ secrets.SIGNING_SECRET_KEY_RING }}
+
+jobs:
+  publish-to-maven-central:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Save secring file
+        run: 'echo "$SIGNING_SECRET_KEY_RING" | base64 --decode > secring.gpg'
+        shell: bash
+      - name: Release the artifacts to Maven Central
+        run: |
+          cd ./publish-xp-mvncentral
+          ./gradlew clean downloadArtifacts -P sourceVersion=$VERSION
+          ./gradlew publish closeAndReleaseStagingRepository -P sourceVersion=$VERSION -P signing.keyId=$SIGNING_KEY_ID -P signing.password=$SIGNING_PASSWORD -P signing.secretKeyRingFile="../secring.gpg" -P nexusUsername=$MAVEN_CENTRAL_USERNAME -P nexusUserPassword=$MAVEN_CENTRAL_PASSWORD
