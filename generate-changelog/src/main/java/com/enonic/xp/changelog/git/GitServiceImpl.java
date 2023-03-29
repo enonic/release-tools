@@ -66,7 +66,7 @@ public class GitServiceImpl
             {
                 throw new ChangelogException( "The git object reference \"" + since + "\" cannot be resolved" );
             }
-            logCommand.not( sinceObjectId );
+            logCommand.not( gitRepository.parseCommit(sinceObjectId) );
         } else {
             final List<Ref> tags = gitRepository.getRefDatabase().getRefsByPrefix(Constants.R_TAGS);
             if (!tags.isEmpty()) {
