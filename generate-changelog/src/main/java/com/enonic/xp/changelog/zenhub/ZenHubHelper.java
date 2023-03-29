@@ -1,24 +1,24 @@
 package com.enonic.xp.changelog.zenhub;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.enonic.xp.changelog.zenhub.issues.IssuePojo;
 import com.enonic.xp.changelog.zenhub.issues.Issues;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class ZenHubHelper
 {
 
-    private static OkHttpClient httpClient;
+    private static HttpClient httpClient;
 
     private static ObjectMapper mapper;
 
@@ -78,10 +78,23 @@ public class ZenHubHelper
             List<Integer> result = new ArrayList<>();
 
             String url = "https://api.zenhub.com/p1/repositories/" + repoId + "/epics?access_token=TOKEN";
-            Request request = new Request.Builder().url( url ).header( "X-Authentication-Token", zenHubToken ).build();
-            Response response = getHttpClient().newCall( request ).execute();
+            final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create( url))
+                .header( "X-Authentication-Token", zenHubToken )
+                .GET()
+                .build();
 
-            JsonNode root = mapper.readTree( response.body().string() );
+            final HttpResponse<String> response;
+            try
+            {
+                response = getHttpClient().send( request, HttpResponse.BodyHandlers.ofString() );
+            }
+            catch ( InterruptedException e )
+            {
+                throw new RuntimeException( e );
+            }
+
+            JsonNode root = mapper.readTree( response.body() );
             for ( JsonNode epicNode : root.get( "epic_issues" ) )
             {
                 result.add( epicNode.get( "issue_number" ).asInt() );
@@ -94,12 +107,21 @@ public class ZenHubHelper
     private static String sendRequest( final Integer epic, long repoId, String zenHubToken )
         throws IOException
     {
-        String url = "https://api.zenhub.com/p1/repositories/" + repoId + "/epics/" + epic.toString() + "?access_token=TOKEN";
-        Request request = new Request.Builder().url( url ).header( "X-Authentication-Token", zenHubToken ).build();
-//        System.out.println( "API request: " + request.toString() );
-        Response response = getHttpClient().newCall( request ).execute();
-        return response.body().string();
+        String url = "https://api.zenhub.com/p1/repositories/" + repoId + "/epics/" + epic + "?access_token=TOKEN";
+        final HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create( url))
+            .header( "X-Authentication-Token", zenHubToken )
+            .GET()
+            .build();
 
+        try
+        {
+            return getHttpClient().send( request, HttpResponse.BodyHandlers.ofString() ).body();
+        }
+        catch ( InterruptedException e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
     private static List<Integer> getChildren( String data, long repoId )
@@ -107,16 +129,7 @@ public class ZenHubHelper
     {
         List<Integer> childrenList = new ArrayList<>();
         ObjectMapper mapper = getObjectMapper();
-        IssuePojo json = null;
-        try
-        {
-            json = ( mapper.readValue( data, IssuePojo.class ) );
-        }
-        catch ( JsonProcessingException e )
-        {
-            System.out.println( "JSon exception, parsing: " + data );
-            throw e;
-        }
+        IssuePojo json = mapper.readValue( data, IssuePojo.class );
         if ( json != null && json.getIssues() != null )
         {
             for ( Issues issue : json.getIssues() )
@@ -139,11 +152,11 @@ public class ZenHubHelper
         return mapper;
     }
 
-    private static OkHttpClient getHttpClient()
+    private static HttpClient getHttpClient()
     {
         if ( httpClient == null )
         {
-            httpClient = new OkHttpClient();
+            httpClient = HttpClient.newHttpClient();
         }
         return httpClient;
     }
