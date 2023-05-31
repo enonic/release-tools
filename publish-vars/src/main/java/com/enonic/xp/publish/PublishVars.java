@@ -1,7 +1,11 @@
 package com.enonic.xp.publish;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -55,18 +59,26 @@ public class PublishVars
         final String repoKey = properties.getProperty( "repoKey" );
         final boolean isSnapshot = version.endsWith( "-SNAPSHOT" );
 
-        System.out.println( "::set-output name=nextSnapshot::" + nextSnapshot( version ) );
-        System.out.println( "::set-output name=repo::" + adjustedRepoKey( repoKey, "true".equals( githubRepoPrivate ), isSnapshot ) );
-        System.out.println( "::set-output name=release::" + !isSnapshot );
-        System.out.println( "::set-output name=prerelease::" + version.contains( "-" ) );
-        System.out.println( "::set-output name=tag_name::" + "v" + version );
-        System.out.println( "::set-output name=version::" + version );
+        writeToGithubOutput( "nextSnapshot=" + nextSnapshot( version ) );
+        writeToGithubOutput( "repo=" + adjustedRepoKey( repoKey, "true".equals( githubRepoPrivate ), isSnapshot ) );
+        writeToGithubOutput( "release=" + !isSnapshot );
+        writeToGithubOutput( "prerelease=" + version.contains( "-" ) );
+        writeToGithubOutput( "tag_name=" + "v" + version );
+        writeToGithubOutput( "version=" + version );
         if ( projectName != null )
         {
-            System.out.println( "::set-output name=projectName::" + projectName );
+            writeToGithubOutput( "projectName=" + projectName );
         }
-        if ( group != null ) {
-            System.out.println( "::set-output name=group::" + group );
+        if ( group != null )
+        {
+            writeToGithubOutput( "group=" + group );
         }
+    }
+
+    public static void writeToGithubOutput( String content )
+        throws IOException
+    {
+        final Path githubOutput = Path.of( System.getenv( "GITHUB_OUTPUT" ) );
+        Files.writeString( githubOutput, content, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING );
     }
 }
