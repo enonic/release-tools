@@ -79,6 +79,6 @@ public class PublishVars
         throws IOException
     {
         final Path githubOutput = Path.of( System.getenv( "GITHUB_OUTPUT" ) );
-        Files.writeString( githubOutput, content, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING );
+        Files.writeString( githubOutput, content, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND );
     }
 }
