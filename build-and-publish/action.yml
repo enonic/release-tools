@@ -52,9 +52,9 @@ runs:
            [ ${{ inputs.publishRelease != 'true' && steps.publish_vars.outputs.release == 'true' }} = true ] ||
            [ ${{ inputs.skipPublishing == '' && github.ref != 'refs/heads/master' }} = true ]
         then
-          echo ::set-output name=task::${{ inputs.buildTask }}
+          echo "task=${{ inputs.buildTask }}" >> $GITHUB_OUTPUT
         else
-          echo ::set-output name=task::${{ inputs.publishTask }}
+          echo "task=${{ inputs.publishTask }}" >> $GITHUB_OUTPUT
         fi
       shell: bash
 
