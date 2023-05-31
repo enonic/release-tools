@@ -6,12 +6,12 @@ runs:
     - uses: actions/checkout@v3
       with:
         submodules: true
-        
+
     - uses: actions/setup-java@v3
       with:
-      distribution: 'temurin'
-      java-version: '11'
-      cache: 'gradle'
-    
+        distribution: 'temurin'
+        java-version: '11'
+        cache: 'gradle'
+
     - run: ./gradlew build
       shell: bash
