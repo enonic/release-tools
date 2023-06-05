@@ -46,11 +46,10 @@ runs:
 
 
     - id: task_generator
-      run:
-        |
-        if [ ${{ inputs.skipPublishing == 'true' || steps.publish_vars.outputs.repo == '' }} = true ] ||
-           [ ${{ inputs.publishRelease != 'true' && steps.publish_vars.outputs.release == 'true' }} = true ] ||
-           [ ${{ inputs.skipPublishing == '' && github.ref != 'refs/heads/master' }} = true ]
+      run: |
+        if [[ "${{ inputs.skipPublishing }}" == 'true' || "${{ steps.publish_vars.outputs.repo }}" == '' ]] ||
+           [[ "${{ inputs.publishRelease }}" != 'true' && "${{ steps.publish_vars.outputs.release }}" == 'true' ]] ||
+           [[ "${{ inputs.skipPublishing }}" == '' && "${{ github.ref }}" != 'refs/heads/master' && "${{ github.ref }}" != 'refs/heads/main' ]]
         then
           echo "task=${{ inputs.buildTask }}" >> $GITHUB_OUTPUT
         else
