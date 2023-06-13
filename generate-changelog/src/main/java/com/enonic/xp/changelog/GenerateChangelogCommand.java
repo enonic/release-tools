@@ -1,10 +1,9 @@
 package com.enonic.xp.changelog;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -16,14 +15,11 @@ import io.airlift.airline.HelpOption;
 import io.airlift.airline.Option;
 import io.airlift.airline.SingleCommand;
 
-import com.enonic.xp.changelog.generation.ChangelogGenerationService;
-import com.enonic.xp.changelog.generation.ChangelogGenerationServiceImpl;
+import com.enonic.xp.changelog.generation.ChangelogGenerationJob;
 import com.enonic.xp.changelog.git.GitService;
 import com.enonic.xp.changelog.git.GitServiceHelper;
-import com.enonic.xp.changelog.git.GitServiceImpl;
 import com.enonic.xp.changelog.git.model.GitCommit;
 import com.enonic.xp.changelog.github.GitHubService;
-import com.enonic.xp.changelog.github.GitHubServiceImpl;
 import com.enonic.xp.changelog.github.model.GitHubIssue;
 
 
@@ -44,7 +40,7 @@ public class GenerateChangelogCommand
     @Option(name = "-u", description = "Until the provided Git reference.")
     public String until;
 
-    @Option(name = "--ignore-changelog-check", description = "Ignore the ZenHub 'Not in Changelog' tag check.")
+    @Option(name = "--ignore-changelog-check", description = "Ignore the 'Not in Changelog' tag check.")
     public boolean ignoreChangelogCheck;
 
     @Option( name = "-o", description = "Output Filename")
@@ -54,21 +50,18 @@ public class GenerateChangelogCommand
 
     private GitHubService gitHubService;
 
-    private ChangelogGenerationService changelogGenerationService;
-
     private void init()
-        throws IOException, ChangelogException
+        throws IOException
     {
-        gitHubService = new GitHubServiceImpl( GitServiceHelper.findRepoName( gitDirectoryPath ) );
+        gitHubService = new GitHubService( GitServiceHelper.findRepoName( gitDirectoryPath ) );
 
-        gitService = new GitServiceImpl( gitDirectoryPath );
+        gitService = new GitService( gitDirectoryPath );
         if ( !ignoreChangelogCheck )  // Double negative logic: Do not add this label to ignorelist, if the ignore check should be ignored! :D
         {
             gitHubService.addIgnoreLabel( "Not in Changelog" );
             gitHubService.addIgnoreLabel( "Won't Fix" );
         }
 
-        changelogGenerationService = new ChangelogGenerationServiceImpl();
     }
 
     public static void main( String... args )
@@ -89,10 +82,11 @@ public class GenerateChangelogCommand
     {
         init();
 
-        final Set<GitCommit> gitCommits = gitService.retrieveGitCommits( since, until );
-        final HashMap<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitCommits );
+        final Collection<GitCommit> gitCommits = gitService.retrieveGitCommits( since, until );
+        final Map<String, List<GitHubIssue>> ghIssues = gitHubService.retrieveGitHubIssues( gitCommits );
 
-        changelogGenerationService.generateChangelog( ghIssues, since, until, gitHubService.getProjectName(), filename );
+        final String projectName = gitHubService.getProjectName();
+        new ChangelogGenerationJob( ghIssues, since, until, projectName, filename ).run();
         System.exit( 0 );
     }
 }

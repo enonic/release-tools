@@ -1,19 +1,17 @@
 package com.enonic.xp.changelog.generation;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
-import com.google.common.io.CharSink;
-import com.google.common.io.Files;
 
 import com.enonic.xp.changelog.github.model.GitHubIssue;
 
@@ -21,9 +19,9 @@ public class ChangelogGenerationJob
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( ChangelogGenerationJob.class );
 
-    private HashMap<String, List<GitHubIssue>> gitHubIssueCollection;
+    private final Map<String, List<GitHubIssue>> gitHubIssueCollection;
 
-    private List<String> labelOrder = new ArrayList<>();
+    private final List<String> labelOrder = new ArrayList<>();
 
     private final String since;
 
@@ -35,9 +33,9 @@ public class ChangelogGenerationJob
 
     private int gitHubIssuesGenerated = 0;
 
-    private StringBuilder changeLogContent = new StringBuilder( "# Changelog" ).append( System.lineSeparator() );
+    private final StringBuilder changeLogContent = new StringBuilder( "# Changelog" ).append( System.lineSeparator() );
 
-    public ChangelogGenerationJob( final HashMap<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until,
+    public ChangelogGenerationJob( final Map<String, List<GitHubIssue>> gitHubIssueCollection, final String since, final String until,
                                    final String projectName, final String filename )
     {
         this.gitHubIssueCollection = gitHubIssueCollection;
@@ -50,10 +48,6 @@ public class ChangelogGenerationJob
 
     private void defineLabelOrder()
     {
-//        if ( gitHubIssueCollection.containsKey( "Epic" ) )
-//        {
-//            labelOrder.add( "Epic" );
-//        }
         if ( gitHubIssueCollection.containsKey( "Feature" ) )
         {
             labelOrder.add( "Feature" );
@@ -72,7 +66,6 @@ public class ChangelogGenerationJob
         }
     }
 
-
     public void run()
         throws IOException
     {
@@ -81,7 +74,8 @@ public class ChangelogGenerationJob
         generateChangelogContent();
 
         //Writes the content in the output MD file
-        generateChangelogFile();
+        final String fileName = Optional.ofNullable( filename ).orElseGet( this::generateFileName );
+        Files.writeString( Path.of( fileName ),changeLogContent.toString(), StandardCharsets.UTF_8 );
         LOGGER.info( gitHubIssuesGenerated + " GitHub issues written in the changelog." );
     }
 
@@ -93,23 +87,30 @@ public class ChangelogGenerationJob
             changeLogContent.append( System.lineSeparator() ).append( "## " ).append( label ).append( "s" ).append(
                 System.lineSeparator() );
             List<GitHubIssue> sectionIssues = gitHubIssueCollection.get( label );
-            sectionIssues.sort( GitHubIssue::compareTo );
-            sectionIssues.forEach( issue -> generateChangelogContent( issue, 0 ) );
+            sectionIssues.sort( Comparator.comparing( GitHubIssue::getTitle ) );
+            sectionIssues.forEach( issue -> {
+                gitHubIssuesGenerated++;
+
+                changeLogContent.append( " - " ).
+                    append( issue.getTitle() ).
+                    append( " (#" ).
+                    append( issue.getGitHubIssueId() ).append( ")." ).append( System.lineSeparator() );
+            } );
             issueCount += sectionIssues.size();
         }
 
         if ( issueCount == 0 )
         {
             changeLogContent.append( System.lineSeparator() ).append( "There have been no changes to the project " );
-            if ( !Strings.isNullOrEmpty( since ) && !Strings.isNullOrEmpty( until ) )
+            if ( !isNullOrEmpty( since ) && !isNullOrEmpty( until ) )
             {
                 changeLogContent.append( "between " ).append( since ).append( " and " ).append( until ).append( "." );
             }
-            else if ( Strings.isNullOrEmpty( since ) && !Strings.isNullOrEmpty( until ) )
+            else if ( isNullOrEmpty( since ) && !isNullOrEmpty( until ) )
             {
                 changeLogContent.append( "before " ).append( until ).append( "." );
             }
-            else if ( !Strings.isNullOrEmpty( since ) && Strings.isNullOrEmpty( until ) )
+            else if ( !isNullOrEmpty( since ) && isNullOrEmpty( until ) )
             {
                 changeLogContent.append( "after " ).append( since ).append( "." );
             }
@@ -119,35 +120,9 @@ public class ChangelogGenerationJob
         LOGGER.debug( changeLogContent.toString() );
     }
 
-    private void generateChangelogContent( final GitHubIssue issue, final int depth )
+    private static boolean isNullOrEmpty( final String string )
     {
-        gitHubIssuesGenerated++;
-
-        for ( int i = 0; i < depth; i++ )
-        {
-            changeLogContent.append( "  " );
-        }
-
-        changeLogContent.append( " - " ).
-            append( issue.getTitle() ).
-            append( " (#" ).
-            append( issue.getGitHubIssueId() );
-
-        changeLogContent.append( ")." ).append( System.lineSeparator() );
-
-    }
-
-    private void generateChangelogFile()
-        throws IOException
-    {
-        //Creates the output file
-        final String fileName = Optional.ofNullable( filename ).orElseGet( this::generateFileName );
-
-        final File file = new File( fileName );
-
-        //Writes the output file content
-        final CharSink charSink = Files.asCharSink( file, Charset.forName( "UTF-8" ) );
-        charSink.write( changeLogContent.toString() );
+        return string == null || string.isEmpty();
     }
 
     private String generateFileName()

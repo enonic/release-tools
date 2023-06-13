@@ -3,9 +3,9 @@ package com.enonic.xp.changelog.git.model;
 public class GitCommit
     implements Comparable<GitCommit>
 {
-    private Integer gitHubId;
+    private final Integer gitHubId;
 
-    private String shortMessage;
+    private final String shortMessage;
 
     public GitCommit( final Integer gitHubId, final String shortMessage )
     {
@@ -18,12 +18,6 @@ public class GitCommit
         this.gitHubId = parseGitHubId( gitHubId );
         this.shortMessage = shortMessage;
     }
-
-//    public GitCommit( final Integer gitHubId, final String shortMessage )
-//    {
-//        this.gitHubId = gitHubId;
-//        this.shortMessage = shortMessage;
-//    }
 
     public String getGitHubIdAsString()
     {

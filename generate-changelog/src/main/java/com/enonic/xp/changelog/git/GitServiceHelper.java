@@ -2,6 +2,7 @@ package com.enonic.xp.changelog.git;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -15,7 +16,6 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.enonic.xp.changelog.ChangelogException;
 import com.enonic.xp.changelog.git.model.GitCommit;
 
 public class GitServiceHelper
@@ -24,22 +24,22 @@ public class GitServiceHelper
 
     private static final Pattern GITHUB_ISSUE_ID_PATTERN = Pattern.compile( "(#[0-9]+)" );
 
-    private static String PR_START_STRING = "Merge pull request #";
+    private static final String PR_START_STRING = "Merge pull request #";
 
     static Repository retrieveGitRepository( final String gitDirectoryPath )
-        throws ChangelogException, IOException
+        throws IOException
     {
         final File gitDirectory = new File( gitDirectoryPath, ".git" );
         if ( !gitDirectory.isDirectory() )
         {
-            throw new ChangelogException( "\"" + gitDirectory.getAbsolutePath() + "\" is not a directory" );
+            throw new IllegalStateException( "\"" + gitDirectory.getAbsolutePath() + "\" is not a directory" );
         }
         final FileRepositoryBuilder fileRepositoryBuilder = new FileRepositoryBuilder().setMustExist( true ).setGitDir( gitDirectory );
         return fileRepositoryBuilder.build();
     }
 
     public static String findRepoName( final String gitDirectoryPath )
-        throws ChangelogException, IOException
+        throws IOException
     {
         //Retrieves the Git repository
         final Repository gitRepository = retrieveGitRepository( gitDirectoryPath );
@@ -50,7 +50,6 @@ public class GitServiceHelper
     }
 
     private static String getFromRemoteUrl( final String remoteURL )
-        throws ChangelogException
     {
         String[] tokens = remoteURL.split( ":" );
         String repoName;
@@ -71,18 +70,18 @@ public class GitServiceHelper
         }
         else
         {
-            throw new ChangelogException( "Can't extract repoName from remoteURL: " + remoteURL );
+            throw new IllegalArgumentException( "Can't extract repoName from remoteURL: " + remoteURL );
         }
         return repoName;
     }
 
-    static Set<GitCommit> filterPullRequests( Set<GitCommit> gitCommitIssues )
+    static Collection<GitCommit> filterPullRequests( Collection<GitCommit> gitCommitIssues )
     {
         return gitCommitIssues.stream().filter( gitCommit -> !gitCommit.getShortMessage().startsWith( PR_START_STRING ) ).collect(
-            Collectors.toSet() );
+            Collectors.toList() );
     }
 
-    static Set<GitCommit> retrieveGitHubIssueCommits( final Iterable<RevCommit> revCommitIterable )
+    static Collection<GitCommit> retrieveGitHubIssueCommits( final Iterable<RevCommit> revCommitIterable )
     {
         final Set<GitCommit> gitHubCommitSet = new TreeSet<>();
         int nbRevCommits = 0;

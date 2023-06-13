@@ -1,11 +1,10 @@
 package com.enonic.xp.changelog.github.model;
 
 public class GitHubIssue
-    implements Comparable<GitHubIssue>
 {
-    private int gitHubIssueId;
+    private final int gitHubIssueId;
 
-    private String title;
+    private final String title;
 
     public GitHubIssue( final int gitHubIssueId, final String title )
     {
@@ -21,12 +20,5 @@ public class GitHubIssue
     public String getTitle()
     {
         return title;
-    }
-
-    @Override
-    public int compareTo( final GitHubIssue o )
-    {
-
-        return this.getTitle().compareTo( o.getTitle() );
     }
 }
