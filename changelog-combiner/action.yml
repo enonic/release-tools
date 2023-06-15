@@ -1,0 +1,29 @@
+name: changelog-combiner
+description: This is an action to combine changelog from multiple repositories into one.
+
+inputs:
+    repositories:
+        description: 'List of repositories files with changelogs to combine.'
+        required: true
+    tag:
+        description: 'Tag to fetch changelog from.'
+        required: true
+    output-file:
+        description: 'Output file.'
+        required: true
+    github-token:
+      description: 'The GitHub token to authenticate with.'
+      required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Download Changelogs
+      run: |
+         for repository in ${{ inputs.repositories }}; do
+            curl -H "Authorization: Bearer ${{ inputs.github-token }}" --location https://api.github.com/repos/enonic/${repository}/releases/tags/${{ inputs.tag }} | jq '.body' >> changelog_${repository}.md
+         done
+      shell: bash
+
+    - id: generator
+      run: java --source 11 ${{ github.action_path }}/src/main/java/ChangelogCombinerCommand.java -o ${{ inputs.output-file }} changelog_*.md
+      shell: bash
