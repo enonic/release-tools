@@ -19,12 +19,13 @@ runs:
   steps:
     - name: Download Changelogs
       run: |
-         for repository in ${{ inputs.repositories }}; do
-            curl -H "Authorization: Bearer ${{ inputs.github-token }}" --location https://api.github.com/repos/enonic/${repository}/releases/tags/${{ inputs.tag }} | jq '.body' >> changelog_${repository}.md
-         done
-         ls -la
+       for repository in ${{ inputs.repositories }}; do
+          curl -H "Authorization: Bearer ${{ inputs.github-token }}" --location https://api.github.com/repos/enonic/${repository}/releases/tags/${{ inputs.tag }} | jq '.body' >> changelog_${repository}.md
+       done
+       ls -la
+       cat changelog_*.md
       shell: bash
 
     - id: generator
-      run: java --source 11 ${{ github.action_path }}/src/main/java/ChangelogCombinerCommand.java -o ${{ inputs.output-file }} "changelog_*.md"
+      run: java --source 11 ${{ github.action_path }}/src/main/java/ChangelogCombinerCommand.java -o ${{ inputs.output-file }} changelog_*.md
       shell: bash
