@@ -20,10 +20,8 @@ runs:
     - name: Download Changelogs
       run: |
        for repository in ${{ inputs.repositories }}; do
-          curl -H "Authorization: Bearer ${{ inputs.github-token }}" --location https://api.github.com/repos/enonic/${repository}/releases/tags/${{ inputs.tag }} | jq '.body' >> changelog_${repository}.md
+          curl -H "Authorization: Bearer ${{ inputs.github-token }}" --location https://api.github.com/repos/enonic/${repository}/releases/tags/${{ inputs.tag }} | jq -r '.body' > changelog_${repository}.md
        done
-       ls -la
-       cat changelog_*.md
       shell: bash
 
     - id: generator
