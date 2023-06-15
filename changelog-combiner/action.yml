@@ -27,5 +27,5 @@ runs:
       shell: bash
 
     - id: generator
-      run: java --source 11 ${{ github.action_path }}/src/main/java/ChangelogCombinerCommand.java -o ${{ inputs.output-file }} changelog_*.md
+      run: java --source 11 ${{ github.action_path }}/src/main/java/ChangelogCombinerCommand.java -o ${{ inputs.output-file }} "changelog_*.md"
       shell: bash
