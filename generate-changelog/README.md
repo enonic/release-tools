@@ -18,8 +18,6 @@ The script "generate-changelog" is generated in the sub-folder "build/install/ge
 When running "generate-changelog", the script is looking for `GITHUB_TOKEN` environment variable and optionally `GITHUB_ACTOR`.
 These are used for logging in to GitHub. The GITHUB_TOKEN can be generated in GitHub by going to your setting/Personal Access Token.
 
-the script is looking for `ZENHUB_TOKEN` environment variable to login to ZenHub. Form more info visit https://github.com/ZenHubIO/API
-
     NAME
         generate-changelog - Generates the changelog
 
