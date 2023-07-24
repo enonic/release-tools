@@ -4,6 +4,9 @@ description: This is an action to generate html documentation from asciidoc file
 runs:
   using: "composite"
   steps:
+    - run:
+        ls -la ${{ github.action_path }}
+      shell: bash
     - uses: actions/setup-java@v3
       with:
         distribution: temurin
