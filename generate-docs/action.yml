@@ -14,5 +14,6 @@ runs:
 
     - uses: gradle/gradle-build-action@v2
       with:
-        arguments: run
-        gradle-executable: ${{ github.action_path }}/gradlew
+        arguments: run --args="${{github.workspace}}/docs"
+        #gradle-executable: ${{ github.action_path }}/gradlew
+        build-root-directory: ${{ github.action_path }}
