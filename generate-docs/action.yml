@@ -1,11 +1,16 @@
 name: generate-docs
 description: This is an action to generate html documentation from asciidoc files.
 
+inputs:
+  label:
+    description: 'Label for the version.'
+    required: true
+
 runs:
   using: "composite"
   steps:
     - run:
-        mkdir -R ${{github.workspace}}/build/docs && cp ${{github.workspace}}/docs ${{github.workspace}}/build/docs
+        mkdir -R ${{github.workspace}}/build/docs/${{ inputs.label }} && cp -R ${{github.workspace}}/docs ${{github.workspace}}/build/docs/${{ inputs.label }}
       shell: bash
 
     - uses: actions/setup-java@v3
