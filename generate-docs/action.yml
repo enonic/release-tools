@@ -5,12 +5,28 @@ inputs:
   label:
     description: 'Label for the version.'
     required: true
+  ref:
+    description: 'Ref to checkout.'
+    required: true
 
 runs:
   using: "composite"
   steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - id: find_ref
+      run: |
+        echo "ref=$(git rev-parse ${{ inputs.ref }})" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ steps.find_ref.outputs.ref }}
+
     - run:
-        mkdir -p ${{github.workspace}}/build/docs/${{ inputs.label }} && cp -R ${{github.workspace}}/docs ${{github.workspace}}/build/docs/${{ inputs.label }}
+        mkdir -p ${{github.workspace}}/build/docs/${{ inputs.label }} && cp -R ${{github.workspace}}/docs/* ${{github.workspace}}/build/docs/${{ inputs.label }}/
       shell: bash
 
     - uses: actions/setup-java@v3
@@ -22,3 +38,8 @@ runs:
       with:
         arguments: run --args="${{github.workspace}}/build/docs/${{ inputs.label }}"
         build-root-directory: ${{ github.action_path }}
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: docs
+        path: build/docs/
