@@ -10,7 +10,7 @@ runs:
   using: "composite"
   steps:
     - run:
-        mkdir -R ${{github.workspace}}/build/docs/${{ inputs.label }} && cp -R ${{github.workspace}}/docs ${{github.workspace}}/build/docs/${{ inputs.label }}
+        mkdir -p ${{github.workspace}}/build/docs/${{ inputs.label }} && cp -R ${{github.workspace}}/docs ${{github.workspace}}/build/docs/${{ inputs.label }}
       shell: bash
 
     - uses: actions/setup-java@v3
