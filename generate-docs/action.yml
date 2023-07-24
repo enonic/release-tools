@@ -5,8 +5,9 @@ runs:
   using: "composite"
   steps:
     - run:
-        ls -la ${{ github.action_path }}
+        mkdir -R ${{github.workspace}}/build/docs && cp ${{github.workspace}}/docs ${{github.workspace}}/build/docs
       shell: bash
+
     - uses: actions/setup-java@v3
       with:
         distribution: temurin
@@ -14,6 +15,5 @@ runs:
 
     - uses: gradle/gradle-build-action@v2
       with:
-        arguments: run --args="${{github.workspace}}/docs"
-        #gradle-executable: ${{ github.action_path }}/gradlew
+        arguments: run --args="${{github.workspace}}/build/docs"
         build-root-directory: ${{ github.action_path }}
