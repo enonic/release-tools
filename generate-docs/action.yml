@@ -29,17 +29,11 @@ runs:
         mkdir -p ${{github.workspace}}/build/docs/${{ inputs.label }} && cp -R ${{github.workspace}}/docs/* ${{github.workspace}}/build/docs/${{ inputs.label }}/
       shell: bash
 
-    - uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: 11
-
-    - uses: gradle/gradle-build-action@v2
-      with:
-        arguments: run --args="${{github.workspace}}/build/docs/${{ inputs.label }}"
-        build-root-directory: ${{ github.action_path }}
+    - run:
+        docker run -v ${{github.workspace}}/build/docs/${{ inputs.label }}:/documents asciidoctor/docker-asciidoctor asciidoctor --backend=html5 -a icons=font -a setanchors=true -a sectlinks=true -a encoding=utf-8 -a linkattrs=true -a idprefix= -a toc=right -a outfilesuffix=.ahtml '**/*.adoc'
+      shell: bash
 
     - uses: actions/upload-artifact@v3
       with:
         name: docs
-        path: build/docs/
+        path: ${{github.workspace}}/build/docs/
