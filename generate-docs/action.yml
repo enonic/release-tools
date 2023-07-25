@@ -32,8 +32,8 @@ runs:
 
           git clean -fdx
           git checkout $(git rev-parse $checkout)
-          mkdir -p $builddocs/${{ inputs.label }} && cp -R ${{github.workspace}}/docs/* $builddocs/${{ inputs.label }}/
-          docker run -v $builddocs/${{ inputs.label }}:/documents asciidoctor/docker-asciidoctor asciidoctor --backend=html5 -a icons=font -a setanchors=true -a sectlinks=true -a encoding=utf-8 -a linkattrs=true -a idprefix= -a toc=right -a outfilesuffix=.ahtml '**/*.adoc'
+          mkdir -p $builddocs/$label && cp -R ${{github.workspace}}/docs/* $builddocs/$label/
+          docker run -v $builddocs/$label:/documents asciidoctor/docker-asciidoctor asciidoctor --backend=html5 -a icons=font -a setanchors=true -a sectlinks=true -a encoding=utf-8 -a linkattrs=true -a idprefix= -a toc=right -a outfilesuffix=.ahtml '**/*.adoc'
         done
       shell: bash
 
