@@ -23,7 +23,7 @@ runs:
         if [ ! -f docs/versions.json ]; then
           echo '{"versions": [{"label": "stable","checkout": "${{github.ref_name}}","latest": true}]}' > $versionsfile
         else
-          jq 'if all(.versions[]; .latest != true) then .versions[0].latest = true else . end' $versionsfile
+          jq 'if all(.versions[]; .latest != true) then .versions[0].latest = true else . end' docs/versions.json > $versionsfile
         fi
 
         jq -c '.versions[]' $versionsfile | while read i; do
