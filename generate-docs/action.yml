@@ -2,11 +2,8 @@ name: generate-docs
 description: This is an action to generate html documentation from asciidoc files.
 
 inputs:
-  label:
-    description: 'Label for the version.'
-    required: true
-  ref:
-    description: 'Ref to checkout.'
+  github-token:
+    description: 'The GitHub token to authenticate with.'
     required: true
 
 runs:
@@ -18,22 +15,37 @@ runs:
 
     - id: find_ref
       run: |
-        echo "ref=$(git rev-parse ${{ inputs.ref }})" >> $GITHUB_OUTPUT
-      shell: bash
+        builddocs='${{github.workspace}}/build/docs'
+        versionsfile=$builddocs/versions.json
 
-    - uses: actions/checkout@v3
-      with:
-        ref: ${{ steps.find_ref.outputs.ref }}
+        mkdir -p $builddocs
 
-    - run:
-        mkdir -p ${{github.workspace}}/build/docs/${{ inputs.label }} && cp -R ${{github.workspace}}/docs/* ${{github.workspace}}/build/docs/${{ inputs.label }}/
-      shell: bash
+        if [ ! -f docs/versions.json ]; then
+          echo '{"versions": [{"label": "stable","checkout": "${{github.ref_name}}","latest": true}]}' > $versionsfile
+        else
+          jq 'if all(.versions[]; .latest != true) then .versions[0].latest = true else . end' $versionsfile
+        fi
 
-    - run:
-        docker run -v ${{github.workspace}}/build/docs/${{ inputs.label }}:/documents asciidoctor/docker-asciidoctor asciidoctor --backend=html5 -a icons=font -a setanchors=true -a sectlinks=true -a encoding=utf-8 -a linkattrs=true -a idprefix= -a toc=right -a outfilesuffix=.ahtml '**/*.adoc'
+        jq -c '.versions[]' $versionsfile | while read i; do
+          label=$(echo "$i" | jq -r '.label')
+          checkout=$(echo "$i" | jq -r '.checkout')
+
+          git clean -fdx
+          git checkout $(git rev-parse $checkout)
+          mkdir -p $builddocs/${{ inputs.label }} && cp -R ${{github.workspace}}/docs/* $builddocs/${{ inputs.label }}/
+          docker run -v $builddocs/${{ inputs.label }}:/documents asciidoctor/docker-asciidoctor asciidoctor --backend=html5 -a icons=font -a setanchors=true -a sectlinks=true -a encoding=utf-8 -a linkattrs=true -a idprefix= -a toc=right -a outfilesuffix=.ahtml '**/*.adoc'
+        done
       shell: bash
 
     - uses: actions/upload-artifact@v3
       with:
         name: docs
         path: ${{github.workspace}}/build/docs/
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ inputs.github-token }}
+        exclude_assets: '**.adoc,*/versions.json'
+        publish_branch: gh-pages-test
+        publish_dir: ${{github.workspace}}/build/docs/
