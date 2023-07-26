@@ -19,31 +19,32 @@ runs:
 
     - id: Build
       run: |
-        sourcedocs=${{github.workspace}}/docs
-        builddocs=${{github.action_path}}/build/docs
-        versionsfile=$builddocs/versions.json
+        source_docs=${{github.workspace}}/docs
+        build_docs=${{github.action_path}}/build/docs
+        versions_file=$build_docs/versions.json
+        input_versions='${{ inputs.versions }}'
 
-        mkdir --parents $builddocs
+        mkdir --parents $build_docs
 
-        if [ ! -z '${{ inputs.versions }}' ]; then
-          echo ${{ inputs.versions }} > $versionsfile
-        elif [ ! -f $sourcedocs/versions.json ]; then
-          echo '{"versions": [{"label": "stable","checkout": "${{github.ref}}","latest": true}]}' > $versionsfile
+        if [ ! -n "$input_versions" ]; then
+          echo ${{ inputs.versions }} > $versions_file
+        elif [ ! -f $source_docs/versions.json ]; then
+          echo '{"versions": [{"label": "stable","checkout": "${{github.ref}}","latest": true}]}' > $versions_file
         else
-          jq 'if all(.versions[]; .latest != true) then .versions[0].latest = true else . end' docs/versions.json > $versionsfile
+          jq 'if all(.versions[]; .latest != true) then .versions[0].latest = true else . end' docs/versions.json > $versions_file
         fi
 
-        jq -c '.versions[]' $versionsfile | while read i; do
+        jq -c '.versions[]' $versions_file | while read i; do
           label=$(echo "$i" | jq -r '.label')
           checkout=$(echo "$i" | jq -r '.checkout')
-          builddocssubdir="$builddocs/$label"
+          build_docs_subdir="$build_docs/$label"
 
           git clean -fdx
           git checkout $(git rev-parse $checkout)
 
-          mkdir "$builddocssubdir" && cp --recursive $sourcedocs/* "$builddocssubdir"
+          mkdir "$build_docs_subdir" && cp --recursive $source_docs/* "$build_docs_subdir"
 
-          docker run --volume "$builddocssubdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
+          docker run --volume "$build_docs_subdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
           --backend=html5 \
           -a icons=font \
           -a setanchors=true \
