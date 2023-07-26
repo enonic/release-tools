@@ -1,10 +1,13 @@
 name: generate-docs
-description: This is an action to generate html documentation from asciidoc files.
+description: This is an action to generate Enonic Developer Portal documentation from asciidoc files.
 
 inputs:
   github-token:
     description: 'The GitHub token to authenticate with.'
     required: true
+  versions:
+    description: 'Versions to generate documentation for. In JSON format'
+    required: false
 
 runs:
   using: "composite"
@@ -12,6 +15,7 @@ runs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
+        ref: ${{ github.event.repository.default_branch }}
 
     - id: Build
       run: |
@@ -21,11 +25,12 @@ runs:
 
         mkdir --parents $builddocs
 
-        if [ ! -f $sourcedocs/versions.json ]; then
-          echo '{"versions": [{"label": "stable","checkout": "${{github.ref_name}}","latest": true}]}' > $versionsfile
+        if [ ! -z "${{ inputs.versions }}" ]; then
+          echo ${{ inputs.versions }} > $versionsfile
+        elif [ ! -f $sourcedocs/versions.json ]; then
+          echo '{"versions": [{"label": "stable","checkout": "${{github.ref}}","latest": true}]}' > $versionsfile
         else
           jq 'if all(.versions[]; .latest != true) then .versions[0].latest = true else . end' docs/versions.json > $versionsfile
-
         fi
 
         jq -c '.versions[]' $versionsfile | while read i; do
