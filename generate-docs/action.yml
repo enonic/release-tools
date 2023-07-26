@@ -25,7 +25,7 @@ runs:
 
         mkdir --parents $builddocs
 
-        if [ ! -z "${{ inputs.versions }}" ]; then
+        if [ ! -z '${{ inputs.versions }}' ]; then
           echo ${{ inputs.versions }} > $versionsfile
         elif [ ! -f $sourcedocs/versions.json ]; then
           echo '{"versions": [{"label": "stable","checkout": "${{github.ref}}","latest": true}]}' > $versionsfile
