@@ -15,7 +15,7 @@ runs:
 
     - id: find_ref
       run: |
-        builddocs='${{github.workspace}}/build/docs'
+        builddocs='${{github.action_path}}/build/docs'
         versionsfile=$builddocs/versions.json
 
         mkdir -p $builddocs
@@ -40,7 +40,7 @@ runs:
     - uses: actions/upload-artifact@v3
       with:
         name: docs
-        path: ${{github.workspace}}/build/docs/
+        path: ${{github.action_path}}/build/docs/
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
@@ -48,4 +48,4 @@ runs:
         github_token: ${{ inputs.github-token }}
         exclude_assets: '**.adoc,*/versions.json'
         publish_branch: gh-pages-test
-        publish_dir: ${{github.workspace}}/build/docs/
+        publish_dir: ${{github.action_path}}/build/docs/
