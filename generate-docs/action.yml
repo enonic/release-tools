@@ -63,5 +63,4 @@ runs:
       with:
         github_token: ${{ inputs.github-token }}
         exclude_assets: '**/*.adoc,*/versions.json'
-        publish_branch: gh-pages-test
         publish_dir: ${{github.action_path}}/build/docs
