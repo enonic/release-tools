@@ -22,13 +22,10 @@ runs:
         source_docs=${{github.workspace}}/docs
         build_docs=${{github.action_path}}/build/docs
         versions_file=$build_docs/versions.json
-        input_versions='${{ inputs.versions }}'
 
         mkdir --parents $build_docs
 
-        if [ -n "$input_versions" ]; then
-          echo "$input_versions" > $versions_file
-        elif [ ! -f $source_docs/versions.json ]; then
+        if [ ! -f $source_docs/versions.json ]; then
           echo '{"versions": [{"label": "stable","checkout": "${{github.ref}}","latest": true}]}' > $versions_file
         else
           jq 'if all(.versions[]; .latest != true) then .versions[0].latest = true else . end' docs/versions.json > $versions_file
