@@ -6,7 +6,10 @@ inputs:
     description: 'The GitHub token to authenticate with.'
     required: true
   versions:
-    description: 'Versions to generate documentation for. In JSON format'
+    description: 'Versions to generate documentation for. In JSON format.'
+    required: false
+  webhook-secret:
+    description: 'The secret with which to generate the webhook signature hash.'
     required: false
 
 runs:
@@ -61,3 +64,19 @@ runs:
         github_token: ${{ inputs.github-token }}
         exclude_assets: '**/*.adoc,*/versions.json'
         publish_dir: ${{github.action_path}}/build/docs
+    - name: Notify
+      run: |
+        payload='{"repo": "${{ github.server_url }}/${{ github.repository }}"}'
+        secret='${{ inputs.webhook-secret }}'
+
+        cmd=("curl" "-X" "POST" "-H" "Content-Type: application/json" "-d" "$payload")
+
+        if [[ -n "$secret" ]]; then
+            digest=$(echo -n "$payload" | openssl dgst -sha256 -hmac "$secret" | cut -d' ' -f2)
+            cmd+=("-H" "X-Hub-Signature-256: sha256=$digest")
+        fi
+
+        cmd+=("https://developer.enonic.com/_/service/com.enonic.site.developer/documentation")
+
+        "${cmd[@]}"
+      shell: bash
