@@ -69,7 +69,7 @@ runs:
         payload='{"repo": "${{ github.server_url }}/${{ github.repository }}"}'
         secret='${{ inputs.webhook-secret }}'
 
-        cmd=("curl" "-X" "POST" "-H" "Content-Type: application/json" "-d" "$payload")
+        cmd=("curl" "--fail-with-body" "-X" "POST" "-H" "Content-Type: application/json" "-d" "$payload")
 
         if [[ -n "$secret" ]]; then
             digest=$(echo -n "$payload" | openssl dgst -sha256 -hmac "$secret" | cut -d' ' -f2)
