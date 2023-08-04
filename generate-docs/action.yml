@@ -46,6 +46,7 @@ runs:
 
           docker run --volume "$build_docs_subdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
           --backend=html5 \
+          --safe-mode=UNSAFE \
           -a icons=font \
           -a setanchors=true \
           -a sectlinks=true \
