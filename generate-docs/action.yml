@@ -45,8 +45,8 @@ runs:
           mkdir "$build_docs_subdir" && cp --recursive $source_docs/* "$build_docs_subdir"
 
           docker run --volume "$build_docs_subdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
-          --backend=html5 \
-          --safe-mode=UNSAFE \
+          --backend html5 \
+          --safe-mode unsafe \
           -a icons=font \
           -a setanchors=true \
           -a sectlinks=true \
