@@ -46,7 +46,6 @@ runs:
           ls $build_subdir
           docker run --volume "$build_subdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
           --base-dir=/documents/docs \
-          --destination-dir=/documents/dest/$label \
           --backend html5 \
           -a icons=font \
           -a setanchors=true \
