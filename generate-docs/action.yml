@@ -79,5 +79,4 @@ runs:
 
         cmd+=("https://developer.enonic.com/_/service/com.enonic.site.developer/documentation")
 
-        "${cmd[@]}"
       shell: bash
