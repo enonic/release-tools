@@ -6,6 +6,7 @@ Enonic documentation is written in asciidoc and published to https://developer.e
 - Add a new Github Actions workflow "Enonic Documentation"
   - Follow [Github Documentation](https://docs.github.com/en/actions/using-workflows/using-starter-workflows#using-starter-workflows) to add "Enonic Documentation" workflow. 
   - Actual Template file can be found [here](https://github.com/enonic/.github/blob/master/workflow-templates/enonic-docgen.yml).
+  - In case you need multiple documenation branches add `/docs/versions.json` to your default repository branch.
 
 ## How it works
 
