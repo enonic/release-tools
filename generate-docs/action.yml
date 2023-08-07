@@ -24,9 +24,11 @@ runs:
       run: |
         source=${{github.workspace}}
         build=${{github.action_path}}/build
-        versions_file=$build/versions.json
+        output=${{github.action_path}}/output
+        versions_file=$output/versions.json
 
         mkdir --parents $build
+        mkdir --parents $output
 
         if [ ! -f $source/docs/versions.json ]; then
           echo '{"versions": [{"label": "stable","checkout": "${{github.ref}}","latest": true}]}' > $versions_file
@@ -38,6 +40,7 @@ runs:
           label=$(echo "$i" | jq -r '.label')
           checkout=$(echo "$i" | jq -r '.checkout')
           build_subdir="$build/$label"
+          output_subdir="$output/$label"
 
           git clean -fdx
           git checkout $(git rev-parse $checkout)
@@ -57,8 +60,7 @@ runs:
           -a outfilesuffix=.ahtml \
           '**/*.adoc'
 
-          find "$build_subdir" -mindepth 1 -maxdepth 1 ! -name 'docs' -exec rm -rf {} \;
-          ls -la $build_subdir/docs
+          mkdir "$output_subdir" && cp --recursive --no-target-directory "$build_subdir/docs" "$output_subdir"
         done
         ls -la $build
       shell: bash
@@ -68,7 +70,7 @@ runs:
       with:
         github_token: ${{ inputs.github-token }}
         exclude_assets: '**/*.adoc,*/versions.json'
-        publish_dir: ${{github.action_path}}/build
+        publish_dir: ${{github.action_path}}/output
     - name: Notify
       run: |
         payload='{"repo": "${{ github.server_url }}/${{ github.repository }}"}'
