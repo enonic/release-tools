@@ -46,7 +46,7 @@ runs:
           git checkout $(git rev-parse $checkout)
 
           mkdir "$build_subdir" && cp --recursive --no-target-directory "$source" "$build_subdir"
-          ls -la $build_subdir
+
           docker run --volume "$build_subdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
           --base-dir=/documents/docs \
           --backend html5 \
@@ -62,7 +62,6 @@ runs:
 
           mkdir "$output_subdir" && cp --recursive --no-target-directory "$build_subdir/docs" "$output_subdir"
         done
-        ls -la $build
       shell: bash
 
     - name: Deploy
@@ -85,4 +84,5 @@ runs:
 
         cmd+=("https://developer.enonic.com/_/service/com.enonic.site.developer/documentation")
 
+        "${cmd[@]}"
       shell: bash
