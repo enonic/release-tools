@@ -22,29 +22,30 @@ runs:
 
     - id: Build
       run: |
-        source_docs=${{github.workspace}}/docs
-        build_docs=${{github.action_path}}/build/docs
-        versions_file=$build_docs/versions.json
+        source=${{github.workspace}}
+        build=${{github.action_path}}/build
+        versions_file=$build/versions.json
 
-        mkdir --parents $build_docs
+        mkdir --parents $build
 
-        if [ ! -f $source_docs/versions.json ]; then
+        if [ ! -f $source/docs/versions.json ]; then
           echo '{"versions": [{"label": "stable","checkout": "${{github.ref}}","latest": true}]}' > $versions_file
         else
-          jq 'if all(.versions[]; .latest != true) then .versions[0].latest = true else . end' docs/versions.json > $versions_file
+          jq 'if all(.versions[]; .latest != true) then .versions[0].latest = true else . end' $source/docs/versions.json > $versions_file
         fi
 
         jq -c '.versions[]' $versions_file | while read i; do
           label=$(echo "$i" | jq -r '.label')
           checkout=$(echo "$i" | jq -r '.checkout')
-          build_docs_subdir="$build_docs/$label"
+          build_subdir="$build/$label"
 
           git clean -fdx
           git checkout $(git rev-parse $checkout)
 
-          mkdir "$build_docs_subdir" && cp --recursive --no-target-directory $source_docs "$build_docs_subdir"
+          mkdir "$build_subdir" && cp --recursive --no-target-directory "$source" "$build_subdir"
 
-          docker run --volume "$build_docs_subdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
+          docker run --volume "$build_subdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
+          --base-dir=/documents/docs \
           --backend html5 \
           -a icons=font \
           -a setanchors=true \
