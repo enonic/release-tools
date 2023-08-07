@@ -43,7 +43,7 @@ runs:
           git checkout $(git rev-parse $checkout)
 
           mkdir "$build_subdir" && cp --recursive --no-target-directory "$source" "$build_subdir"
-          ls $build_subdir
+          ls -la $build_subdir
           docker run --volume "$build_subdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
           --base-dir=/documents/docs \
           --backend html5 \
@@ -56,8 +56,9 @@ runs:
           -a toc=right \
           -a outfilesuffix=.ahtml \
           '**/*.adoc'
-          ls $build_subdir/docs
+          ls -la $build_subdir/docs
         done
+        ls -la $build
       shell: bash
 
     - name: Deploy
