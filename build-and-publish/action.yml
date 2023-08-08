@@ -10,7 +10,7 @@ inputs:
     required: true
   publishTask:
     description: 'Gradle task when publishing is needed'
-    default: 'publish'
+    default: 'build publish'
     required: false
   buildTask:
     description: 'Gradle task when only build is needed'
