@@ -47,7 +47,7 @@ runs:
 
           mkdir "$build_subdir" && cp --recursive --no-target-directory "$source" "$build_subdir"
 
-          docker run --volume "$build_subdir:/documents" asciidoctor/docker-asciidoctor asciidoctor \
+          docker run --volume "$build_subdir:/documents" asciidoctor/docker-asciidoctor:1.52 asciidoctor \
           --base-dir=/documents/docs \
           --backend html5 \
           -a icons=font \
