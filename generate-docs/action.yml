@@ -49,6 +49,7 @@ runs:
 
           docker run --volume "$build_subdir:/documents" --workdir /documents/docs asciidoctor/docker-asciidoctor asciidoctor \
           --backend html5 \
+          --failure-level ERROR \
           -a icons=font \
           -a setanchors=true \
           -a sectlinks=true \
