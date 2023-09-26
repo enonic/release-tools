@@ -39,7 +39,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -65,21 +65,32 @@ runs:
 
     - uses: actions/setup-java@v3
       with:
-         distribution: 'temurin'
-         java-version: '11'
-         cache: 'gradle'
+        distribution: temurin
+        java-version: 11
+
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
 
     - run: ./gradlew ${{ steps.task_generator.outputs.task }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
       shell: bash
 
-    - uses: docker/login-action@v2
+    - uses: docker/setup-qemu-action@v3
+      if: inputs.dockerhubUsername != '' && inputs.skipPublishing != 'true' && inputs.publishRelease == 'true' && steps.publish_vars.outputs.release == 'true' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+      with:
+        image: tonistiigi/binfmt:qemu-v6.2.0
+        platforms: arm64,amd64
+
+    - uses: docker/setup-buildx-action@v3
+      if: inputs.dockerhubUsername != '' && inputs.skipPublishing != 'true' && inputs.publishRelease == 'true' && steps.publish_vars.outputs.release == 'true' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+
+    - uses: docker/login-action@v3
       if: inputs.dockerhubUsername != '' && inputs.skipPublishing != 'true' && inputs.publishRelease == 'true' && steps.publish_vars.outputs.release == 'true' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
       with:
         username: ${{ inputs.dockerhubUsername }}
         password: ${{ inputs.dockerhubToken }}
 
     - name: Docker build and push
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       if: inputs.dockerhubUsername != '' && inputs.skipPublishing != 'true' && inputs.publishRelease == 'true' && steps.publish_vars.outputs.release == 'true' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
       with:
         context: .
@@ -87,5 +98,6 @@ runs:
         no-cache: true
         push: true
         tags: enonic/${{ steps.publish_vars.outputs.projectName }}:${{ steps.publish_vars.outputs.version }}
+        platforms: linux/amd64,linux/arm64
 
     - uses: codecov/codecov-action@v3
