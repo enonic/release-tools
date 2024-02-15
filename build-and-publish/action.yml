@@ -103,6 +103,6 @@ runs:
         tags: enonic/${{ steps.publish_vars.outputs.projectName }}:${{ steps.publish_vars.outputs.version }}
         platforms: linux/amd64,linux/arm64
 
-    - uses: codecov/codecov-action@v3
+    - uses: codecov/codecov-action@v4
       with:
         codecov-token: ${{ inputs.codecovToken }}
