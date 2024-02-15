@@ -105,4 +105,4 @@ runs:
 
     - uses: codecov/codecov-action@v4
       with:
-        codecov-token: ${{ inputs.codecovToken }}
+        token: ${{ inputs.codecovToken }}
