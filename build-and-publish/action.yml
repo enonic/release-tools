@@ -30,7 +30,10 @@ inputs:
   dockerhubToken:
     description: 'Dockerhub token'
     required: false
-
+  codecovToken:
+    description: 'Codecov token'
+    required: false
+    
 outputs:
   release:
     description: "If this build should be released"
@@ -101,3 +104,5 @@ runs:
         platforms: linux/amd64,linux/arm64
 
     - uses: codecov/codecov-action@v3
+      with:
+        codecov-token: ${{ inputs.codecovToken }}
