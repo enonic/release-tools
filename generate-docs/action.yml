@@ -51,6 +51,7 @@ runs:
           --backend html5 \
           --trace \
           --failure-level ERROR \
+          --verbose \
           -a icons=font \
           -a setanchors=true \
           -a sectlinks=true \
