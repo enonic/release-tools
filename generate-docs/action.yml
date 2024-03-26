@@ -47,8 +47,9 @@ runs:
 
           mkdir "$build_subdir" && cp --recursive --no-target-directory "$source" "$build_subdir"
 
-          docker run --volume "$build_subdir:/documents" --workdir /documents/docs asciidoctor/docker-asciidoctor:1.67 asciidoctor \
+          docker run --volume "$build_subdir:/documents" --workdir /documents/docs asciidoctor/docker-asciidoctor:1.66 asciidoctor \
           --backend html5 \
+          --trace \
           --failure-level ERROR \
           -a icons=font \
           -a setanchors=true \
