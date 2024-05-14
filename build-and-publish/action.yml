@@ -33,7 +33,7 @@ inputs:
   codecovToken:
     description: 'Codecov token'
     required: false
-    
+
 outputs:
   release:
     description: "If this build should be released"
@@ -66,13 +66,13 @@ runs:
         fi
       shell: bash
 
-    - uses: actions/setup-java@v3
+    - uses: actions/setup-java@v4
       with:
         distribution: temurin
         java-version: 11
 
     - name: Setup Gradle
-      uses: gradle/gradle-build-action@v2
+      uses: gradle/actions/setup-gradle@v3
 
     - run: ./gradlew ${{ steps.task_generator.outputs.task }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
       shell: bash
