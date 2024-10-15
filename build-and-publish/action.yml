@@ -77,10 +77,10 @@ runs:
       uses: gradle/actions/setup-gradle@v3
 
     - name: Set NPM token
-      if: ${{ inputs.npm-token != '' }}
-      run: npm config set //registry.npmjs.org/:_authToken ${{ inputs.npm-token }}
+      if: ${{ inputs.npmToken != '' }}
+      run: npm config set //registry.npmjs.org/:_authToken ${{ inputs.npmToken }}
       shell: bash
-      
+
     - run: ./gradlew ${{ steps.task_generator.outputs.task }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
       shell: bash
 
