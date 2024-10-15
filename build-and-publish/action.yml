@@ -33,7 +33,9 @@ inputs:
   codecovToken:
     description: 'Codecov token'
     required: false
-
+  npm-token:
+    description: 'NPM token'
+    required: false
 outputs:
   release:
     description: "If this build should be released"
@@ -74,6 +76,11 @@ runs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
+    - name: Set NPM token
+      if: ${{ inputs.npm-token != '' }}
+      run: npm config set //registry.npmjs.org/:_authToken ${{ inputs.npm-token }}
+      shell: bash
+      
     - run: ./gradlew ${{ steps.task_generator.outputs.task }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
       shell: bash
 
