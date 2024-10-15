@@ -33,7 +33,7 @@ inputs:
   codecovToken:
     description: 'Codecov token'
     required: false
-  npm-token:
+  npmToken:
     description: 'NPM token'
     required: false
 outputs:
