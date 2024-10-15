@@ -5,6 +5,8 @@ inputs:
   github-token:
     description: 'Github token or PAT.'
     required: true
+  npm-token
+    description: 'NPM token.'
 
 runs:
   using: "composite"
@@ -13,6 +15,10 @@ runs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
+
+    - name: Set NPM token
+      if: ${{ inputs.NPM_TOKEN != '' }}
+      run: npm config set //registry.npmjs.org/:_authToken ${{ inputs.NPM_TOKEN }}
 
     - name: Get previous release tag
       id: get_previous_release_tag
