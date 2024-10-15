@@ -5,7 +5,7 @@ inputs:
   github-token:
     description: 'Github token or PAT.'
     required: true
-  npm-token
+  npm-token:
     description: 'NPM token.'
 
 runs:
