@@ -17,8 +17,8 @@ runs:
         fetch-depth: 0
 
     - name: Set NPM token
-      if: ${{ inputs.NPM_TOKEN != '' }}
-      run: npm config set //registry.npmjs.org/:_authToken ${{ inputs.NPM_TOKEN }}
+      if: ${{ inputs.npm-token != '' }}
+      run: npm config set //registry.npmjs.org/:_authToken ${{ inputs.npm-token }}
 
     - name: Get previous release tag
       id: get_previous_release_tag
