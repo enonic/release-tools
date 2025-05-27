@@ -1,0 +1,58 @@
+name: "Publish to Central Portal via JReleaser"
+description: "Signs and uploads artifacts using JReleaser"
+inputs:
+  groupId:
+    description: 'Group Id'
+    required: true
+  artifactId:
+    description: 'Artifact Id'
+    required: true
+  version:
+    description: 'Version'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Prepare GROUP_PATH
+      shell: bash
+      run: |
+        GROUP_ID="${{ inputs.groupId }}"
+        GROUP_PATH=$(echo "$GROUP_ID" | tr '.' '/')
+        echo "GROUP_PATH=$GROUP_PATH" >> "$GITHUB_ENV"
+
+    - name: Download artifacts
+      shell: bash
+      run: |
+        set -e
+        BASE_URL="https://repo.enonic.com/public/$GROUP_PATH/${{ inputs.artifactId }}/${{ inputs.version }}"
+
+        mkdir -p out
+
+        for SUFFIX in ".jar" "-sources.jar" "-javadoc.jar" ".pom" ".module"; do
+          FILE="${{ inputs.artifactId }}-${{ inputs.version }}${SUFFIX}"
+          URL="$BASE_URL/$FILE"
+          echo "Downloading $URL"
+          curl -fSL -o "out/$FILE" "$URL"
+        done
+
+        echo "All artifacts downloaded"
+
+    - name: Set up JReleaser
+      uses: jreleaser/release-action@v2
+      with:
+        version: latest
+
+    - name: Run JReleaser
+      shell: bash
+      env:
+        PROJECT_GROUP_ID: ${{ inputs.groupId }}
+        PROJECT_ARTIFACT_ID: ${{ inputs.artifactId }}
+        PROJECT_VERSION: ${{ inputs.version }}
+        JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
+        JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
+        JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
+        JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
+        JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
+      run: |
+        jreleaser full-release \
+          --config-file publish-lib-central-portal/jreleaser.yml

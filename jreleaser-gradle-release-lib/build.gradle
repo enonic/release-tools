@@ -1,0 +1,93 @@
+plugins {
+    id 'signing'
+    id 'maven-publish'
+    id 'de.undercouch.download' version '5.3.0'
+    id 'org.jreleaser' version '1.18.0'
+}
+
+ext {
+    downloadArtifactsDir = "$buildDir/artifacts"
+    sourceGroupId = project.findProperty( 'sourceGroupId' )
+    sourceGroupIdAsPath = sourceGroupId.replaceAll( '\\.', '/' )
+    sourceArtifactId = project.findProperty( 'sourceArtifactId' )
+    sourceVersion = project.findProperty( 'sourceVersion' )
+    nexusUsername = project.findProperty( 'nexusUsername' )
+    nexusUserPassword = project.findProperty( 'nexusUserPassword' )
+    JRELEASER_MAVENCENTRAL_USERNAME = project.findProperty( 'JRELEASER_MAVENCENTRAL_USERNAME' )
+    JRELEASER_MAVENCENTRAL_PASSWORD = project.findProperty( 'JRELEASER_MAVENCENTRAL_PASSWORD' )
+
+    jreleaserGpgPublicKey = project.findProperty( 'JRELEASER_GPG_PUBLIC_KEY' )
+    jreleaserGpgSecretKey = project.findProperty( 'JRELEASER_GPG_SECRET_KEY' )
+    jreleaserGpgPassphrase = project.findProperty( 'JRELEASER_GPG_PASSPHRASE' )
+}
+
+def generateResourceUrl( suffix )
+{
+    return "https://repo.enonic.com/public/$sourceGroupIdAsPath/$sourceArtifactId/$sourceVersion/$sourceArtifactId-$sourceVersion$suffix"
+}
+
+task downloadArtifacts( type: Download ) {
+    description = 'Download artifacts from https://repo.enonic.com/public'
+    src( [generateResourceUrl( '.jar' ),
+          generateResourceUrl( '.module' ),
+          generateResourceUrl( '.pom' ),
+          generateResourceUrl( '-javadoc.jar' ),
+          generateResourceUrl( '-sources.jar' )
+    ] )
+    dest "$downloadArtifactsDir"
+    doFirst {
+        mkdir downloadArtifactsDir
+    }
+}
+
+publishing {
+    publications {
+        mavenJava( MavenPublication ) {
+            groupId = "$sourceGroupId"
+            artifactId = "$sourceArtifactId"
+            version = "$sourceVersion"
+
+            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.jar"
+            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-javadoc.jar", classifier: 'javadoc'
+            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-sources.jar", classifier: 'sources'
+            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.module"
+
+            pom.withXml { xmlProvider ->
+                def builder = xmlProvider.asString()
+                builder.length = 0
+                builder.append( file( "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.pom" ).text )
+            }
+        }
+    }
+}
+
+jreleaser {
+    signing {
+        active = 'ALWAYS'
+        armored = true
+        mode = 'MEMORY'
+        passphrase = "${jreleaserGpgPassphrase}"
+        publicKey = "${jreleaserGpgPublicKey}"
+        secretKey = "${jreleaserGpgSecretKey}"
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    applyMavenCentralRules = true
+                    stagingRepository("$downloadArtifactsDir")
+                    artifactOverride {
+                        groupId = "$sourceGroupId"
+                        artifactId = "$sourceArtifactId"
+                        jar = true
+                        sourceJar = true
+                        javadocJar = true
+                        verifyPom = true
+                    }
+                }
+            }
+        }
+    }
+}

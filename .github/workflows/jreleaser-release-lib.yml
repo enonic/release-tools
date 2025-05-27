@@ -1,0 +1,36 @@
+name: Release a library to Central Portal via JReleaser
+
+on:
+  workflow_dispatch:
+    inputs:
+      groupId:
+        description: 'Group Id'
+        required: true
+        type: string
+      artifactId:
+        description: 'Artifact Id'
+        required: true
+        type: string
+      version:
+        description: 'Version'
+        required: true
+        type: string
+env:
+  JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
+  JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
+  JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE  }}
+  JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
+  JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish a library to Central Portal
+        uses: ./jreleaser-release-lib
+        with:
+          groupId: ${{ github.event.inputs.groupId }}
+          artifactId: ${{ github.event.inputs.artifactId }}
+          version: ${{ github.event.inputs.version }}

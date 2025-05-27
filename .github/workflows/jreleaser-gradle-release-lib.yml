@@ -1,0 +1,41 @@
+name: Release to Maven Central Repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      groupId:
+        description: 'Group Id'
+        required: true
+        type: string
+      artifactId:
+        description: 'Artifact Id'
+        required: true
+        type: string
+      version:
+        description: 'Version'
+        required: true
+        type: string
+env:
+  GROUP_ID: ${{ inputs.groupId }}
+  ARTIFACT_ID: ${{ inputs.artifactId }}
+  VERSION: ${{ inputs.version }}
+  MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+  MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+  SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+  SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSPHRASE }}
+  SIGNING_SECRET_KEY_RING: ${{ secrets.SIGNING_SECRET_KEY_RING }}
+
+jobs:
+  publish-to-maven-central:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Save secring file
+        run: 'echo "$SIGNING_SECRET_KEY_RING" | base64 --decode > secring.gpg'
+        shell: bash
+      - name: Release the artifacts to Maven Central
+        run: |
+          cd ./publish-mvn-central
+          ./gradlew clean downloadArtifacts -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION
+          ./gradlew jreleaserConfig clean publish jreleaserFullRelease -P sourceGroupId=$GROUP_ID -P sourceArtifactId=$ARTIFACT_ID -P sourceVersion=$VERSION -P signing.keyId=$SIGNING_KEY_ID -P signing.password=$SIGNING_PASSWORD -P signing.secretKeyRingFile="../secring.gpg" -P nexusUsername=$MAVEN_CENTRAL_USERNAME -P nexusUserPassword=$MAVEN_CENTRAL_PASSWORD
