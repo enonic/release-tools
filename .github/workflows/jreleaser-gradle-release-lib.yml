@@ -1,4 +1,4 @@
-name: Release to Maven Central Repository
+name: Release to Central Portal Repository
 
 on:
   workflow_dispatch:
