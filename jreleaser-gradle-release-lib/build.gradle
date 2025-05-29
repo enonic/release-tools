@@ -11,14 +11,10 @@ ext {
     sourceGroupIdAsPath = sourceGroupId.replaceAll( '\\.', '/' )
     sourceArtifactId = project.findProperty( 'sourceArtifactId' )
     sourceVersion = project.findProperty( 'sourceVersion' )
-    nexusUsername = project.findProperty( 'nexusUsername' )
-    nexusUserPassword = project.findProperty( 'nexusUserPassword' )
-    JRELEASER_MAVENCENTRAL_USERNAME = project.findProperty( 'JRELEASER_MAVENCENTRAL_USERNAME' )
-    JRELEASER_MAVENCENTRAL_PASSWORD = project.findProperty( 'JRELEASER_MAVENCENTRAL_PASSWORD' )
 
-    jreleaserGpgPublicKey = project.findProperty( 'JRELEASER_GPG_PUBLIC_KEY' )
-    jreleaserGpgSecretKey = project.findProperty( 'JRELEASER_GPG_SECRET_KEY' )
-    jreleaserGpgPassphrase = project.findProperty( 'JRELEASER_GPG_PASSPHRASE' )
+    jreleaserGpgPublicKey = project.findProperty( 'jreleaserGpgPublicKey' )
+    jreleaserGpgSecretKey = project.findProperty( 'jreleaserGpgSecretKey' )
+    jreleaserGpgPassphrase = project.findProperty( 'jreleaserGpgPassphrase' )
 }
 
 def generateResourceUrl( suffix )
@@ -26,7 +22,7 @@ def generateResourceUrl( suffix )
     return "https://repo.enonic.com/public/$sourceGroupIdAsPath/$sourceArtifactId/$sourceVersion/$sourceArtifactId-$sourceVersion$suffix"
 }
 
-task downloadArtifacts( type: Download ) {
+tasks.register('downloadArtifacts', Download) {
     description = 'Download artifacts from https://repo.enonic.com/public'
     src( [generateResourceUrl( '.jar' ),
           generateResourceUrl( '.module' ),
@@ -89,5 +85,12 @@ jreleaser {
                 }
             }
         }
+    }
+}
+
+tasks.register( "releaseToCentralPortal" ) {
+    dependsOn( "clean", "downloadArtifacts", "jreleaserConfig", "publish", "jreleaserFullRelease" )
+    doFirst {
+        println( "Running full release with group: $sourceGroupId, artifact: $sourceArtifactId, version: $sourceVersion" )
     }
 }

@@ -37,6 +37,12 @@ runs:
 
         echo "All artifacts downloaded"
 
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
     - name: Set up JReleaser
       uses: jreleaser/release-action@v2
       with:
@@ -48,11 +54,6 @@ runs:
         PROJECT_GROUP_ID: ${{ inputs.groupId }}
         PROJECT_ARTIFACT_ID: ${{ inputs.artifactId }}
         PROJECT_VERSION: ${{ inputs.version }}
-        JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
-        JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
-        JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
-        JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
-        JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
       run: |
         jreleaser full-release \
-          --config-file publish-lib-central-portal/jreleaser.yml
+          --config-file jreleaser-release-lib/jreleaser.yml
