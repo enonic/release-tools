@@ -1,4 +1,4 @@
-name: Release to Central Portal Repository
+name: Release to Central Portal Repository using JReleaser Gradle Plugin
 
 on:
   workflow_dispatch:
