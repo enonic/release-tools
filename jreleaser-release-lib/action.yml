@@ -76,7 +76,7 @@ runs:
                 url: https://central.sonatype.com/api/v1/publisher
                 namespace: com.enonic
                 applyMavenCentralRules: true
-                stagingDirectories:
+                stagingRepositories:
                   - out
                 artifactOverrides:
                   - groupId: ${{ inputs.groupId }}
