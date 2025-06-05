@@ -37,22 +37,12 @@ runs:
 
         echo "All artifacts downloaded"
 
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
     - name: Set up JReleaser
       uses: jreleaser/release-action@v2
       with:
         version: latest
-
-    - name: Run JReleaser
-      shell: bash
+        arguments: deploy --config-file jreleaser-release-lib/jreleaser.yml
       env:
         PROJECT_GROUP_ID: ${{ inputs.groupId }}
         PROJECT_ARTIFACT_ID: ${{ inputs.artifactId }}
         PROJECT_VERSION: ${{ inputs.version }}
-      run: |
-        jreleaser deploy --config-file jreleaser-release-lib/jreleaser.yml
