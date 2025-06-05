@@ -77,9 +77,9 @@ jreleaser {
         active = 'ALWAYS'
         armored = true
         mode = 'MEMORY'
-        passphrase = "${jreleaserGpgPassphrase}"
-        publicKey = "${jreleaserGpgPublicKey}"
-        secretKey = "${jreleaserGpgSecretKey}"
+//        passphrase = "${jreleaserGpgPassphrase}"
+//        publicKey = "${jreleaserGpgPublicKey}"
+//        secretKey = "${jreleaserGpgSecretKey}"
     }
     deploy {
         maven {
