@@ -1,8 +1,9 @@
 project:
   name: ${PROJECT_GROUP_ID}-${PROJECT_ARTIFACT_ID}-${PROJECT_VERSION}
   version: ${PROJECT_VERSION}
-  java:
-    groupId: ${PROJECT_GROUP_ID}
+  languages:
+    java:
+      groupId: ${PROJECT_GROUP_ID}
 
 # https://jreleaser.org/guide/latest/reference/files.html
 files:

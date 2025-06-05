@@ -43,6 +43,6 @@ runs:
         version: latest
         arguments: deploy --config-file jreleaser-release-lib/jreleaser.yml
       env:
-        PROJECT_GROUP_ID: ${{ inputs.groupId }}
-        PROJECT_ARTIFACT_ID: ${{ inputs.artifactId }}
-        PROJECT_VERSION: ${{ inputs.version }}
+        JRELEASER_PROJECT_GROUP_ID: ${{ inputs.groupId }}
+        JRELEASER_PROJECT_ARTIFACT_ID: ${{ inputs.artifactId }}
+        JRELEASER_PROJECT_VERSION: ${{ inputs.version }}
