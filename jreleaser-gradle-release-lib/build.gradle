@@ -39,32 +39,38 @@ tasks.register('downloadArtifacts', Download) {
     }
 }
 
-//publishing {
-//    publications {
-//        mavenJava( MavenPublication ) {
-//            groupId = "$sourceGroupId"
-//            artifactId = "$sourceArtifactId"
-//            version = "$sourceVersion"
-//
-//            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.jar"
-//            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-javadoc.jar", classifier: 'javadoc'
-//            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-sources.jar", classifier: 'sources'
-//            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.module"
-//
-//            pom.withXml { xmlProvider ->
-//                def builder = xmlProvider.asString()
-//                builder.length = 0
-//                builder.append( file( "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.pom" ).text )
-//            }
-//        }
-//    }
-//}
+publishing {
+    publications {
+        mavenJava( MavenPublication ) {
+            groupId = "$sourceGroupId"
+            artifactId = "$sourceArtifactId"
+            version = "$sourceVersion"
+
+            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.jar"
+            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-javadoc.jar", classifier: 'javadoc'
+            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-sources.jar", classifier: 'sources'
+            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.module"
+
+            pom.withXml { xmlProvider ->
+                def builder = xmlProvider.asString()
+                builder.length = 0
+                builder.append( file( "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.pom" ).text )
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+}
 
 jreleaser {
     project {
         java {
             groupId = "$sourceGroupId"
-            version = "${sourceVersion}"
+            version = "$sourceVersion"
         }
     }
     signing {
@@ -82,7 +88,8 @@ jreleaser {
                     active = 'ALWAYS'
                     url = 'https://central.sonatype.com/api/v1/publisher'
                     applyMavenCentralRules = true
-                    stagingRepository("$downloadArtifactsDir")
+                    stagingRepository('build/staging-deploy')
+                    namespace = "com.enonic"
                     artifactOverride {
                         groupId = "$sourceGroupId"
                         artifactId = "$sourceArtifactId"
@@ -97,6 +104,10 @@ jreleaser {
     }
 }
 
-tasks.named("jreleaserDeploy") {
+tasks.named("generatePomFileForMavenJavaPublication") {
     dependsOn("downloadArtifacts")
+}
+
+tasks.named("jreleaserDeploy") {
+    dependsOn("publish")
 }
