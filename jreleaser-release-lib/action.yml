@@ -43,6 +43,12 @@ runs:
         echo "Contents of out/"
         ls -l out/
 
+    - name: Prepare staging directory
+      shell: bash
+      run: |
+        mkdir -p out/${{ inputs.artifactId }}
+        mv out/*.jar out/*.pom out/*.module out/${{ inputs.artifactId }}/
+
     - name: Generate jreleaser.yml
       shell: bash
       run: |
@@ -53,15 +59,6 @@ runs:
           languages:
             java:
               groupId: ${{ inputs.groupId }}
-
-        files:
-          active: ALWAYS
-          artifacts:
-            - path: out/${{ inputs.artifactId }}-${{ inputs.version }}.jar
-            - path: out/${{ inputs.artifactId }}-${{ inputs.version }}-sources.jar
-            - path: out/${{ inputs.artifactId }}-${{ inputs.version }}-javadoc.jar
-            - path: out/${{ inputs.artifactId }}-${{ inputs.version }}.pom
-            - path: out/${{ inputs.artifactId }}-${{ inputs.version }}.module
 
         signing:
           active: ALWAYS
@@ -79,6 +76,8 @@ runs:
                 url: https://central.sonatype.com/api/v1/publisher
                 namespace: com.enonic
                 applyMavenCentralRules: true
+                stagingDirectories:
+                  - out
                 artifactOverrides:
                   - groupId: ${{ inputs.groupId }}
                     artifactId: ${{ inputs.artifactId }}
