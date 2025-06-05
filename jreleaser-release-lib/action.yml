@@ -37,6 +37,12 @@ runs:
 
         echo "All artifacts downloaded"
 
+    - name: Debug build artifacts
+      shell: bash
+      run: |
+        echo "Contents of out/"
+        ls -l out/
+
     - name: Generate jreleaser.yml
       shell: bash
       run: |
@@ -73,8 +79,6 @@ runs:
                 url: https://central.sonatype.com/api/v1/publisher
                 namespace: com.enonic
                 applyMavenCentralRules: true
-                stagingRepositories:
-                  - out
                 artifactOverrides:
                   - groupId: ${{ inputs.groupId }}
                     artifactId: ${{ inputs.artifactId }}
