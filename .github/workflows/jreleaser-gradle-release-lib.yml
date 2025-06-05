@@ -22,8 +22,6 @@ env:
   JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
   JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
   JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
-  JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
-  JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
 
 jobs:
   release-to-central-portal:
@@ -31,6 +29,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Decode GPG keys and set environment variables
+        shell: bash
+        run: |
+          echo "${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}" | base64 --decode > pub.gpg
+          echo "${{ secrets.JRELEASER_GPG_SECRET_KEY }}" | base64 --decode > sec.gpg
+
+          echo "JRELEASER_GPG_PUBLIC_KEY=$(pwd)/pub.gpg" >> $GITHUB_ENV
+          echo "JRELEASER_GPG_SECRET_KEY=$(pwd)/sec.gpg" >> $GITHUB_ENV
+
       - name: Release the artifacts to Maven Central
         run: |
           cd ./jreleaser-gradle-release-lib

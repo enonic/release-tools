@@ -76,10 +76,10 @@ jreleaser {
     signing {
         active = 'ALWAYS'
         armored = true
-        mode = 'MEMORY'
-//        passphrase = "${jreleaserGpgPassphrase}"
-//        publicKey = "${jreleaserGpgPublicKey}"
-//        secretKey = "${jreleaserGpgSecretKey}"
+        mode = 'FILE'
+        passphrase = "${jreleaserGpgPassphrase}"
+        publicKey = "${jreleaserGpgPublicKey}"
+        secretKey = "${jreleaserGpgSecretKey}"
     }
     deploy {
         maven {
