@@ -24,9 +24,12 @@ runs:
       shell: bash
       run: |
         set -e
+
         BASE_URL="https://repo.enonic.com/public/$GROUP_PATH/${{ inputs.artifactId }}/${{ inputs.version }}"
 
-        mkdir -p out
+        TARGET_DIR="out/$GROUP_PATH/$GROUP_PATH/${{ inputs.artifactId }}/${{ inputs.version }}"
+
+        mkdir -p "$TARGET_DIR"
 
         echo "ARTIFACT_DIR=$(pwd)/out" >> "$GITHUB_ENV"
 
@@ -34,16 +37,16 @@ runs:
           FILE="${{ inputs.artifactId }}-${{ inputs.version }}${SUFFIX}"
           URL="$BASE_URL/$FILE"
           echo "Downloading $URL"
-          curl -fSL -o "out/$FILE" "$URL"
+          curl -fSL -o "$TARGET_DIR/$FILE" "$URL"
         done
 
         echo "All artifacts downloaded"
 
-    - name: Debug build artifacts
-      shell: bash
-      run: |
-        echo "Contents of out/"
-        ls -l out/
+#    - name: Debug build artifacts
+#      shell: bash
+#      run: |
+#        echo "Contents of out/"
+#        ls -l out/
 
 #    - name: Prepare staging directory
 #      shell: bash
