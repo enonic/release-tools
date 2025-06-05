@@ -5,6 +5,9 @@ plugins {
     id 'org.jreleaser' version '1.18.0'
 }
 
+group = project.findProperty("sourceGroupId")
+version = project.findProperty("sourceVersion")
+
 ext {
     downloadArtifactsDir = "$buildDir/artifacts"
     sourceGroupId = project.findProperty( 'sourceGroupId' )
