@@ -40,3 +40,7 @@ deploy:
             sourceJar: true
             javadocJar: true
             verifyPom: true
+
+release:
+  github:
+    active: NEVER

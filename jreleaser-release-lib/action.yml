@@ -55,5 +55,5 @@ runs:
         PROJECT_ARTIFACT_ID: ${{ inputs.artifactId }}
         PROJECT_VERSION: ${{ inputs.version }}
       run: |
-        jreleaser full-release \
+        jreleaser deploy \
           --config-file jreleaser-release-lib/jreleaser.yml
