@@ -36,26 +36,26 @@ tasks.register('downloadArtifacts', Download) {
     }
 }
 
-publishing {
-    publications {
-        mavenJava( MavenPublication ) {
-            groupId = "$sourceGroupId"
-            artifactId = "$sourceArtifactId"
-            version = "$sourceVersion"
-
-            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.jar"
-            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-javadoc.jar", classifier: 'javadoc'
-            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-sources.jar", classifier: 'sources'
-            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.module"
-
-            pom.withXml { xmlProvider ->
-                def builder = xmlProvider.asString()
-                builder.length = 0
-                builder.append( file( "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.pom" ).text )
-            }
-        }
-    }
-}
+//publishing {
+//    publications {
+//        mavenJava( MavenPublication ) {
+//            groupId = "$sourceGroupId"
+//            artifactId = "$sourceArtifactId"
+//            version = "$sourceVersion"
+//
+//            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.jar"
+//            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-javadoc.jar", classifier: 'javadoc'
+//            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-sources.jar", classifier: 'sources'
+//            artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.module"
+//
+//            pom.withXml { xmlProvider ->
+//                def builder = xmlProvider.asString()
+//                builder.length = 0
+//                builder.append( file( "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.pom" ).text )
+//            }
+//        }
+//    }
+//}
 
 jreleaser {
     signing {
@@ -88,9 +88,6 @@ jreleaser {
     }
 }
 
-tasks.register( "releaseToCentralPortal" ) {
-    dependsOn( "clean", "downloadArtifacts", "jreleaserConfig", "publish", "jreleaserFullRelease" )
-    doFirst {
-        println( "Running full release with group: $sourceGroupId, artifact: $sourceArtifactId, version: $sourceVersion" )
-    }
+tasks.named("jreleaserDeploy") {
+    dependsOn("downloadArtifacts")
 }
