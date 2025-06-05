@@ -28,6 +28,8 @@ runs:
 
         mkdir -p out
 
+        echo "ARTIFACT_DIR=$(pwd)/out" >> "$GITHUB_ENV"
+
         for SUFFIX in ".jar" "-sources.jar" "-javadoc.jar" ".pom" ".module"; do
           FILE="${{ inputs.artifactId }}-${{ inputs.version }}${SUFFIX}"
           URL="$BASE_URL/$FILE"
@@ -43,11 +45,11 @@ runs:
         echo "Contents of out/"
         ls -l out/
 
-    - name: Prepare staging directory
-      shell: bash
-      run: |
-        mkdir -p out/${{ inputs.artifactId }}
-        mv out/*.jar out/*.pom out/*.module out/${{ inputs.artifactId }}/
+#    - name: Prepare staging directory
+#      shell: bash
+#      run: |
+#        mkdir -p out/${{ inputs.artifactId }}
+#        mv out/*.jar out/*.pom out/*.module out/${{ inputs.artifactId }}/
 
     - name: Generate jreleaser.yml
       shell: bash
@@ -77,7 +79,7 @@ runs:
                 namespace: com.enonic
                 applyMavenCentralRules: true
                 stagingRepositories:
-                  - out
+                  - ${ARTIFACT_DIR}
                 artifactOverrides:
                   - groupId: ${{ inputs.groupId }}
                     artifactId: ${{ inputs.artifactId }}
