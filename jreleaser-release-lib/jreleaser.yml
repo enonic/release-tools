@@ -43,4 +43,4 @@ deploy:
 
 release:
   github:
-    active: NEVER
+    enabled: false
