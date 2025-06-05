@@ -58,6 +58,12 @@ tasks.register('downloadArtifacts', Download) {
 //}
 
 jreleaser {
+    project {
+        java {
+            groupId = "$sourceGroupId"
+            version = "${sourceVersion}"
+        }
+    }
     signing {
         active = 'ALWAYS'
         armored = true
