@@ -1,4 +1,4 @@
-name: Release a library to Central Portal via JReleaser
+name: JReleaser - Release to Central Portal Repository
 
 on:
   workflow_dispatch:

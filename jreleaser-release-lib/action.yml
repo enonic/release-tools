@@ -1,4 +1,4 @@
-name: "Publish to Central Portal via JReleaser"
+name: "JReleaser - Release to Central Portal Repository"
 description: "Signs and uploads artifacts using JReleaser"
 inputs:
   groupId:
