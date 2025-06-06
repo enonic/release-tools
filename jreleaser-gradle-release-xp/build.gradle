@@ -1,0 +1,167 @@
+plugins {
+    id 'signing'
+    id 'maven-publish'
+    id 'de.undercouch.download' version '5.3.0'
+    id 'org.jreleaser' version '1.18.0'
+}
+
+group = 'com.enonic.xp'
+version = project.findProperty( "sourceVersion" )
+
+ext {
+    downloadArtifactsDir = "$buildDir/artifacts"
+    sourceGroupId = 'com.enonic.xp'
+    sourceGroupIdAsPath = sourceGroupId.replaceAll( '\\.', '/' )
+    sourceVersion = project.findProperty( 'sourceVersion' )
+
+    jreleaserMavencentralUsername = project.findProperty( 'jreleaserMavencentralUsername' )
+    jreleaserMavencentralPassword = project.findProperty( 'jreleaserMavencentralPassword' )
+
+    jreleaserGpgPublicKey = project.findProperty( 'jreleaserGpgPublicKey' )
+    jreleaserGpgSecretKey = project.findProperty( 'jreleaserGpgSecretKey' )
+    jreleaserGpgPassphrase = project.findProperty( 'jreleaserGpgPassphrase' )
+
+    artifactIds = ['admin-api',
+                   'core-api',
+                   'jaxrs-api',
+                   'portal-api',
+                   'script-api',
+                   'web-api',
+                   'lib-admin',
+                   'lib-app',
+                   'lib-auditlog',
+                   'lib-auth',
+                   'lib-cluster',
+                   'lib-common',
+                   'lib-content',
+                   'lib-context',
+                   'lib-event',
+                   'lib-export',
+                   'lib-grid',
+                   'lib-i18n',
+                   'lib-io',
+                   'lib-mail',
+                   'lib-node',
+                   'lib-portal',
+                   'lib-project',
+                   'lib-repo',
+                   'lib-scheduler',
+                   'lib-schema',
+                   'lib-task',
+                   'lib-value',
+                   'lib-vhost',
+                   'lib-websocket',]
+}
+
+private String generateResourceUrl( sourceArtifactId, suffix )
+{
+    return "https://repo.enonic.com/public/$sourceGroupIdAsPath/$sourceArtifactId/$sourceVersion/$sourceArtifactId-$sourceVersion$suffix"
+}
+
+private String[] getArtifactsUrls()
+{
+    def result = []
+    artifactIds.each { artifactId ->
+        result.addAll( [
+            generateResourceUrl( artifactId, '.jar' ),
+            generateResourceUrl( artifactId, '.module' ),
+            generateResourceUrl( artifactId, '.pom' ),
+            generateResourceUrl( artifactId, '-javadoc.jar' ),
+            generateResourceUrl( artifactId, '-sources.jar' ),
+        ] )
+    }
+    return result
+}
+
+task downloadArtifacts( type: Download ) {
+    description = 'Download artifacts from https://repo.enonic.com/public'
+    src( getArtifactsUrls() )
+    dest "$downloadArtifactsDir"
+    doFirst {
+        mkdir downloadArtifactsDir
+    }
+}
+
+publishing {
+    publications {
+        artifactIds.each { sourceArtifactId ->
+            "mavenxp${sourceArtifactId.replace( '-', '' )}"( MavenPublication ) {
+                groupId = "$sourceGroupId"
+                artifactId = "$sourceArtifactId"
+                version = "$sourceVersion"
+
+                artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.jar"
+                artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-javadoc.jar", classifier: 'javadoc'
+                artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}-sources.jar", classifier: 'sources'
+                artifact source: "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.module"
+
+                pom.withXml { xmlProvider ->
+                    def builder = xmlProvider.asString()
+                    builder.length = 0
+                    builder.append( file( "$downloadArtifactsDir/$sourceArtifactId-${sourceVersion}.pom" ).text )
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir( 'staging-deploy' )
+        }
+    }
+}
+
+jreleaser {
+    project {
+        java {
+            groupId = "$sourceGroupId"
+            version = "$sourceVersion"
+        }
+    }
+    signing {
+        active = 'ALWAYS'
+        armored = true
+        mode = 'FILE'
+        passphrase = "${jreleaserGpgPassphrase}"
+        publicKey = "${jreleaserGpgPublicKey}"
+        secretKey = "${jreleaserGpgSecretKey}"
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                artifactIds.each { sourceArtifactId ->
+                    "mavenxp${sourceArtifactId.replace( '-', '' )}" {
+                        active = 'ALWAYS'
+                        url = 'https://central.sonatype.com/api/v1/publisher'
+                        applyMavenCentralRules = true
+                        stagingRepository( 'build/staging-deploy' )
+                        namespace = "com.enonic"
+                        username = "$jreleaserMavencentralUsername"
+                        password = "$jreleaserMavencentralPassword"
+                        artifactOverride {
+                            groupId = "$sourceGroupId"
+                            artifactId = "$sourceArtifactId"
+                            jar = true
+                            sourceJar = true
+                            javadocJar = true
+                            verifyPom = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+artifactIds.each { sourceArtifactId ->
+    def publicationName = "mavenxp${sourceArtifactId.replace('-', '')}"
+    def taskName = "generatePomFileFor${publicationName.capitalize()}Publication"
+
+    tasks.named(taskName) {
+        dependsOn("downloadArtifacts")
+    }
+}
+
+tasks.named( "jreleaserDeploy" ) {
+    dependsOn( "publish" )
+}
