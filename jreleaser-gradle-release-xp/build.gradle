@@ -129,24 +129,14 @@ jreleaser {
     deploy {
         maven {
             mavenCentral {
-                artifactIds.each { sourceArtifactId ->
-                    "mavenxp${sourceArtifactId.replace( '-', '' )}" {
-                        active = 'ALWAYS'
-                        url = 'https://central.sonatype.com/api/v1/publisher'
-                        applyMavenCentralRules = true
-                        stagingRepository( 'build/staging-deploy' )
-                        namespace = "com.enonic"
-                        username = "$jreleaserMavencentralUsername"
-                        password = "$jreleaserMavencentralPassword"
-                        artifactOverride {
-                            groupId = "$sourceGroupId"
-                            artifactId = "$sourceArtifactId"
-                            jar = true
-                            sourceJar = true
-                            javadocJar = true
-                            verifyPom = true
-                        }
-                    }
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    applyMavenCentralRules = true
+                    stagingRepository( 'build/staging-deploy' )
+                    namespace = "com.enonic"
+                    username = "$jreleaserMavencentralUsername"
+                    password = "$jreleaserMavencentralPassword"
                 }
             }
         }
