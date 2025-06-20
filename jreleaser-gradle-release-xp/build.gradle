@@ -128,7 +128,7 @@ jreleaser {
     }
     deploy {
         maven {
-            mavenCentral {
+            mavenCentral { // https://jreleaser.org/guide/latest/reference/deploy/maven/maven-central.html
                 sonatype {
                     active = 'ALWAYS'
                     url = 'https://central.sonatype.com/api/v1/publisher'
@@ -137,6 +137,9 @@ jreleaser {
                     namespace = "com.enonic"
                     username = "$jreleaserMavencentralUsername"
                     password = "$jreleaserMavencentralPassword"
+                    readTimeout: 180
+                    connectTimeout: 60
+                    retryDelay: 20
                 }
             }
         }
