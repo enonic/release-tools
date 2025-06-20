@@ -137,9 +137,9 @@ jreleaser {
                     namespace = "com.enonic"
                     username = "$jreleaserMavencentralUsername"
                     password = "$jreleaserMavencentralPassword"
-                    readTimeout: 180
-                    connectTimeout: 60
-                    retryDelay: 20
+                    readTimeout = 180
+                    connectTimeout = 60
+                    retryDelay = 20
                 }
             }
         }
