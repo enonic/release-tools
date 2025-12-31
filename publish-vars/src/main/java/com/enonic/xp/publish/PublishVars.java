@@ -67,7 +67,7 @@ public class PublishVars
         writeToGithubOutput( "prerelease=" + version.contains( "-" ) );
         writeToGithubOutput( "tag_name=" + "v" + version );
         writeToGithubOutput( "version=" + version );
-        writeToGithubOutput( "javaVersion=" + requireNonNullElse(xpVersion, "" ).startsWith( "7." ) ? "11" : "25" );
+        writeToGithubOutput( "javaVersion=" + (requireNonNullElse(xpVersion, "" ).startsWith( "7." ) ? "11" : "25") );
         if ( projectName != null )
         {
             writeToGithubOutput( "projectName=" + projectName );
