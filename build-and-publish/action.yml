@@ -71,7 +71,7 @@ runs:
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 11
+        java-version: ${{ steps.publish_vars.outputs.javaVersion }}
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3

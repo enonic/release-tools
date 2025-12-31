@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static java.util.Objects.requireNonNullElse;
 
 public class PublishVars
 {
@@ -32,7 +33,7 @@ public class PublishVars
 
     public static String adjustedRepoKey( String repoKey, boolean isPrivateCodeRepo, boolean isSnapshot )
     {
-        String repoKeyOrDefault = Objects.requireNonNullElse( repoKey, isPrivateCodeRepo ? "" : "public" );
+        String repoKeyOrDefault = requireNonNullElse( repoKey, isPrivateCodeRepo ? "" : "public" );
 
         return ( repoKeyOrDefault.equals( "public" ) && isSnapshot ) ? "snapshot" : repoKeyOrDefault;
     }
@@ -57,6 +58,7 @@ public class PublishVars
         final String projectName = properties.getProperty( "projectName" );
         final String group = properties.getProperty( "group" );
         final String repoKey = properties.getProperty( "repoKey" );
+        final String xpVersion = properties.getProperty( "xpVersion" );
         final boolean isSnapshot = version.endsWith( "-SNAPSHOT" );
 
         writeToGithubOutput( "nextSnapshot=" + nextSnapshot( version ) );
@@ -65,6 +67,7 @@ public class PublishVars
         writeToGithubOutput( "prerelease=" + version.contains( "-" ) );
         writeToGithubOutput( "tag_name=" + "v" + version );
         writeToGithubOutput( "version=" + version );
+        writeToGithubOutput( "javaVersion=" + requireNonNullElse(xpVersion, "" ).startsWith( "7." ) ? "11" : "25" );
         if ( projectName != null )
         {
             writeToGithubOutput( "projectName=" + projectName );
