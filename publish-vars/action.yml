@@ -26,6 +26,9 @@ outputs:
   group:
     description: publish group
     value: ${{ steps.generator.outputs.group }}
+  javaVersion:
+    description: java version to compile with
+    value: ${{ steps.generator.outputs.javaVersion }}
 runs:
   using: "composite"
   steps:
@@ -43,4 +46,5 @@ runs:
         echo version ${{ steps.generator.outputs.version }}
         echo projectName ${{ steps.generator.outputs.projectName }}
         echo group ${{ steps.generator.outputs.group }}
+        echo javaVersion ${{ steps.generator.outputs.javaVersion }}
       shell: bash
