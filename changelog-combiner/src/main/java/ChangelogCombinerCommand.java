@@ -226,7 +226,7 @@ public class ChangelogCombinerCommand
                 }
                 int titleEnd = text.indexOf( "(#" ) - 1;
                 int issueNoStart = titleEnd + 2;
-                int issueNoStop = text.indexOf( ")." );
+                int issueNoStop = text.indexOf( ").", titleEnd );
                 section.add( new ChangelogEntry( text.substring( 3, titleEnd ), text.substring( issueNoStart, issueNoStop ) ) );
             }
         }
