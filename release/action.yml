@@ -9,7 +9,7 @@ runs:
   using: "composite"
 
   steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
@@ -37,10 +37,9 @@ runs:
     - name: Create Release
       if: steps.publish_vars.outputs.release == 'true'
       id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+      uses: softprops/action-gh-release@v3
       with:
+        token: ${{ inputs.github-token }}
         tag_name: ${{ steps.publish_vars.outputs.tag_name }}
         body_path: changelog.md
         prerelease: ${{ steps.publish_vars.outputs.prerelease == 'true' }}
@@ -55,7 +54,7 @@ runs:
 
     - name: Commit and push new version
       if: steps.publish_vars.outputs.release == 'true'
-      uses: EndBug/add-and-commit@v7
+      uses: EndBug/add-and-commit@v10
       with:
         add: ./gradle.properties
         message: 'Updated to next SNAPSHOT version'
