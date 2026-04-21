@@ -41,6 +41,7 @@ runs:
       with:
         token: ${{ inputs.github-token }}
         tag_name: ${{ steps.publish_vars.outputs.tag_name }}
+        target_commitish: ${{ github.sha }}
         body_path: changelog.md
         prerelease: ${{ steps.publish_vars.outputs.prerelease == 'true' }}
 
