@@ -15,7 +15,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
         ref: ${{ github.event.repository.default_branch }}
@@ -67,7 +67,7 @@ runs:
       shell: bash
 
     - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ inputs.github-token }}
         exclude_assets: '**/*.adoc,*/versions.json'
