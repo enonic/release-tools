@@ -50,7 +50,8 @@ ext {
                    'lib-task',
                    'lib-value',
                    'lib-vhost',
-                   'lib-websocket',]
+                   'lib-websocket',
+                   'lib-sse']
 }
 
 private String generateResourceUrl( sourceArtifactId, suffix )
