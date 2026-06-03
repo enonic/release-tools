@@ -21,7 +21,7 @@ ext {
     jreleaserGpgSecretKey = project.findProperty( 'jreleaserGpgSecretKey' )
     jreleaserGpgPassphrase = project.findProperty( 'jreleaserGpgPassphrase' )
 
-    artifactIds = ['admin-api',
+    allArtifactIds = ['admin-api',
                    'core-api',
                    'jaxrs-api',
                    'portal-api',
@@ -52,6 +52,14 @@ ext {
                    'lib-vhost',
                    'lib-websocket',
                    'lib-sse']
+
+    def batch = (project.findProperty('batch') ?: '1').toInteger()
+    def batchSize = (allArtifactIds.size() / 2).toInteger()
+    artifactIds = batch == 1
+        ? allArtifactIds.subList(0, batchSize)
+        : allArtifactIds.subList(batchSize, allArtifactIds.size())
+
+    stagingDir = "build/staging-deploy-batch${batch}"
 }
 
 private String generateResourceUrl( sourceArtifactId, suffix )
@@ -107,7 +115,7 @@ publishing {
 
     repositories {
         maven {
-            url = layout.buildDirectory.dir( 'staging-deploy' )
+            url = layout.buildDirectory.dir( "staging-deploy-batch${batch}" )
         }
     }
 }
@@ -134,7 +142,7 @@ jreleaser {
                     active = 'ALWAYS'
                     url = 'https://central.sonatype.com/api/v1/publisher'
                     applyMavenCentralRules = true
-                    stagingRepository( 'build/staging-deploy' )
+                    stagingRepository( "${stagingDir}" )
                     namespace = "com.enonic"
                     username = "$jreleaserMavencentralUsername"
                     password = "$jreleaserMavencentralPassword"
