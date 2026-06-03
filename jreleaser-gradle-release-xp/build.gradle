@@ -122,6 +122,7 @@ publishing {
 
 jreleaser {
     project {
+        name = "jreleaser-gradle-release-xp-batch${batch}"
         java {
             groupId = "$sourceGroupId"
             version = "$sourceVersion"
