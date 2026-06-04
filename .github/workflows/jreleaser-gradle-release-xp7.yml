@@ -1,4 +1,4 @@
-name: JReleaser Gradle Plugin (XP) - Release XP batch 2 only
+name: JReleaser Gradle Plugin (XP) - Release XP 7.x to Central Portal Repository
 
 on:
   workflow_dispatch:
@@ -7,7 +7,6 @@ on:
         description: 'Version'
         required: true
         type: string
-
 env:
   VERSION: ${{ inputs.version }}
   JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
@@ -15,29 +14,34 @@ env:
   JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
 
 jobs:
-  release-batch2:
+  release-to-central-portal:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        batch: [1, 2]
+    name: release-to-central-portal-batch${{ matrix.batch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Decode GPG keys
+      - name: Decode GPG keys and set environment variables
         shell: bash
         run: |
           echo "${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}" | base64 --decode > pub.gpg
           echo "${{ secrets.JRELEASER_GPG_SECRET_KEY }}" | base64 --decode > sec.gpg
+
           echo "JRELEASER_GPG_PUBLIC_KEY=$(pwd)/pub.gpg" >> $GITHUB_ENV
           echo "JRELEASER_GPG_SECRET_KEY=$(pwd)/sec.gpg" >> $GITHUB_ENV
 
-      - name: Release XP artifacts to Maven Central (batch 2)
+      - name: Release XP 7.x artifacts to Maven Central (batch ${{ matrix.batch }})
         run: |
           cd ./jreleaser-gradle-release-xp
           ./gradlew jreleaserDeploy \
-            -P batch=2 \
+            -P batch=${{ matrix.batch }} \
             -P sourceVersion=$VERSION \
             -P jreleaserGpgPublicKey=$JRELEASER_GPG_PUBLIC_KEY \
             -P jreleaserGpgSecretKey=$JRELEASER_GPG_SECRET_KEY \
             -P jreleaserGpgPassphrase=$JRELEASER_GPG_PASSPHRASE \
             -P jreleaserMavencentralUsername=$JRELEASER_MAVENCENTRAL_USERNAME \
             -P jreleaserMavencentralPassword=$JRELEASER_MAVENCENTRAL_PASSWORD
-            
