@@ -50,8 +50,11 @@ ext {
                    'lib-task',
                    'lib-value',
                    'lib-vhost',
-                   'lib-websocket',
-                   'lib-sse']
+                   'lib-websocket']
+
+    if ( sourceVersion.startsWith( '8' ) ) {
+        allArtifactIds += 'lib-sse'
+    }
 
     def batch = (project.findProperty('batch') ?: '1').toInteger()
     def batchSize = (allArtifactIds.size() / 2).toInteger()
