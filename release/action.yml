@@ -60,3 +60,20 @@ runs:
         add: ./gradle.properties
         message: 'Updated to next SNAPSHOT version'
         default_author: github_actions
+
+    # The "Updated to next SNAPSHOT version" commit above is pushed with the
+    # GITHUB_TOKEN, which by design does NOT trigger `on: push`. Dispatch the
+    # calling workflow so the new SNAPSHOT is built and published. The workflow
+    # must declare `workflow_dispatch` (present on the default branch) and the
+    # token needs `actions: write`. Best-effort: the release already succeeded,
+    # so a failed dispatch only emits a warning.
+    - name: Trigger build of new snapshot version
+      if: steps.publish_vars.outputs.release == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        workflow="${GITHUB_WORKFLOW_REF%%@*}"   # owner/repo/.github/workflows/x.yml
+        workflow="${workflow##*/}"               # x.yml
+        gh workflow run "$workflow" --ref "$GITHUB_REF_NAME" \
+          || echo "::warning title=SNAPSHOT build not dispatched::Could not dispatch a build for the new SNAPSHOT version (the calling workflow may be missing 'workflow_dispatch' on the default branch, or Actions cannot run it). The release itself succeeded."
