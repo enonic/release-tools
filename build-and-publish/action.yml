@@ -29,8 +29,17 @@ inputs:
   codecovToken:
     description: 'Codecov token'
     required: false
-  npmToken:
-    description: 'NPM token'
+  npmPublish:
+    description: 'Publish an npm package on release (from npmDir). Requires id-token:write in the caller for npm OIDC trusted publishing.'
+    default: ''
+    required: false
+  npmDir:
+    description: 'Working directory containing the built npm package to publish.'
+    default: 'build/types'
+    required: false
+  nodeVersion:
+    description: 'Node.js version used for npm build/publish.'
+    default: '24.x'
     required: false
   releaseBranch:
     description: 'Newline-separated list of branches treated as release branches. Empty disables release publishing.'
@@ -92,12 +101,28 @@ runs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
 
-    - name: Set NPM token
-      if: ${{ inputs.npmToken != '' }}
-      run: npm config set //registry.npmjs.org/:_authToken ${{ inputs.npmToken }}
+    - run: ./gradlew ${{ steps.task_generator.outputs.task }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
       shell: bash
 
-    - run: ./gradlew ${{ steps.task_generator.outputs.task }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
+    - name: Set up Node (npm publish)
+      if: ${{ inputs.npmPublish == 'true' && inputs.skipPublishing != 'true' && steps.publish_vars.outputs.release == 'true' && steps.check_branch.outputs.is_release_branch == 'true' }}
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.nodeVersion }}
+
+    - name: NPM build and publish
+      if: ${{ inputs.npmPublish == 'true' && inputs.skipPublishing != 'true' && steps.publish_vars.outputs.release == 'true' && steps.check_branch.outputs.is_release_branch == 'true' }}
+      run: |
+        npm ci
+        npm run build
+        VERSION="${{ steps.publish_vars.outputs.version }}"
+        if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          NPM_TAG=latest
+        else
+          NPM_TAG=beta
+        fi
+        echo "Publishing npm package with tag '$NPM_TAG' from '${{ inputs.npmDir }}'"
+        ( cd "${{ inputs.npmDir }}" && npx -y npm@latest publish --tag "$NPM_TAG" )
       shell: bash
 
     - uses: docker/setup-qemu-action@v4
