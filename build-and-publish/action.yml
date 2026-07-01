@@ -34,7 +34,7 @@ inputs:
     default: ''
     required: false
   npmDir:
-    description: 'Directory containing the Gradle-built npm package to publish.'
+    description: 'Directory containing the pre-built npm package to publish.'
     default: 'build/types'
     required: false
   nodeVersion:
