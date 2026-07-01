@@ -29,11 +29,8 @@ inputs:
   codecovToken:
     description: 'Codecov token'
     required: false
-  npmToken:
-    description: 'NPM token'
-    required: false
   npmPublish:
-    description: 'Publish an npm package on release (from npmDir). Requires id-token:write in the caller for OIDC trusted publishing, or npmToken for token auth.'
+    description: 'Publish an npm package on release (from npmDir). Requires id-token:write in the caller for npm OIDC trusted publishing.'
     default: ''
     required: false
   npmDir:
@@ -103,11 +100,6 @@ runs:
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
-
-    - name: Set NPM token
-      if: ${{ inputs.npmToken != '' }}
-      run: npm config set //registry.npmjs.org/:_authToken ${{ inputs.npmToken }}
-      shell: bash
 
     - run: ./gradlew ${{ steps.task_generator.outputs.task }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
       shell: bash
