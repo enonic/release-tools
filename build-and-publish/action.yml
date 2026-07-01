@@ -30,15 +30,15 @@ inputs:
     description: 'Codecov token'
     required: false
   npmPublish:
-    description: 'Publish an npm package on release (from npmDir). Requires id-token:write in the caller for npm OIDC trusted publishing.'
+    description: 'Publish the npm package produced by the Gradle build (from npmDir) on release. Does NOT run npm build — wire the npm build into your Gradle build. Requires id-token:write in the caller for npm OIDC trusted publishing.'
     default: ''
     required: false
   npmDir:
-    description: 'Working directory containing the built npm package to publish.'
+    description: 'Directory containing the Gradle-built npm package to publish.'
     default: 'build/types'
     required: false
   nodeVersion:
-    description: 'Node.js version used for npm build/publish.'
+    description: 'Node.js version used for npm publish.'
     default: '24.x'
     required: false
   releaseBranch:
@@ -110,19 +110,17 @@ runs:
       with:
         node-version: ${{ inputs.nodeVersion }}
 
-    - name: NPM build and publish
+    - name: NPM publish
       if: ${{ inputs.npmPublish == 'true' && inputs.skipPublishing != 'true' && steps.publish_vars.outputs.release == 'true' && steps.check_branch.outputs.is_release_branch == 'true' }}
       run: |
-        npm ci
-        npm run build
         VERSION="${{ steps.publish_vars.outputs.version }}"
         if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           NPM_TAG=latest
         else
           NPM_TAG=beta
         fi
-        echo "Publishing npm package with tag '$NPM_TAG' from '${{ inputs.npmDir }}'"
-        ( cd "${{ inputs.npmDir }}" && npx -y npm@latest publish --tag "$NPM_TAG" )
+        echo "Publishing npm package '$VERSION' with tag '$NPM_TAG' from '${{ inputs.npmDir }}'"
+        ( cd "${{ inputs.npmDir }}" && npx -y npm@latest publish --tag "$NPM_TAG" --ignore-scripts )
       shell: bash
 
     - uses: docker/setup-qemu-action@v4
