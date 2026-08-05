@@ -42,7 +42,10 @@ inputs:
     default: '24.x'
     required: false
   releaseBranch:
-    description: 'Newline-separated list of branches treated as release branches. Empty disables release publishing.'
+    description: >-
+      Newline-separated list of branches allowed to publish release (non-SNAPSHOT) versions.
+      SNAPSHOT versions are also published from the repository default branch.
+      Empty disables release publishing.
     default: |
       master
       main
@@ -71,7 +74,14 @@ runs:
             break
           fi
         done <<< "${{ inputs.releaseBranch }}"
+        IS_DEFAULT=false
+        if [ -n "$DEFAULT_BRANCH" ] && [ "$CURRENT" = "$DEFAULT_BRANCH" ]; then
+          IS_DEFAULT=true
+        fi
         echo "is_release_branch=$IS_RELEASE" >> $GITHUB_OUTPUT
+        echo "is_default_branch=$IS_DEFAULT" >> $GITHUB_OUTPUT
+      env:
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
       shell: bash
 
     - name: Get publishing variables
@@ -82,15 +92,31 @@ runs:
         GITHUB_REPO_PRIVATE: ${{ github.event.repository.private }}
 
 
+    # Release (non-SNAPSHOT) versions publish only from releaseBranch branches.
+    # SNAPSHOT versions publish from those branches and from the default branch.
+    # skipPublishing: '' = the branch rules above, 'true' = never, any other value = always.
     - id: task_generator
       run: |
-        if [ ${{ inputs.skipPublishing == 'true' || steps.publish_vars.outputs.repo == '' }} = true ] ||
-           [ ${{ inputs.skipPublishing == '' && steps.check_branch.outputs.is_release_branch != 'true' }} = true ]
-        then
-          echo "task=${{ inputs.buildTask }}" >> $GITHUB_OUTPUT
+        if [ "$SKIP_PUBLISHING" = "true" ] || [ -z "$REPO" ]; then
+          TASK="$BUILD_TASK"
+        elif [ -n "$SKIP_PUBLISHING" ]; then
+          TASK="$PUBLISH_TASK"
+        elif [ "$IS_RELEASE_BRANCH" = "true" ]; then
+          TASK="$PUBLISH_TASK"
+        elif [ "$IS_DEFAULT_BRANCH" = "true" ] && [ "$IS_RELEASE_VERSION" != "true" ]; then
+          TASK="$PUBLISH_TASK"
         else
-          echo "task=${{ inputs.publishTask }}" >> $GITHUB_OUTPUT
+          TASK="$BUILD_TASK"
         fi
+        echo "task=$TASK" >> $GITHUB_OUTPUT
+      env:
+        SKIP_PUBLISHING: ${{ inputs.skipPublishing }}
+        REPO: ${{ steps.publish_vars.outputs.repo }}
+        IS_RELEASE_BRANCH: ${{ steps.check_branch.outputs.is_release_branch }}
+        IS_DEFAULT_BRANCH: ${{ steps.check_branch.outputs.is_default_branch }}
+        IS_RELEASE_VERSION: ${{ steps.publish_vars.outputs.release }}
+        BUILD_TASK: ${{ inputs.buildTask }}
+        PUBLISH_TASK: ${{ inputs.publishTask }}
       shell: bash
 
     - uses: actions/setup-java@v5
