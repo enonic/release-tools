@@ -22,5 +22,5 @@ dependencies {
 
 application {
     version = null
-    mainClassName = "com.enonic.xp.changelog.GenerateChangelogCommand"
+    mainClass = "com.enonic.xp.changelog.GenerateChangelogCommand"
 }
