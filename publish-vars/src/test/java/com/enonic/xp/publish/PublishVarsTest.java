@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PublishVarsTest
 {
@@ -15,6 +17,16 @@ class PublishVarsTest
                    () -> assertEquals( "1.11.0-SNAPSHOT", PublishVars.nextSnapshot( "1.11.0-SNAPSHOT" ) ),
                    () -> assertEquals( "3.0.8-SNAPSHOT", PublishVars.nextSnapshot( "3.0.8-RC1" ) ),
                    () -> assertEquals( "3.0.8-SNAPSHOT", PublishVars.nextSnapshot( "3.0.8-BETA1" ) ) );
+    }
+
+    @Test
+    void isSnapshot()
+    {
+        assertAll( () -> assertTrue( PublishVars.isSnapshot( "8.1.0-SNAPSHOT" ) ),
+                   () -> assertTrue( PublishVars.isSnapshot( "8.1.0-SNAPSHOT " ) ),
+                   () -> assertFalse( PublishVars.isSnapshot( "8.0.0" ) ),
+                   () -> assertFalse( PublishVars.isSnapshot( "8.1.0-RC2" ) ),
+                   () -> assertFalse( PublishVars.isSnapshot( null ) ) );
     }
 
     @Test

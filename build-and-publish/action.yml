@@ -127,7 +127,7 @@ runs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
 
-    - run: ./gradlew ${{ steps.task_generator.outputs.task }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
+    - run: ./gradlew ${{ steps.task_generator.outputs.task }} ${{ steps.publish_vars.outputs.xpSnapshot == 'true' && '--refresh-dependencies' || '' }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
       shell: bash
 
     - name: Set up Node (npm publish)
