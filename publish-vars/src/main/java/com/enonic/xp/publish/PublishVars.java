@@ -73,6 +73,10 @@ public class PublishVars
         writeToGithubOutput( "tag_name=" + "v" + version );
         writeToGithubOutput( "version=" + version );
         writeToGithubOutput( "javaVersion=" + (requireNonNullElse(xpVersion, "" ).startsWith( "7." ) ? "11" : "25") );
+        if ( xpVersion != null )
+        {
+            writeToGithubOutput( "xpVersion=" + xpVersion.strip() );
+        }
         writeToGithubOutput( "xpSnapshot=" + isSnapshot( xpVersion ) );
         if ( projectName != null )
         {

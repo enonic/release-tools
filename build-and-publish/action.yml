@@ -127,9 +127,6 @@ runs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
 
-    # Gradle re-checks a changing (SNAPSHOT) dependency only once a day, and the restored Gradle cache
-    # can hold one from before the latest XP SNAPSHOT was published. Built against an XP SNAPSHOT,
-    # dependencies are refreshed so the build uses the XP that is published now.
     - run: ./gradlew ${{ steps.task_generator.outputs.task }} ${{ steps.publish_vars.outputs.xpSnapshot == 'true' && '--refresh-dependencies' || '' }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
       shell: bash
 
