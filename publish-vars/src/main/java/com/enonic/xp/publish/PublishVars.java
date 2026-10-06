@@ -38,6 +38,11 @@ public class PublishVars
         return ( repoKeyOrDefault.equals( "public" ) && isSnapshot ) ? "snapshot" : repoKeyOrDefault;
     }
 
+    public static boolean isSnapshot( String version )
+    {
+        return version != null && version.strip().endsWith( "-SNAPSHOT" );
+    }
+
     public static void main( String[] args )
         throws Exception
     {
@@ -68,6 +73,7 @@ public class PublishVars
         writeToGithubOutput( "tag_name=" + "v" + version );
         writeToGithubOutput( "version=" + version );
         writeToGithubOutput( "javaVersion=" + (requireNonNullElse(xpVersion, "" ).startsWith( "7." ) ? "11" : "25") );
+        writeToGithubOutput( "xpSnapshot=" + isSnapshot( xpVersion ) );
         if ( projectName != null )
         {
             writeToGithubOutput( "projectName=" + projectName );

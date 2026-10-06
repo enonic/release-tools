@@ -130,23 +130,7 @@ runs:
     # Gradle re-checks a changing (SNAPSHOT) dependency only once a day, and the restored Gradle cache
     # can hold one from before the latest XP SNAPSHOT was published. Built against an XP SNAPSHOT,
     # dependencies are refreshed so the build uses the XP that is published now.
-    - id: refresh_dependencies
-      run: |
-        XP_VERSION=""
-        if [ -f "$PROPERTIES_PATH" ]; then
-          XP_VERSION="$(sed -n -E 's/^[[:space:]]*xpVersion[[:space:]]*[=:][[:space:]]*([^[:space:]]+).*/\1/p' "$PROPERTIES_PATH" | tail -n 1)"
-        fi
-        if [[ "$XP_VERSION" == *-SNAPSHOT ]]; then
-          echo "xpVersion $XP_VERSION is a SNAPSHOT: refreshing dependencies"
-          echo "args=--refresh-dependencies" >> $GITHUB_OUTPUT
-        else
-          echo "args=" >> $GITHUB_OUTPUT
-        fi
-      env:
-        PROPERTIES_PATH: './gradle.properties'
-      shell: bash
-
-    - run: ./gradlew ${{ steps.task_generator.outputs.task }} ${{ steps.refresh_dependencies.outputs.args }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
+    - run: ./gradlew ${{ steps.task_generator.outputs.task }} ${{ steps.publish_vars.outputs.xpSnapshot == 'true' && '--refresh-dependencies' || '' }} -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ inputs.repoUser }} -PrepoPassword=${{ inputs.repoPassword }} -PenonicRepoUsername=${{ inputs.repoUser }} -PenonicRepoPassword=${{ inputs.repoPassword }}
       shell: bash
 
     - name: Set up Node (npm publish)

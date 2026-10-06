@@ -29,6 +29,9 @@ outputs:
   javaVersion:
     description: java version to compile with
     value: ${{ steps.generator.outputs.javaVersion }}
+  xpSnapshot:
+    description: true if the project is built against a SNAPSHOT version of XP
+    value: ${{ steps.generator.outputs.xpSnapshot }}
 runs:
   using: "composite"
   steps:
@@ -47,4 +50,5 @@ runs:
         echo projectName ${{ steps.generator.outputs.projectName }}
         echo group ${{ steps.generator.outputs.group }}
         echo javaVersion ${{ steps.generator.outputs.javaVersion }}
+        echo xpSnapshot ${{ steps.generator.outputs.xpSnapshot }}
       shell: bash
