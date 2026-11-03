@@ -30,6 +30,19 @@ class PublishVarsTest
     }
 
     @Test
+    void javaVersion()
+    {
+        assertAll( () -> assertEquals( "11", PublishVars.javaVersion( "7.0.0" ) ),
+                   () -> assertEquals( "11", PublishVars.javaVersion( "7.15.3" ) ),
+                   () -> assertEquals( "21", PublishVars.javaVersion( "7.16.0" ) ),
+                   () -> assertEquals( "21", PublishVars.javaVersion( "7.16.0-SNAPSHOT" ) ),
+                   () -> assertEquals( "21", PublishVars.javaVersion( "7.16.1 " ) ),
+                   () -> assertEquals( "21", PublishVars.javaVersion( "7.17.0" ) ),
+                   () -> assertEquals( "25", PublishVars.javaVersion( "8.0.0" ) ),
+                   () -> assertEquals( "25", PublishVars.javaVersion( null ) ) );
+    }
+
+    @Test
     void adjustedRepoKey()
     {
         assertAll( () -> assertEquals( "public", PublishVars.adjustedRepoKey( "public", false, false ) ),

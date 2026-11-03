@@ -43,6 +43,16 @@ public class PublishVars
         return version != null && version.strip().endsWith( "-SNAPSHOT" );
     }
 
+    public static String javaVersion( String xpVersion )
+    {
+        final Matcher matcher = Pattern.compile( "7\\.(\\d+)(\\..*)?" ).matcher( requireNonNullElse( xpVersion, "" ).strip() );
+        if ( matcher.matches() )
+        {
+            return Integer.parseInt( matcher.group( 1 ) ) >= 16 ? "21" : "11";
+        }
+        return "25";
+    }
+
     public static void main( String[] args )
         throws Exception
     {
@@ -72,7 +82,7 @@ public class PublishVars
         writeToGithubOutput( "prerelease=" + version.contains( "-" ) );
         writeToGithubOutput( "tag_name=" + "v" + version );
         writeToGithubOutput( "version=" + version );
-        writeToGithubOutput( "javaVersion=" + (requireNonNullElse(xpVersion, "" ).startsWith( "7." ) ? "11" : "25") );
+        writeToGithubOutput( "javaVersion=" + javaVersion( xpVersion ) );
         if ( xpVersion != null )
         {
             writeToGithubOutput( "xpVersion=" + xpVersion.strip() );
