@@ -1,4 +1,4 @@
-package com.enonic.xp.publish;
+package com.enonic.actions;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
