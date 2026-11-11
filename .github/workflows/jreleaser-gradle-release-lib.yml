@@ -23,6 +23,10 @@ env:
   JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
   JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
 
+concurrency:
+  group: jreleaser
+  cancel-in-progress: false
+
 jobs:
   release-to-central-portal:
     runs-on: ubuntu-latest

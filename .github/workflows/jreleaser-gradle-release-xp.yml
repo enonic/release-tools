@@ -13,11 +13,16 @@ env:
   JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
   JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
 
+concurrency:
+  group: jreleaser
+  cancel-in-progress: false
+
 jobs:
   release-to-central-portal:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         batch: [1, 2]
     name: release-to-central-portal-batch${{ matrix.batch }}
