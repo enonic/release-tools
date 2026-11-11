@@ -45,3 +45,13 @@ jobs:
             -P jreleaserGpgPassphrase=$JRELEASER_GPG_PASSPHRASE \
             -P jreleaserMavencentralUsername=$JRELEASER_MAVENCENTRAL_USERNAME \
             -P jreleaserMavencentralPassword=$JRELEASER_MAVENCENTRAL_PASSWORD
+
+      - name: Upload JReleaser logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jreleaser-logs-batch${{ matrix.batch }}
+          path: |
+            jreleaser-gradle-release-xp/build/jreleaser/
+            jreleaser-gradle-release-xp/build/reports/problems/
+          retention-days: 1
