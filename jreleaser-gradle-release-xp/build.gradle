@@ -146,6 +146,7 @@ jreleaser {
                     active = 'ALWAYS'
                     url = 'https://central.sonatype.com/api/v1/publisher'
                     applyMavenCentralRules = true
+                    checksums = false
                     stagingRepository( "${stagingDir}" )
                     namespace = "com.enonic"
                     username = "$jreleaserMavencentralUsername"
